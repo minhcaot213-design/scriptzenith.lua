@@ -1,4 +1,4 @@
--- [[ ZENITH BLOX FRUIT - V12.10 (FIX KẸT QUÁI + MỞ RỘNG HITBOX + CHUẨN LDPLAYER) ]] --
+-- [[ ZENITH BLOX FRUIT - V12.11 (FIX TỤM QUÁI + HITBOX KHỔNG LỒ DÀNH CHO LDPLAYER) ]] --
 
 task.wait(1)
 if not game:IsLoaded() then game.Loaded:Wait() end
@@ -10,8 +10,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
-local TeleportService = game:GetService("TeleportService")
-local HttpService = game:GetService("HttpService")
+local VirtualUser = game:GetService("VirtualUser")
 
 local LocalPlayer = Players.LocalPlayer
 local CommF = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("CommF_")
@@ -20,12 +19,17 @@ local Camera = Workspace.CurrentCamera
 -- Biến chức năng
 local selectedWeaponType = "Melee"
 local AutoFarmLevel, AutoQuest, BringMob = false, true, true
-local AutoRandomFruit, AutoCollectFruit, AutoStoreFruit = false, false, false
-local speedValue, speedEnabled = 16, false
-local jumpValue, jumpEnabled = 50, false
+local espPlayerEnabled, espFruitEnabled = false, false
+local espChest1Enabled, espChest2Enabled, espChest3Enabled = false, false, false
+
+-- Chống AFK (Tránh văng game khi treo lâu)
+LocalPlayer.Idled:Connect(function()
+    VirtualUser:CaptureController()
+    VirtualUser:ClickButton2(Vector2.new())
+end)
 
 -- ===================================================
--- 1. ÉP HIỂN THỊ GIAO DIỆN (GUARANTEED UI)
+-- 1. ÉP HIỂN THỊ GIAO DIỆN
 -- ===================================================
 local UI_NAME = "ZenithBloxFruit_Zyrox_V12"
 
@@ -42,41 +46,7 @@ for _, gui in ipairs(targetUIFolder:GetChildren()) do if gui.Name == UI_NAME the
 for _, gui in ipairs(LocalPlayer:WaitForChild("PlayerGui"):GetChildren()) do if gui.Name == UI_NAME then gui:Destroy() end end
 
 -- ===================================================
--- 2. HỆ THỐNG NGÔN NGỮ
--- ===================================================
-local currentLang = "VI"
-local translatableElements = {}
-local LangDict = {
-    VI = {
-        title = "ZYROX VN <font color='#00d2ff'>• ZENITH</font>",
-        badge = "PRO", tab_farm = "Farm Level", tab_fruit = "Trái Ác Quỷ", tab_setting = "Cài Đặt",
-        auto_farm_level = "⚡ Tự Động Farm Level", auto_quest = "📜 Tự Nhận Nhiệm Vụ", bring_mob = "🧲 Gom Quái (Gia Tăng Hitbox)",
-        fruit_buy = "🎲 Mua Ngẫu Nhiên Trái", fruit_collect = "🧲 Nhặt Trái Rơi", fruit_store = "📦 Cất Trái Vào Rương", fruit_tracker_title = "Trái trên bản đồ:",
-        lang_title = "Ngôn Ngữ / Language", ui_scale = "Thu Phóng UI (%)", ui_transparency = "Trong Suốt Cửa Sổ (%)", fix_lag = "Tối Ưu Đồ Họa (Tăng FPS)", close_hub = "Đóng Menu"
-    },
-    EN = {
-        title = "ZYROX VN <font color='#00d2ff'>• ZENITH</font>",
-        badge = "PRO", tab_farm = "Farm Level", tab_fruit = "Devil Fruit", tab_setting = "Settings",
-        auto_farm_level = "⚡ Auto Farm Level", auto_quest = "📜 Auto Quest", bring_mob = "🧲 Bring Mobs (Big Hitbox)",
-        fruit_buy = "🎲 Random Fruit", fruit_collect = "🧲 Collect Fruits", fruit_store = "📦 Store Into Inventory", fruit_tracker_title = "Dropped Fruits:",
-        lang_title = "Language", ui_scale = "UI Scale (%)", ui_transparency = "Transparency (%)", fix_lag = "Boost FPS", close_hub = "Close Hub"
-    }
-}
-local function registerText(label, key, isRich)
-    table.insert(translatableElements, {Label = label, Key = key, Rich = isRich})
-    label.Text = LangDict[currentLang][key]
-end
-local function setLanguage(lang)
-    currentLang = lang
-    for _, item in ipairs(translatableElements) do
-        if item.Label and item.Label.Parent then
-            if item.Update then item.Update() else item.Label.Text = LangDict[currentLang][item.Key] end
-        end
-    end
-end
-
--- ===================================================
--- 3. XÂY DỰNG GIAO DIỆN (UI BUILDER)
+-- 2. HỆ THỐNG GIAO DIỆN (UI CYBERPUNK)
 -- ===================================================
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name, ScreenGui.ResetOnSpawn = UI_NAME, false
@@ -92,6 +62,7 @@ Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 10)
 local MainStroke = Instance.new("UIStroke", MainFrame)
 MainStroke.Color, MainStroke.Transparency, MainStroke.Thickness = Color3.fromRGB(30, 36, 50), 0.2, 1.2
 
+-- Kéo thả UI
 local isDraggingWindow, dragStartPos, frameStartPos = false, nil, nil
 MainFrame.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then isDraggingWindow, dragStartPos, frameStartPos = true, input.Position, MainFrame.Position end
@@ -109,8 +80,8 @@ end)
 local TopBar = Instance.new("Frame", MainFrame)
 TopBar.Size, TopBar.BackgroundColor3, TopBar.BackgroundTransparency, TopBar.BorderSizePixel = UDim2.new(1, 0, 0, 38), Color3.fromRGB(15, 18, 26), 0.2, 0
 local Title = Instance.new("TextLabel", TopBar)
-Title.Size, Title.Position, Title.BackgroundTransparency, Title.RichText, Title.TextColor3, Title.Font, Title.TextSize, Title.TextXAlignment = UDim2.new(0, 140, 1, 0), UDim2.new(0, 15, 0, 0), 1, true, Color3.fromRGB(255, 255, 255), Enum.Font.GothamBold, 12, Enum.TextXAlignment.Left
-registerText(Title, "title", true)
+Title.Size, Title.Position, Title.BackgroundTransparency, Title.RichText, Title.TextColor3, Title.Font, Title.TextSize, Title.TextXAlignment = UDim2.new(0, 200, 1, 0), UDim2.new(0, 15, 0, 0), 1, true, Color3.fromRGB(255, 255, 255), Enum.Font.GothamBold, 12, Enum.TextXAlignment.Left
+Title.Text = "ZYROX VN <font color='#00d2ff'>• V12.11 (LDPLAYER FIX)</font>"
 
 local MinBtn = Instance.new("TextButton", TopBar)
 MinBtn.Size, MinBtn.Position, MinBtn.BackgroundColor3, MinBtn.Text, MinBtn.TextColor3, MinBtn.Font, MinBtn.TextSize = UDim2.new(0, 24, 0, 24), UDim2.new(1, -56, 0.5, -12), Color3.fromRGB(22, 26, 38), "−", Color3.fromRGB(160, 170, 190), Enum.Font.GothamBold, 13
@@ -160,7 +131,7 @@ local function switchTab(name)
     for pName, page in pairs(tabPages) do page.Visible = (pName == name) end
 end
 
-local function createTabButton(name, icon, transKey)
+local function createTabButton(name, icon, labelText)
     local btn = Instance.new("TextButton", Sidebar)
     btn.Size, btn.BackgroundColor3, btn.BorderSizePixel, btn.TextColor3, btn.Font, btn.TextSize, btn.TextXAlignment = UDim2.new(0.92, 0, 0, 28), Color3.fromRGB(28, 35, 48), 0, Color3.fromRGB(180, 190, 210), Enum.Font.GothamMedium, 11, Enum.TextXAlignment.Left
     Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 5)
@@ -168,19 +139,19 @@ local function createTabButton(name, icon, transKey)
     local pill = Instance.new("Frame", btn)
     pill.Size, pill.Position, pill.BackgroundColor3, pill.BorderSizePixel, pill.Visible = UDim2.new(0, 3, 0, 14), UDim2.new(0, -7, 0.5, -7), Color3.fromRGB(255, 255, 255), 0, false
     Instance.new("UICorner", pill).CornerRadius = UDim.new(1, 0)
-    local entry = {Label = btn, Key = transKey, Button = btn, Pill = pill, Update = function() btn.Text = icon .. "  " .. LangDict[currentLang][transKey] end}
-    table.insert(translatableElements, entry) btn.Text = icon .. "  " .. LangDict[currentLang][transKey]
-    tabButtons[name] = entry btn.MouseButton1Click:Connect(function() switchTab(name) end)
+    btn.Text = icon .. "  " .. labelText
+    tabButtons[name] = {Button = btn, Pill = pill}
+    btn.MouseButton1Click:Connect(function() switchTab(name) end)
 end
 
-local function createToggle(page, transKey, defaultState, callback)
+local function createToggle(page, labelText, defaultState, callback)
     local state = defaultState or false
     local frame = Instance.new("Frame", page)
     frame.Size, frame.BackgroundColor3, frame.BackgroundTransparency, frame.BorderSizePixel = UDim2.new(0.94, 0, 0, 34), Color3.fromRGB(16, 20, 28), 0.2, 0
     Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 6)
     local label = Instance.new("TextLabel", frame)
     label.Size, label.Position, label.BackgroundTransparency, label.TextColor3, label.Font, label.TextSize, label.TextXAlignment = UDim2.new(1, -50, 1, 0), UDim2.new(0, 10, 0, 0), 1, Color3.fromRGB(220, 225, 235), Enum.Font.Gotham, 11, Enum.TextXAlignment.Left
-    registerText(label, transKey)
+    label.Text = labelText
     local switch = Instance.new("TextButton", frame)
     switch.Size, switch.Position, switch.BackgroundColor3, switch.Text = UDim2.new(0, 32, 0, 16), UDim2.new(1, -40, 0.5, -8), state and Color3.fromRGB(0, 190, 255) or Color3.fromRGB(35, 40, 54), ""
     Instance.new("UICorner", switch).CornerRadius = UDim.new(1, 0)
@@ -194,12 +165,11 @@ local function createToggle(page, transKey, defaultState, callback)
     end)
 end
 
-local cats = {{"Farm", "🌾", "tab_farm"}, {"Fruit", "🍎", "tab_fruit"}, {"SETTING", "⚙️", "tab_setting"}}
-for _, c in ipairs(cats) do createTabButton(c[1], c[2], c[3]) createPage(c[1]) end
+createTabButton("Farm", "🌾", "Auto Farm")
+local farmPage = createPage("Farm")
 
-local farmPage = tabPages["Farm"]
 local infoLabel = Instance.new("TextLabel", farmPage)
-infoLabel.Size, infoLabel.BackgroundTransparency, infoLabel.RichText, infoLabel.TextColor3, infoLabel.Font, infoLabel.TextSize = UDim2.new(0.94, 0, 0, 30), 1, true, Color3.fromRGB(230, 235, 245), Enum.Font.GothamMedium, 11
+infoLabel.Size, infoLabel.BackgroundTransparency, infoLabel.RichText, infoLabel.TextColor3, infoLabel.Font, infoLabel.TextSize = UDim2.new(0.94, 0, 0, 30), 1, true, Color3.fromRGB(0, 255, 150), Enum.Font.GothamBold, 12
 
 local weaponSegment = Instance.new("Frame", farmPage)
 weaponSegment.Size, weaponSegment.BackgroundColor3, weaponSegment.BackgroundTransparency = UDim2.new(0.94, 0, 0, 28), Color3.fromRGB(15, 18, 25), 0.2
@@ -219,108 +189,51 @@ for _, wData in ipairs(weaponList) do
         end
     end)
 end
-createToggle(farmPage, "auto_farm_level", false, function(v) AutoFarmLevel = v end)
-createToggle(farmPage, "auto_quest", true, function(v) AutoQuest = v end)
-createToggle(farmPage, "bring_mob", true, function(v) BringMob = v end)
+
+createToggle(farmPage, "⚡ Tự Động Farm Level", false, function(v) AutoFarmLevel = v end)
+createToggle(farmPage, "📜 Tự Nhận Nhiệm Vụ", true, function(v) AutoQuest = v end)
+createToggle(farmPage, "🧲 Gom Quái (Hitbox To)", true, function(v) BringMob = v end)
 
 switchTab("Farm")
 
 -- ===================================================
--- 4. HỆ THỐNG FAST ATTACK (COMBAT FRAMEWORK CHUẨN VIP)
--- Đảm bảo 100% không văng game, không tịt damage
+-- 4. HỆ THỐNG ĐÁNH TỰ ĐỘNG CHUẨN (KHÔNG LỖI LDPLAYER)
 -- ===================================================
-local require = require
-local getupvalues = getupvalue or getupvalues or debug.getupvalues
 local isAttackingTarget = false
 
-local function getCombatController()
-    local success, CbFw = pcall(function() return require(LocalPlayer.PlayerScripts.CombatFramework) end)
-    if not success or not CbFw then return nil end
-    
-    if CbFw.activeController then return CbFw.activeController end
-    
-    if getupvalues then
-        pcall(function()
-            for _, v in pairs(getupvalues(CbFw)) do
-                if type(v) == "table" and v.activeController then
-                    CbFw.activeController = v.activeController
-                end
-            end
-        end)
-    end
-    return CbFw.activeController
-end
-
-local function executePerfectAttack()
-    local char = LocalPlayer.Character
-    if not char then return end
-
-    -- Bước 1: Ẩn click an toàn qua Controller
-    local controller = getCombatController()
-    if controller and controller.equipped then
-        pcall(function()
-            controller.hitboxLimiter = 0
-            controller.timeToNextAttack = 0
-            controller.timeToNextBlock = 0
-            controller.increment = 3
-            controller.attacking = false
-            controller.blocking = false
-            controller.hasCombatState = false
-            controller:attack()
-        end)
-    else
-        -- Bước 2: Kích hoạt Tool dự phòng nếu CombatFramework bị nghẽn
-        local tool = char:FindFirstChildOfClass("Tool")
-        if tool then tool:Activate() end
-    end
-    
-    -- Xóa hoạt ảnh vung vũ khí cho mượt
-    pcall(function()
-        local humanoid = char:FindFirstChildOfClass("Humanoid")
-        if humanoid then
-            for _, anim in ipairs(humanoid:GetPlayingAnimationTracks()) do
-                local n = anim.Name
-                if n == "Attack" or n == "Slash" or n == "Punch" or n == "Combat" or n == "M1" then anim:Stop() end
-            end
-        end
-    end)
-end
-
--- Vòng lặp bắn damage liên tục
+-- Vòng lặp kích hoạt vũ khí liên tục (Bypass việc không click được)
 task.spawn(function()
     while true do
         if AutoFarmLevel and isAttackingTarget then
-            executePerfectAttack()
-            task.wait(0.12)
+            local char = LocalPlayer.Character
+            if char then
+                local tool = char:FindFirstChildOfClass("Tool")
+                if tool then
+                    -- Ép Activate liên tục, kết hợp với Hitbox to của quái sẽ trúng 100%
+                    tool:Activate()
+                end
+                
+                -- Tùy chọn xóa cooldown nhẹ nhàng, không gây crash
+                pcall(function()
+                    local CombatFramework = require(LocalPlayer.PlayerScripts.CombatFramework)
+                    if CombatFramework and CombatFramework.activeController then
+                        CombatFramework.activeController.timeToNextAttack = 0
+                        CombatFramework.activeController.hitboxLimiter = 0
+                    end
+                end)
+            end
+            task.wait(0.1) -- Tốc độ chém 10 hit/s
         else
-            task.wait(0.1)
+            task.wait(0.2)
         end
     end
 end)
 
--- ===================================================
--- 5. LOGIC DI CHUYỂN & GOM QUÁI (FIX LỖI KẸT 100%)
--- ===================================================
-local currentTween = nil
-local function toTargetPos(targetCFrame)
-    local char = LocalPlayer.Character
-    if not char or not char:FindFirstChild("HumanoidRootPart") then return end
-    local root = char.HumanoidRootPart
-    
-    -- Nếu đang bay thì không tạo Tween mới để tránh bị giật
-    if currentTween and currentTween.PlaybackState == Enum.PlaybackState.Playing then return end
-    
-    local speed = 300 
-    local time = (root.Position - targetCFrame.Position).Magnitude / speed
-    currentTween = TweenService:Create(root, TweenInfo.new(time, Enum.EasingStyle.Linear), {CFrame = targetCFrame})
-    currentTween:Play()
-end
-
--- Vô hiệu hóa va chạm để không bao giờ bị kẹt vào quái
+-- Vô hiệu hóa va chạm để không bao giờ bị kẹt
 RunService.Stepped:Connect(function()
     if AutoFarmLevel and LocalPlayer.Character then
         for _, part in ipairs(LocalPlayer.Character:GetDescendants()) do
-            if part:IsA("BasePart") and part.CanCollide then part.CanCollide = false end
+            if part:IsA("BasePart") then part.CanCollide = false end
         end
     end
 end)
@@ -332,24 +245,20 @@ local function equipChosenWeapon()
     if not humanoid then return end
     
     local currentTool = char:FindFirstChildOfClass("Tool")
-    if currentTool and (currentTool.ToolTip == selectedWeaponType or (selectedWeaponType == "Melee" and (currentTool.ToolTip == "Melee" or currentTool.ToolTip == "Combat" or currentTool.Name == "Combat" or currentTool.Name == "Võ Tân Binh"))) then 
-        -- Nạp vũ khí vào hệ thống
-        local controller = getCombatController()
-        if controller and not controller.equipped then controller.equipped = true end
-        return 
-    end
+    if currentTool and (currentTool.ToolTip == selectedWeaponType or (selectedWeaponType == "Melee" and (currentTool.ToolTip == "Melee" or currentTool.ToolTip == "Combat" or currentTool.Name == "Combat" or currentTool.Name == "Võ Tân Binh"))) then return end
     
     if backpack then
         for _, tool in ipairs(backpack:GetChildren()) do
             if tool:IsA("Tool") and (tool.ToolTip == selectedWeaponType or (selectedWeaponType == "Melee" and (tool.ToolTip == "Melee" or tool.ToolTip == "Combat" or tool.Name == "Combat" or tool.Name == "Võ Tân Binh"))) then
-                humanoid:EquipTool(tool) 
-                task.wait(0.1) -- Chờ game ghi nhận vũ khí
-                return
+                humanoid:EquipTool(tool) return
             end
         end
     end
 end
 
+-- ===================================================
+-- 5. LOGIC TÌM NHIỆM VỤ & QUÁI (TỐI ƯU CẤP ĐỘ)
+-- ===================================================
 local function getAutoQuestByLevel()
     local level = 1
     pcall(function() level = LocalPlayer.Data.Level.Value end)
@@ -386,23 +295,33 @@ local function getAllLivingEnemies(monName)
     return list
 end
 
-task.spawn(function()
-    task.wait(2)
-    pcall(function()
-        task.spawn(function()
-            while true do
-                task.wait(1)
-                if AutoFarmLevel then pcall(function() local curQuest = getAutoQuestByLevel() infoLabel.Text = string.format("Level: <font color='#00d2ff'><b>%d</b></font> | Mục Tiêu: <font color='#ffb703'><b>%s</b></font>", LocalPlayer.Data.Level.Value, curQuest.MonName) end) end
-            end
-        end)
-    end)
+-- Tween an toàn
+local currentTween = nil
+local function toTargetPos(targetCFrame)
+    local char = LocalPlayer.Character
+    if not char or not char:FindFirstChild("HumanoidRootPart") then return end
+    local root = char.HumanoidRootPart
     
+    if currentTween and currentTween.PlaybackState == Enum.PlaybackState.Playing then return end
+    
+    local speed = 300 
+    local time = (root.Position - targetCFrame.Position).Magnitude / speed
+    currentTween = TweenService:Create(root, TweenInfo.new(time, Enum.EasingStyle.Linear), {CFrame = targetCFrame})
+    currentTween:Play()
+end
+
+-- ===================================================
+-- 6. VÒNG LẶP FARM CHÍNH (ĐÁNH TRÊN KHÔNG + GOM DƯỚI CHÂN)
+-- ===================================================
+task.spawn(function()
     while true do
         task.wait(0.05)
         if AutoFarmLevel and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and CommF then
             local currentQuest = getAutoQuestByLevel()
             if currentQuest then
+                pcall(function() infoLabel.Text = string.format("Đang Farm: %s (Lv.%d)", currentQuest.MonName, LocalPlayer.Data.Level.Value) end)
                 
+                -- Nhận Nhiệm vụ
                 if AutoQuest and not checkHasQuest() then 
                     CommF:InvokeServer("StartQuest", currentQuest.QuestName, currentQuest.QuestLevel) 
                     task.wait(0.5) 
@@ -411,44 +330,43 @@ task.spawn(function()
                 local mobList = getAllLivingEnemies(currentQuest.MonName)
                 if #mobList > 0 then
                     equipChosenWeapon()
-                    local primaryMob = mobList[1]
-                    local primaryHRP = primaryMob:FindFirstChild("HumanoidRootPart")
+                    local primaryHRP = mobList[1]:FindFirstChild("HumanoidRootPart")
                     local myHRP = LocalPlayer.Character.HumanoidRootPart
                     
                     if primaryHRP then
                         local mobPos = primaryHRP.Position
                         
-                        -- FIX 1: Tọa độ đứng lơ lửng an toàn, cách quái 15 studs hướng lên trên
-                        local targetCFrame = CFrame.new(mobPos + Vector3.new(0, 15, 0), mobPos) 
+                        -- KIẾN TRÚC MỚI: Nhân vật bay lơ lửng trên trời (Y + 30)
+                        local attackPos = CFrame.new(mobPos.X, mobPos.Y + 30, mobPos.Z)
                         
-                        if (myHRP.Position - targetCFrame.Position).Magnitude > 3 then
+                        if (myHRP.Position - attackPos.Position).Magnitude > 5 then
                             isAttackingTarget = false 
-                            toTargetPos(targetCFrame)
+                            toTargetPos(attackPos)
                         else
                             if currentTween then currentTween:Cancel(); currentTween = nil end
                             
-                            -- Khóa nhân vật ở vị trí an toàn
-                            myHRP.CFrame = targetCFrame
+                            -- Khóa nhân vật lơ lửng
+                            myHRP.CFrame = attackPos
                             myHRP.AssemblyLinearVelocity = Vector3.zero
                             isAttackingTarget = true
                             
-                            -- Hút quái & Gia tăng Hitbox
+                            -- Gom quái vật
                             if BringMob then
                                 for _, otherMob in ipairs(mobList) do
                                     local oHRP, oHum = otherMob:FindFirstChild("HumanoidRootPart"), otherMob:FindFirstChildOfClass("Humanoid")
-                                    if oHRP and oHum and oHum.Health > 0 and (oHRP.Position - mobPos).Magnitude <= 350 then
-                                        
-                                        -- FIX 2: Tăng kích thước lõi của quái vật lên 15 lần. 
-                                        -- Dù nó ở dưới đất, đòn chém của bạn từ trên trời vẫn trúng 100%
-                                        oHRP.Size = Vector3.new(15, 15, 15)
+                                    if oHRP and oHum and oHum.Health > 0 then
+                                        -- 1. Mở rộng Hitbox của quái khổng lồ (60x60x60)
+                                        -- Nó to đến mức bao trọn cả bạn ở trên trời, nên bạn vung kiếm là TRÚNG 100%
+                                        oHRP.Size = Vector3.new(60, 60, 60)
+                                        oHRP.Transparency = 0.8 -- Làm mờ để đỡ nhức mắt
                                         oHRP.CanCollide = false
                                         
-                                        -- Hút quái ngay bên dưới chân bạn (Cách 5 studs)
-                                        oHRP.CFrame = myHRP.CFrame * CFrame.new(0, -5, -4)
+                                        -- 2. Đặt lõi quái lơ lửng bên dưới bạn 12 studs (Cách ly vật lý)
+                                        oHRP.CFrame = attackPos * CFrame.new(0, -12, 0)
                                         oHRP.AssemblyLinearVelocity = Vector3.zero
                                         
-                                        -- Làm choáng quái
-                                        oHum.Sit = true
+                                        -- Làm choáng
+                                        oHum.PlatformStand = true
                                     end
                                 end
                             end
