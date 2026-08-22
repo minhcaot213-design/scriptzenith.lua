@@ -1,4 +1,4 @@
--- [[ ZENITH BLOX FRUIT - V18.6 (FINAL FIXED BODYVELOCITY + UI) ]] --
+-- [[ ZENITH BLOX FRUIT - V19.0 (TRUE HUB EDITION - FAST ATTACK NATIVE) ]] --
 
 task.wait(0.5)
 
@@ -65,7 +65,7 @@ local AutoStoreFruit = false
 -- =========================================================
 -- DỌN DẸP GIAO DIỆN CŨ
 -- =========================================================
-local UI_NAME = "ZenithBloxFruit_Zyrox_V18"
+local UI_NAME = "ZenithBloxFruit_Zyrox_V19"
 local function GetSafeUIFolder()
     local folder
     pcall(function() if gethui then folder = gethui() end end)
@@ -120,7 +120,7 @@ local TopStroke = Instance.new("UIStroke", TopBar); TopStroke.Color = Color3.fro
 
 local Title = Instance.new("TextLabel", TopBar)
 Title.Size = UDim2.new(0, 240, 1, 0); Title.Position = UDim2.new(0, 15, 0, 0); Title.BackgroundTransparency = 1; Title.RichText = true; Title.TextColor3 = Color3.fromRGB(255, 255, 255); Title.Font = Enum.Font.GothamBold; Title.TextSize = 12; Title.TextXAlignment = Enum.TextXAlignment.Left
-Title.Text = "ZYROX VN <font color='#00d2ff'>• V18.6 (UNLOCKED)</font>"
+Title.Text = "ZYROX VN <font color='#00d2ff'>• V19.0 (TRUE HUB)</font>"
 
 local StatsFrame = Instance.new("Frame", TopBar)
 StatsFrame.Size = UDim2.new(0, 120, 0, 24); StatsFrame.Position = UDim2.new(1, -190, 0.5, -12); StatsFrame.BackgroundColor3 = Color3.fromRGB(22, 26, 38); StatsFrame.BorderSizePixel = 0; Instance.new("UICorner", StatsFrame).CornerRadius = UDim.new(0, 6)
@@ -157,6 +157,12 @@ local function styleToggleFrame(frame)
     frame.BackgroundColor3 = Color3.fromRGB(16, 20, 29); frame.BorderSizePixel = 0
     local corner = frame:FindFirstChildOfClass("UICorner"); if corner then corner.CornerRadius = UDim.new(0, 4) end
     local stroke = Instance.new("UIStroke"); stroke.Name = "ZenithBorder"; stroke.Parent = frame; stroke.Color = Color3.fromRGB(31, 39, 54); stroke.Thickness = 1
+end
+
+local function styleButton(btn)
+    btn.BackgroundColor3 = Color3.fromRGB(19, 25, 36); btn.BorderSizePixel = 0
+    local corner = btn:FindFirstChildOfClass("UICorner"); if corner then corner.CornerRadius = UDim.new(0, 4) end
+    local stroke = Instance.new("UIStroke"); if stroke then stroke.Color = Color3.fromRGB(0, 170, 230); stroke.Thickness = 1; stroke.Transparency = 0.2 end
 end
 
 local tabButtons = {}
@@ -263,7 +269,7 @@ for _, wData in ipairs(weaponList) do
     end)
 end
 
-createToggle(farmPage, "⚡ Tự Động Farm (God Mode)", false, function(v) AutoFarmLevel = v end)
+createToggle(farmPage, "⚡ Tự Động Farm (True Hub)", false, function(v) AutoFarmLevel = v end)
 createToggle(farmPage, "📜 Tự Nhận Nhiệm Vụ", true, function(v) AutoQuest = v end)
 createToggle(farmPage, "🧲 Gom Quái Xuống Chân", true, function(v) BringMob = v end)
 
@@ -310,7 +316,7 @@ createButton(settingPage, "Đóng Cửa Sổ", function() ScreenGui:Destroy() en
 switchTab("Farm")
 
 -- =========================================================
--- ĐỔI VŨ KHÍ TỰ ĐỘNG
+-- ĐỔI VŨ KHÍ TỰ ĐỘNG NATIVE
 -- =========================================================
 task.spawn(function()
     while task.wait(0.5) do
@@ -340,7 +346,7 @@ task.spawn(function()
 end)
 
 -- =========================================================
--- LÕI GOD MODE: CHÉM XUYÊN BỘ NHỚ (KHÔNG CẦN CLICK)
+-- LÕI TRUE HUB FAST ATTACK (CHÉM BẰNG BỘ NHỚ, KHÔNG CẦN CLICK)
 -- =========================================================
 local function getActiveController()
     local CbFw = require(LocalPlayer.PlayerScripts.CombatFramework)
@@ -354,7 +360,7 @@ local function getActiveController()
 end
 
 task.spawn(function()
-    while task.wait(0.1) do
+    while task.wait(0.05) do
         if AutoFarmLevel then
             pcall(function()
                 local controller = getActiveController()
@@ -375,7 +381,6 @@ task.spawn(function()
     end
 end)
 
--- FIX CHỐNG KẸT: BodyVelocity CHỈ KHÓA TRỤC Y (CHO PHÉP TRỤC X VÀ Z DI CHUYỂN TỰ DO ĐỂ TWEEN BAY)
 RunService.Stepped:Connect(function()
     if AutoFarmLevel and LocalPlayer.Character then
         for _, part in ipairs(LocalPlayer.Character:GetDescendants()) do
@@ -396,7 +401,7 @@ RunService.Stepped:Connect(function()
 end)
 
 -- =========================================================
--- HỆ THỐNG BAY TWEEN (MƯỢT 100%)
+-- HỆ THỐNG TWEEN BAY MƯỢT
 -- =========================================================
 local currentTween = nil
 local function toTargetPos(targetCFrame)
@@ -426,8 +431,25 @@ local function toTargetPos(targetCFrame)
 end
 
 -- =========================================================
--- LOGIC NHIỆM VỤ & FARM VỚI BẢN ĐỒ GPS CỨNG
+-- LOGIC TÌM NHIỆM VỤ & GPS MAP HOÀN HẢO
 -- =========================================================
+local IslandPositions = {
+    ["Bandit"] = Vector3.new(1057, 16, 1378),
+    ["Monkey"] = Vector3.new(-1598, 36, 153),
+    ["Gorilla"] = Vector3.new(-1598, 36, 153),
+    ["Pirate"] = Vector3.new(-1141, 4, 3828),
+    ["Brute"] = Vector3.new(-1141, 4, 3828),
+    ["Desert Bandit"] = Vector3.new(895, 6, 4390),
+    ["Desert Officer"] = Vector3.new(895, 6, 4390),
+    ["Snow Bandit"] = Vector3.new(1386, 87, -1298),
+    ["Snowman"] = Vector3.new(1386, 87, -1298),
+    ["Chief Petty Officer"] = Vector3.new(-4884, 21, 4301),
+    ["Sky Bandit"] = Vector3.new(-4842, 717, -2623),
+    ["Dark Master"] = Vector3.new(-4842, 717, -2623),
+    ["Prisoner"] = Vector3.new(4875, 5, 735),
+    ["Peanut Scout"] = Vector3.new(-2051, 37, -10254)
+}
+
 local function getAutoQuestByLevel()
     local level = 1
     pcall(function() level = LocalPlayer.Data.Level.Value end)
@@ -501,7 +523,7 @@ task.spawn(function()
                         lockedFarmPosition = primaryHRP.CFrame
                     end
                     targetPos = CFrame.new(lockedFarmPosition.Position.X, lockedFarmPosition.Position.Y + 30, lockedFarmPosition.Position.Z)
-                elseif IslandPositions and IslandPositions[mobName] then
+                elseif IslandPositions[mobName] then
                     targetPos = CFrame.new(IslandPositions[mobName] + Vector3.new(0, 30, 0))
                 end
 
