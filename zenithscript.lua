@@ -1,4 +1,4 @@
--- [[ ZENITH BLOX FRUIT - V19.0 (TRUE HUB EDITION - FAST ATTACK NATIVE) ]] --
+-- [[ ZENITH BLOX FRUIT - V19.1 (UNLOCKED TWEEN FIX + TRUE HUB) ]] --
 
 task.wait(0.5)
 
@@ -120,7 +120,7 @@ local TopStroke = Instance.new("UIStroke", TopBar); TopStroke.Color = Color3.fro
 
 local Title = Instance.new("TextLabel", TopBar)
 Title.Size = UDim2.new(0, 240, 1, 0); Title.Position = UDim2.new(0, 15, 0, 0); Title.BackgroundTransparency = 1; Title.RichText = true; Title.TextColor3 = Color3.fromRGB(255, 255, 255); Title.Font = Enum.Font.GothamBold; Title.TextSize = 12; Title.TextXAlignment = Enum.TextXAlignment.Left
-Title.Text = "ZYROX VN <font color='#00d2ff'>• V19.0 (TRUE HUB)</font>"
+Title.Text = "ZYROX VN <font color='#00d2ff'>• V19.1 (UNLOCKED)</font>"
 
 local StatsFrame = Instance.new("Frame", TopBar)
 StatsFrame.Size = UDim2.new(0, 120, 0, 24); StatsFrame.Position = UDim2.new(1, -190, 0.5, -12); StatsFrame.BackgroundColor3 = Color3.fromRGB(22, 26, 38); StatsFrame.BorderSizePixel = 0; Instance.new("UICorner", StatsFrame).CornerRadius = UDim.new(0, 6)
@@ -316,7 +316,7 @@ createButton(settingPage, "Đóng Cửa Sổ", function() ScreenGui:Destroy() en
 switchTab("Farm")
 
 -- =========================================================
--- ĐỔI VŨ KHÍ TỰ ĐỘNG NATIVE
+-- ĐỔI VŨ KHÍ TỰ ĐỘNG
 -- =========================================================
 task.spawn(function()
     while task.wait(0.5) do
@@ -346,7 +346,7 @@ task.spawn(function()
 end)
 
 -- =========================================================
--- LÕI TRUE HUB FAST ATTACK (CHÉM BẰNG BỘ NHỚ, KHÔNG CẦN CLICK)
+-- LÕI TRUE HUB FAST ATTACK (CHÉM XUYÊN BỘ NHỚ)
 -- =========================================================
 local function getActiveController()
     local CbFw = require(LocalPlayer.PlayerScripts.CombatFramework)
@@ -381,6 +381,7 @@ task.spawn(function()
     end
 end)
 
+-- FIX CHỐNG KẸT DƯỚI ĐẤT: CHỈ KHÓA TRỤC Y (CHO PHÉP TWEEN BAY TRỤC X VÀ Z)
 RunService.Stepped:Connect(function()
     if AutoFarmLevel and LocalPlayer.Character then
         for _, part in ipairs(LocalPlayer.Character:GetDescendants()) do
@@ -401,7 +402,7 @@ RunService.Stepped:Connect(function()
 end)
 
 -- =========================================================
--- HỆ THỐNG TWEEN BAY MƯỢT
+-- HỆ THỐNG BAY TWEEN (MƯỢT 100%)
 -- =========================================================
 local currentTween = nil
 local function toTargetPos(targetCFrame)
@@ -431,7 +432,7 @@ local function toTargetPos(targetCFrame)
 end
 
 -- =========================================================
--- LOGIC TÌM NHIỆM VỤ & GPS MAP HOÀN HẢO
+-- LOGIC NHIỆM VỤ & GPS MAP HOÀN HẢO (ĐÃ SỬA LỖI TWEEN)
 -- =========================================================
 local IslandPositions = {
     ["Bandit"] = Vector3.new(1057, 16, 1378),
