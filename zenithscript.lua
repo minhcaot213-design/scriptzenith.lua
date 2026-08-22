@@ -1,4 +1,4 @@
--- [[ ZENITH BLOX FRUIT - COMPACT HUB (WEAPON SELECTOR & UI SCALE) ]] --
+-- [[ ZENITH BLOX FRUIT - V5 (ZYROX VN MULTILINGUAL & ADVANCED ESP EDITION) ]] --
 
 local Players = game:GetService("Players")
 local Lighting = game:GetService("Lighting")
@@ -17,7 +17,7 @@ local CommF = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("CommF_")
 -- ===================================================
 -- 0. DỌN DẸP INSTANCE CŨ (CLEANUP)
 -- ===================================================
-local UI_NAME = "ZenithBloxFruit_Compact"
+local UI_NAME = "ZenithBloxFruit_Zyrox_V5"
 local function getSafeParent()
     local success, coreGui = pcall(function() return game:GetService("CoreGui") end)
     if success and coreGui then return coreGui end
@@ -29,7 +29,118 @@ if parentGui:FindFirstChild(UI_NAME) then parentGui[UI_NAME]:Destroy() end
 if Workspace:FindFirstChild("Zenith_WaterPlatform") then Workspace.Zenith_WaterPlatform:Destroy() end
 
 -- ===================================================
--- 1. TỰ ĐỘNG ĐỨNG TRÊN NƯỚC (ALWAYS ACTIVE)
+-- 1. HỆ THỐNG ĐA NGÔN NGỮ (VIETNAMESE / ENGLISH SYSTEM)
+-- ===================================================
+local currentLang = "VI"
+local translatableElements = {}
+
+local LangDict = {
+    VI = {
+        title = "ZYROX VN <font color='#00d2ff'>• ZENITH HUB</font>",
+        tab_farm = "Farm",
+        tab_server = "Server",
+        tab_pvp = "PVP-ESP",
+        tab_raid = "Raid",
+        tab_item = "Farm Item",
+        tab_setting = "Cài Đặt",
+        
+        -- Farm
+        auto_farm = "⚡ Auto Farm Quái + Quest",
+        auto_quest = "📜 Tự Nhận Quest Phù Hợp",
+        bring_mob = "🧲 Gom Quái (Cùng Đảo)",
+        
+        -- PVP & Speed
+        speed_toggle = "Bật Tăng Tốc Độ (WalkSpeed)",
+        speed_slider = "Chỉnh Speed",
+        jump_toggle = "Bật Nhảy Cao (High Jump)",
+        jump_slider = "Chỉnh JumpPower",
+        
+        -- ESP
+        player_esp = "Định Vị Người Chơi (Tên/Máu/Khoảng Cách)",
+        fruit_esp = "🍎 Định Vị Trái Ác Quỷ (Devil Fruit)",
+        chest_wood = "📦 Rương Đồng/Gỗ (Tier 1)",
+        chest_gold = "🪙 Rương Bạc/Vàng (Tier 2)",
+        chest_diamond = "💎 Rương Kim Cương (Tier 3)",
+        
+        -- Server & Misc
+        rejoin_btn = "Rejoin Server (Vào Lại)",
+        serverhop_btn = "Server Hop (Đổi Server Khác)",
+        auto_raid_start = "Tự Động Bắt Đầu Raid",
+        auto_raid_kill = "Tự Đánh Quái Trong Raid",
+        auto_bones = "Auto Farm Xương (Bones)",
+        auto_chest = "Tự Động Nhặt Rương Gần",
+        
+        -- Settings
+        lang_title = "🌐 Ngôn Ngữ / Language",
+        ui_scale = "Kích Thước Giao Diện (UI Scale %)",
+        ui_transparency = "Độ Trong Suốt Panel (%)",
+        fix_lag = "Fix Lag / Boost FPS",
+        close_hub = "Tắt Giao Diện (Close Hub)"
+    },
+    EN = {
+        title = "ZYROX VN <font color='#00d2ff'>• ZENITH HUB</font>",
+        tab_farm = "Farm",
+        tab_server = "Server",
+        tab_pvp = "PVP-ESP",
+        tab_raid = "Raid",
+        tab_item = "Farm Item",
+        tab_setting = "Settings",
+        
+        -- Farm
+        auto_farm = "⚡ Auto Farm Mob + Quest",
+        auto_quest = "📜 Auto Accept Quest",
+        bring_mob = "🧲 Bring Mobs (Same Island)",
+        
+        -- PVP & Speed
+        speed_toggle = "Enable WalkSpeed Boost",
+        speed_slider = "Adjust Speed",
+        jump_toggle = "Enable High Jump",
+        jump_slider = "Adjust JumpPower",
+        
+        -- ESP
+        player_esp = "Player ESP (Name/HP/Distance)",
+        fruit_esp = "🍎 Devil Fruit ESP",
+        chest_wood = "📦 Bronze/Wood Chest (Tier 1)",
+        chest_gold = "🪙 Silver/Gold Chest (Tier 2)",
+        chest_diamond = "💎 Diamond Chest (Tier 3)",
+        
+        -- Server & Misc
+        rejoin_btn = "Rejoin Server",
+        serverhop_btn = "Server Hop (Find New)",
+        auto_raid_start = "Auto Start Raid",
+        auto_raid_kill = "Auto Kill Raid Mobs",
+        auto_bones = "Auto Farm Bones",
+        auto_chest = "Auto Collect Nearby Chests",
+        
+        -- Settings
+        lang_title = "🌐 Language / Ngôn Ngữ",
+        ui_scale = "UI Scale (%)",
+        ui_transparency = "Panel Transparency (%)",
+        fix_lag = "Fix Lag / Boost FPS",
+        close_hub = "Close Hub Interface"
+    }
+}
+
+local function registerText(label, key, isRich)
+    table.insert(translatableElements, {Label = label, Key = key, Rich = isRich})
+    if isRich then
+        label.Text = LangDict[currentLang][key]
+    else
+        label.Text = LangDict[currentLang][key]
+    end
+end
+
+local function setLanguage(lang)
+    currentLang = lang
+    for _, item in ipairs(translatableElements) do
+        if item.Label and item.Label.Parent then
+            item.Label.Text = LangDict[currentLang][item.Key]
+        end
+    end
+end
+
+-- ===================================================
+-- 2. TỰ ĐỘNG ĐỨNG TRÊN NƯỚC (ALWAYS ACTIVE)
 -- ===================================================
 task.spawn(function()
     local waterPlatform = Instance.new("Part")
@@ -63,7 +174,7 @@ task.spawn(function()
 end)
 
 -- ===================================================
--- 2. DỮ LIỆU QUEST, QUÁI & VŨ KHÍ
+-- 3. DỮ LIỆU QUEST & QUÁI THEO SEA
 -- ===================================================
 local QuestMap = {
     -- SEA 1
@@ -95,14 +206,14 @@ local SeaCategories = {
 
 local selectedSea = "Sea 1"
 local selectedMobKey = SeaCategories["Sea 1"][1]
-local selectedWeaponType = "Melee" -- "Melee", "Sword", "Blox Fruit", "Gun"
+local selectedWeaponType = "Melee"
 
 local AutoFarm = false
 local AutoQuest = true
 local BringMob = false
 
 -- ===================================================
--- 3. SPEED & HIGH JUMP (PVP MODULE)
+-- 4. SPEED & HIGH JUMP (PVP MODULE)
 -- ===================================================
 local speedValue = 16
 local speedEnabled = false
@@ -131,7 +242,174 @@ UserInputService.JumpRequest:Connect(function()
 end)
 
 -- ===================================================
--- 4. LOGIC FARM & VŨ KHÍ
+-- 5. HỆ THỐNG ĐỊNH VỊ NÂNG CAO (ADVANCED ESP)
+-- ===================================================
+local espPlayerEnabled = false
+local espFruitEnabled = false
+local espChest1Enabled = false
+local espChest2Enabled = false
+local espChest3Enabled = false
+
+-- ESP PLAYER (TÊN, MÁU VÀ KHOẢNG CÁCH CHI TIẾT)
+local function updatePlayerESP()
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= LocalPlayer and p.Character then
+            local char = p.Character
+            local head = char:FindFirstChild("Head")
+            local hum = char:FindFirstChildOfClass("Humanoid")
+            local myHRP = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+            
+            if espPlayerEnabled and head and hum and myHRP and hum.Health > 0 then
+                local dist = math.floor((head.Position - myHRP.Position).Magnitude)
+                local bbGui = head:FindFirstChild("Zenith_PlayerBillboard")
+                
+                if not bbGui then
+                    bbGui = Instance.new("BillboardGui")
+                    bbGui.Name = "Zenith_PlayerBillboard"
+                    bbGui.Size = UDim2.new(0, 200, 0, 45)
+                    bbGui.StudsOffset = Vector3.new(0, 2.8, 0)
+                    bbGui.AlwaysOnTop = true
+                    bbGui.Adornee = head
+                    bbGui.Parent = head
+                    
+                    local txt = Instance.new("TextLabel")
+                    txt.Name = "Info"
+                    txt.Size = UDim2.new(1, 0, 1, 0)
+                    txt.BackgroundTransparency = 1
+                    txt.Font = Enum.Font.GothamBold
+                    txt.TextSize = 11
+                    txt.TextColor3 = Color3.fromRGB(255, 60, 90)
+                    txt.TextStrokeTransparency = 0
+                    txt.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+                    txt.Parent = bbGui
+                end
+                
+                local hpPercent = math.floor((hum.Health / hum.MaxHealth) * 100)
+                local txtLabel = bbGui:FindFirstChild("Info")
+                if txtLabel then
+                    txtLabel.Text = string.format("%s\n[%dm] • HP: %d/%d (%d%%)", p.DisplayName, dist, math.floor(hum.Health), math.floor(hum.MaxHealth), hpPercent)
+                end
+                
+                local highlight = char:FindFirstChild("Zenith_Highlight")
+                if not highlight then
+                    highlight = Instance.new("Highlight")
+                    highlight.Name = "Zenith_Highlight"
+                    highlight.FillColor = Color3.fromRGB(255, 45, 85)
+                    highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+                    highlight.FillTransparency = 0.5
+                    highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                    highlight.Adornee = char
+                    highlight.Parent = char
+                end
+            else
+                if head and head:FindFirstChild("Zenith_PlayerBillboard") then
+                    head.Zenith_PlayerBillboard:Destroy()
+                end
+                if char:FindFirstChild("Zenith_Highlight") then
+                    char.Zenith_Highlight:Destroy()
+                end
+            end
+        end
+    end
+end
+
+-- ESP FRUIT & CHEST VÒNG LẶP QUÉT VẬT THỂ
+task.spawn(function()
+    while true do
+        task.wait(0.2)
+        local myChar = LocalPlayer.Character
+        local myHRP = myChar and myChar:FindFirstChild("HumanoidRootPart")
+        
+        -- Cập nhật Player ESP
+        updatePlayerESP()
+        
+        -- Cập nhật Trái Ác Quỷ & Rương
+        if myHRP then
+            for _, obj in ipairs(Workspace:GetChildren()) do
+                -- Trái Ác Quỷ (Devil Fruit)
+                if (obj:IsA("Tool") and string.find(obj.Name, "Fruit")) or obj:FindFirstChild("Fruit") then
+                    local handle = obj:FindFirstChild("Handle") or obj:FindFirstChildWhichIsA("BasePart")
+                    if handle then
+                        if espFruitEnabled then
+                            local dist = math.floor((handle.Position - myHRP.Position).Magnitude)
+                            local b = handle:FindFirstChild("Zenith_FruitESP")
+                            if not b then
+                                b = Instance.new("BillboardGui")
+                                b.Name = "Zenith_FruitESP"
+                                b.Size = UDim2.new(0, 180, 0, 30)
+                                b.StudsOffset = Vector3.new(0, 2, 0)
+                                b.AlwaysOnTop = true
+                                b.Adornee = handle
+                                b.Parent = handle
+                                
+                                local t = Instance.new("TextLabel")
+                                t.Name = "Label"
+                                t.Size = UDim2.new(1, 0, 1, 0)
+                                t.BackgroundTransparency = 1
+                                t.Font = Enum.Font.GothamBold
+                                t.TextSize = 12
+                                t.TextColor3 = Color3.fromRGB(255, 70, 220)
+                                t.TextStrokeTransparency = 0
+                                t.Parent = b
+                            end
+                            b.Label.Text = string.format("🍎 %s\n[%dm]", obj.Name, dist)
+                        else
+                            if handle:FindFirstChild("Zenith_FruitESP") then
+                                handle.Zenith_FruitESP:Destroy()
+                            end
+                        end
+                    end
+                end
+                
+                -- Phân loại Rương (Chest 1, Chest 2, Chest 3)
+                if string.find(obj.Name, "Chest") and (obj:IsA("Model") or obj:IsA("BasePart")) then
+                    local rootPart = obj:IsA("BasePart") and obj or obj:FindFirstChildWhichIsA("BasePart")
+                    if rootPart then
+                        local isTier3 = string.find(obj.Name, "3") -- Kim Cương
+                        local isTier2 = string.find(obj.Name, "2") -- Vàng / Bạc
+                        local isTier1 = not isTier2 and not isTier3 -- Gỗ / Đồng
+                        
+                        local shouldShow = (isTier1 and espChest1Enabled) or (isTier2 and espChest2Enabled) or (isTier3 and espChest3Enabled)
+                        local chestColor = isTier3 and Color3.fromRGB(0, 240, 255) or (isTier2 and Color3.fromRGB(255, 215, 0) or Color3.fromRGB(205, 127, 50))
+                        local chestTitle = isTier3 and "💎 Diamond Chest" or (isTier2 and "🪙 Gold Chest" or "📦 Bronze Chest")
+                        
+                        if shouldShow then
+                            local dist = math.floor((rootPart.Position - myHRP.Position).Magnitude)
+                            local b = rootPart:FindFirstChild("Zenith_ChestESP")
+                            if not b then
+                                b = Instance.new("BillboardGui")
+                                b.Name = "Zenith_ChestESP"
+                                b.Size = UDim2.new(0, 160, 0, 25)
+                                b.StudsOffset = Vector3.new(0, 1.8, 0)
+                                b.AlwaysOnTop = true
+                                b.Adornee = rootPart
+                                b.Parent = rootPart
+                                
+                                local t = Instance.new("TextLabel")
+                                t.Name = "Label"
+                                t.Size = UDim2.new(1, 0, 1, 0)
+                                t.BackgroundTransparency = 1
+                                t.Font = Enum.Font.GothamBold
+                                t.TextSize = 11
+                                t.TextStrokeTransparency = 0
+                                t.Parent = b
+                            end
+                            b.Label.TextColor3 = chestColor
+                            b.Label.Text = string.format("%s [%dm]", chestTitle, dist)
+                        else
+                            if rootPart:FindFirstChild("Zenith_ChestESP") then
+                                rootPart.Zenith_ChestESP:Destroy()
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+end)
+
+-- ===================================================
+-- 6. LOGIC FARM & TỰ ĐỘNG TẤN CÔNG
 -- ===================================================
 local currentTween = nil
 
@@ -141,7 +419,7 @@ local function toTargetPos(targetCFrame)
     local root = char.HumanoidRootPart
 
     local distance = (root.Position - targetCFrame.Position).Magnitude
-    local speed = 250
+    local speed = 260
     local time = distance / speed
 
     if currentTween then currentTween:Cancel() end
@@ -167,35 +445,42 @@ local function equipChosenWeapon()
     local humanoid = char:FindFirstChildOfClass("Humanoid")
     if not humanoid then return end
     
-    -- Kiểm tra xem đã cầm đúng loại vũ khí chưa
     for _, item in ipairs(char:GetChildren()) do
         if item:IsA("Tool") then
             if item.ToolTip == selectedWeaponType or (selectedWeaponType == "Melee" and (item.ToolTip == "Melee" or item.ToolTip == "Combat")) then
-                return
+                return item
             end
         end
     end
 
-    -- Tìm trong balo để trang bị
     if backpack then
         for _, tool in ipairs(backpack:GetChildren()) do
             if tool:IsA("Tool") then
                 if tool.ToolTip == selectedWeaponType or (selectedWeaponType == "Melee" and (tool.ToolTip == "Melee" or tool.ToolTip == "Combat")) then
                     humanoid:EquipTool(tool)
-                    break
+                    return tool
                 end
             end
         end
     end
+    return nil
+end
+
+local function executeAttack()
+    local char = LocalPlayer.Character
+    if not char then return end
+    local tool = char:FindFirstChildOfClass("Tool")
+    if tool then tool:Activate() end
+    
+    VirtualUser:CaptureController()
+    VirtualUser:Button1Down(Vector2.new(50, 50))
 end
 
 local function checkHasQuest()
     local playerGui = LocalPlayer:FindFirstChild("PlayerGui")
     if playerGui and playerGui:FindFirstChild("Main") then
         local questFrame = playerGui.Main:FindFirstChild("Quest")
-        if questFrame and questFrame.Visible then
-            return true
-        end
+        if questFrame and questFrame.Visible then return true end
     end
     return false
 end
@@ -218,20 +503,20 @@ end
 
 task.spawn(function()
     while true do
-        task.wait(0.1)
+        task.wait(0.05)
         if AutoFarm and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
             local mobData = QuestMap[selectedMobKey]
             if mobData then
                 if AutoQuest and not checkHasQuest() then
                     CommF:InvokeServer("StartQuest", mobData.QuestName, mobData.QuestLevel)
-                    task.wait(0.5)
+                    task.wait(0.4)
                 end
 
                 local mob = getEnemyInstance(mobData.MonName)
                 if mob and mob:FindFirstChild("HumanoidRootPart") then
                     equipChosenWeapon()
                     local mobHRP = mob.HumanoidRootPart
-                    local targetCFrame = mobHRP.CFrame * CFrame.new(0, 8, 0) * CFrame.Angles(math.rad(-90), 0, 0)
+                    local targetCFrame = mobHRP.CFrame * CFrame.new(0, 9, 0) * CFrame.Angles(math.rad(-90), 0, 0)
                     
                     if (LocalPlayer.Character.HumanoidRootPart.Position - mobHRP.Position).Magnitude > 15 then
                         toTargetPos(targetCFrame)
@@ -240,8 +525,7 @@ task.spawn(function()
                         LocalPlayer.Character.HumanoidRootPart.CFrame = targetCFrame
                         LocalPlayer.Character.HumanoidRootPart.AssemblyLinearVelocity = Vector3.zero
 
-                        VirtualUser:CaptureController()
-                        VirtualUser:Button1Down(Vector2.new(0, 0))
+                        executeAttack()
 
                         if BringMob then
                             local enemies = Workspace:FindFirstChild("Enemies")
@@ -251,8 +535,11 @@ task.spawn(function()
                                         local oHRP = other:FindFirstChild("HumanoidRootPart")
                                         local oHum = other:FindFirstChildOfClass("Humanoid")
                                         if oHRP and oHum and oHum.Health > 0 then
-                                            oHRP.CFrame = mobHRP.CFrame
-                                            oHRP.CanCollide = false
+                                            local distFromOrigin = (oHRP.Position - mobHRP.Position).Magnitude
+                                            if distFromOrigin <= 280 then
+                                                oHRP.CFrame = mobHRP.CFrame
+                                                oHRP.CanCollide = false
+                                            end
                                         end
                                     end
                                 end
@@ -268,25 +555,28 @@ task.spawn(function()
 end)
 
 -- ===================================================
--- 5. GIAO DIỆN NHỎ GỌN (COMPACT UI & SCALING)
+-- 7. GIAO DIỆN PANEL (TRANSLUCENT + MULTILINGUAL)
 -- ===================================================
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = UI_NAME
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = parentGui
 
--- Khung cửa sổ kích thước nhỏ gọn mặc định: 500 x 310
+local FULL_HEIGHT = 310
+local MIN_HEIGHT = 34
+local isMinimized = false
+
 local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 500, 0, 310)
+MainFrame.Size = UDim2.new(0, 500, 0, FULL_HEIGHT)
 MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-MainFrame.BackgroundColor3 = Color3.fromRGB(15, 16, 22)
+MainFrame.BackgroundColor3 = Color3.fromRGB(14, 16, 22)
+MainFrame.BackgroundTransparency = 0.18
 MainFrame.BorderSizePixel = 0
 MainFrame.Active = true
 MainFrame.ClipsDescendants = true
 MainFrame.Parent = ScreenGui
 
--- Bộ scale phóng to / thu nhỏ UI
 local UIScale = Instance.new("UIScale")
 UIScale.Scale = 1.0
 UIScale.Parent = MainFrame
@@ -296,7 +586,8 @@ MainCorner.CornerRadius = UDim.new(0, 8)
 MainCorner.Parent = MainFrame
 
 local MainStroke = Instance.new("UIStroke")
-MainStroke.Color = Color3.fromRGB(35, 38, 50)
+MainStroke.Color = Color3.fromRGB(45, 55, 75)
+MainStroke.Transparency = 0.3
 MainStroke.Thickness = 1.2
 MainStroke.Parent = MainFrame
 
@@ -331,26 +622,54 @@ end)
 -- TopBar
 local TopBar = Instance.new("Frame")
 TopBar.Size = UDim2.new(1, 0, 0, 34)
-TopBar.BackgroundColor3 = Color3.fromRGB(20, 22, 30)
+TopBar.BackgroundColor3 = Color3.fromRGB(18, 22, 32)
+TopBar.BackgroundTransparency = 0.15
 TopBar.BorderSizePixel = 0
 TopBar.Parent = MainFrame
 
+local LogoIcon = Instance.new("ImageLabel")
+LogoIcon.Size = UDim2.new(0, 24, 0, 24)
+LogoIcon.Position = UDim2.new(0, 8, 0.5, -12)
+LogoIcon.BackgroundTransparency = 1
+LogoIcon.Image = "rbxassetid://100412534591942"
+LogoIcon.ScaleType = Enum.ScaleType.Fit
+LogoIcon.Parent = TopBar
+
+local LogoCorner = Instance.new("UICorner")
+LogoCorner.CornerRadius = UDim.new(0, 4)
+LogoCorner.Parent = LogoIcon
+
 local Title = Instance.new("TextLabel")
-Title.Size = UDim2.new(1, -40, 1, 0)
-Title.Position = UDim2.new(0, 12, 0, 0)
+Title.Size = UDim2.new(1, -110, 1, 0)
+Title.Position = UDim2.new(0, 38, 0, 0)
 Title.BackgroundTransparency = 1
-Title.Text = "ZENITH <font color='#00d2ff'>BLOX FRUIT</font>"
 Title.RichText = true
 Title.TextColor3 = Color3.fromRGB(255, 255, 255)
 Title.Font = Enum.Font.GothamBold
-Title.TextSize = 13
+Title.TextSize = 12
 Title.TextXAlignment = Enum.TextXAlignment.Left
 Title.Parent = TopBar
+registerText(Title, "title", true)
+
+local MinBtn = Instance.new("TextButton")
+MinBtn.Size = UDim2.new(0, 24, 0, 24)
+MinBtn.Position = UDim2.new(1, -56, 0, 5)
+MinBtn.BackgroundColor3 = Color3.fromRGB(28, 33, 46)
+MinBtn.Text = "−"
+MinBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
+MinBtn.Font = Enum.Font.GothamBold
+MinBtn.TextSize = 13
+MinBtn.BorderSizePixel = 0
+MinBtn.Parent = TopBar
+
+local MinCorner = Instance.new("UICorner")
+MinCorner.CornerRadius = UDim.new(0, 4)
+MinCorner.Parent = MinBtn
 
 local CloseBtn = Instance.new("TextButton")
 CloseBtn.Size = UDim2.new(0, 24, 0, 24)
-CloseBtn.Position = UDim2.new(1, -29, 0, 5)
-CloseBtn.BackgroundColor3 = Color3.fromRGB(30, 33, 45)
+CloseBtn.Position = UDim2.new(1, -28, 0, 5)
+CloseBtn.BackgroundColor3 = Color3.fromRGB(28, 33, 46)
 CloseBtn.Text = "✕"
 CloseBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
 CloseBtn.Font = Enum.Font.GothamBold
@@ -359,16 +678,16 @@ CloseBtn.BorderSizePixel = 0
 CloseBtn.Parent = TopBar
 
 local CloseCorner = Instance.new("UICorner")
-CloseCorner.CornerRadius = UDim.new(0, 5)
+CloseCorner.CornerRadius = UDim.new(0, 4)
 CloseCorner.Parent = CloseBtn
 
 CloseBtn.MouseButton1Click:Connect(function() ScreenGui:Destroy() end)
 
--- Sidebar
 local Sidebar = Instance.new("Frame")
 Sidebar.Size = UDim2.new(0, 125, 1, -34)
 Sidebar.Position = UDim2.new(0, 0, 0, 34)
-Sidebar.BackgroundColor3 = Color3.fromRGB(18, 19, 26)
+Sidebar.BackgroundColor3 = Color3.fromRGB(16, 18, 26)
+Sidebar.BackgroundTransparency = 0.25
 Sidebar.BorderSizePixel = 0
 Sidebar.Parent = MainFrame
 
@@ -386,6 +705,21 @@ ContentContainer.Size = UDim2.new(1, -125, 1, -34)
 ContentContainer.Position = UDim2.new(0, 125, 0, 34)
 ContentContainer.BackgroundTransparency = 1
 ContentContainer.Parent = MainFrame
+
+MinBtn.MouseButton1Click:Connect(function()
+    isMinimized = not isMinimized
+    if isMinimized then
+        MainFrame:TweenSize(UDim2.new(0, 500, 0, MIN_HEIGHT), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.25, true)
+        Sidebar.Visible = false
+        ContentContainer.Visible = false
+        MinBtn.Text = "+"
+    else
+        MainFrame:TweenSize(UDim2.new(0, 500, 0, FULL_HEIGHT), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.25, true)
+        Sidebar.Visible = true
+        ContentContainer.Visible = true
+        MinBtn.Text = "−"
+    end
+end)
 
 local tabButtons = {}
 local tabPages = {}
@@ -425,12 +759,11 @@ local function switchTab(name)
     end
 end
 
-local function createTabButton(name, icon)
+local function createTabButton(name, icon, transKey)
     local btn = Instance.new("TextButton")
     btn.Size = UDim2.new(0.9, 0, 0, 30)
     btn.BackgroundColor3 = Color3.fromRGB(24, 26, 35)
     btn.BorderSizePixel = 0
-    btn.Text = icon .. " " .. name
     btn.TextColor3 = Color3.fromRGB(160, 165, 180)
     btn.Font = Enum.Font.GothamMedium
     btn.TextSize = 11
@@ -440,15 +773,25 @@ local function createTabButton(name, icon)
     c.CornerRadius = UDim.new(0, 5)
     c.Parent = btn
 
+    table.insert(translatableElements, {
+        Label = btn,
+        Key = transKey,
+        Update = function()
+            btn.Text = icon .. " " .. LangDict[currentLang][transKey]
+        end
+    })
+    btn.Text = icon .. " " .. LangDict[currentLang][transKey]
+
     tabButtons[name] = btn
     btn.MouseButton1Click:Connect(function() switchTab(name) end)
 end
 
-local function createToggle(page, text, defaultState, callback)
+local function createToggle(page, transKey, defaultState, callback)
     local state = defaultState or false
     local frame = Instance.new("Frame")
     frame.Size = UDim2.new(0.92, 0, 0, 34)
-    frame.BackgroundColor3 = Color3.fromRGB(22, 24, 34)
+    frame.BackgroundColor3 = Color3.fromRGB(22, 26, 36)
+    frame.BackgroundTransparency = 0.3
     frame.BorderSizePixel = 0
     frame.Parent = page
 
@@ -460,12 +803,12 @@ local function createToggle(page, text, defaultState, callback)
     label.Size = UDim2.new(1, -50, 1, 0)
     label.Position = UDim2.new(0, 10, 0, 0)
     label.BackgroundTransparency = 1
-    label.Text = text
     label.TextColor3 = Color3.fromRGB(230, 230, 230)
     label.Font = Enum.Font.Gotham
     label.TextSize = 11
     label.TextXAlignment = Enum.TextXAlignment.Left
     label.Parent = frame
+    registerText(label, transKey)
 
     local switch = Instance.new("TextButton")
     switch.Size = UDim2.new(0, 34, 0, 17)
@@ -498,11 +841,12 @@ local function createToggle(page, text, defaultState, callback)
     end)
 end
 
-local function createSlider(page, text, min, max, default, callback)
+local function createSlider(page, transKey, min, max, default, callback)
     local current = default or min
     local frame = Instance.new("Frame")
     frame.Size = UDim2.new(0.92, 0, 0, 46)
-    frame.BackgroundColor3 = Color3.fromRGB(22, 24, 34)
+    frame.BackgroundColor3 = Color3.fromRGB(22, 26, 36)
+    frame.BackgroundTransparency = 0.3
     frame.BorderSizePixel = 0
     frame.Parent = page
 
@@ -514,12 +858,12 @@ local function createSlider(page, text, min, max, default, callback)
     label.Size = UDim2.new(1, -70, 0, 20)
     label.Position = UDim2.new(0, 10, 0, 3)
     label.BackgroundTransparency = 1
-    label.Text = text
     label.TextColor3 = Color3.fromRGB(230, 230, 230)
     label.Font = Enum.Font.Gotham
     label.TextSize = 11
     label.TextXAlignment = Enum.TextXAlignment.Left
     label.Parent = frame
+    registerText(label, transKey)
 
     local valueLabel = Instance.new("TextLabel")
     valueLabel.Size = UDim2.new(0, 55, 0, 20)
@@ -585,16 +929,17 @@ local function createSlider(page, text, min, max, default, callback)
     end)
 end
 
-local function createButton(page, text, callback)
+local function createButton(page, transKey, callback)
     local btn = Instance.new("TextButton")
     btn.Size = UDim2.new(0.92, 0, 0, 32)
-    btn.BackgroundColor3 = Color3.fromRGB(26, 28, 40)
+    btn.BackgroundColor3 = Color3.fromRGB(26, 30, 42)
+    btn.BackgroundTransparency = 0.3
     btn.BorderSizePixel = 0
-    btn.Text = text
     btn.TextColor3 = Color3.fromRGB(0, 180, 255)
     btn.Font = Enum.Font.GothamMedium
     btn.TextSize = 11
     btn.Parent = page
+    registerText(btn, transKey)
 
     local corner = Instance.new("UICorner")
     corner.CornerRadius = UDim.new(0, 5)
@@ -606,24 +951,28 @@ local function createButton(page, text, callback)
 end
 
 -- ===================================================
--- 6. SETUP TABS & NỘI DUNG
+-- 8. TẠO 6 DANH MỤC (TABS SETUP)
 -- ===================================================
 local cats = {
-    {"Farm", "🌾"}, {"Server", "🌐"}, {"PVP-ESP", "⚔️"},
-    {"RAID", "⚡"}, {"FARM ITEM", "🗡️"}, {"SETTING", "⚙️"}
+    {"Farm", "🌾", "tab_farm"},
+    {"Server", "🌐", "tab_server"},
+    {"PVP-ESP", "⚔️", "tab_pvp"},
+    {"RAID", "⚡", "tab_raid"},
+    {"FARM ITEM", "🗡️", "tab_item"},
+    {"SETTING", "⚙️", "tab_setting"}
 }
 for _, c in ipairs(cats) do
-    createTabButton(c[1], c[2])
+    createTabButton(c[1], c[2], c[3])
     createPage(c[1])
 end
 
--- [TAB FARM]
+-- [TAB 1: FARM]
 local farmPage = tabPages["Farm"]
 
--- Chọn Sea (1, 2, 3)
 local seaFrame = Instance.new("Frame")
 seaFrame.Size = UDim2.new(0.92, 0, 0, 30)
-seaFrame.BackgroundColor3 = Color3.fromRGB(22, 24, 34)
+seaFrame.BackgroundColor3 = Color3.fromRGB(22, 26, 36)
+seaFrame.BackgroundTransparency = 0.3
 seaFrame.BorderSizePixel = 0
 seaFrame.Parent = farmPage
 
@@ -695,10 +1044,10 @@ for _, sName in ipairs({"Sea 1", "Sea 2", "Sea 3"}) do
     end)
 end
 
--- Bộ chọn loại vũ khí (Melee, Sword, Blox Fruit, Gun)
 local weaponFrame = Instance.new("Frame")
 weaponFrame.Size = UDim2.new(0.92, 0, 0, 30)
-weaponFrame.BackgroundColor3 = Color3.fromRGB(22, 24, 34)
+weaponFrame.BackgroundColor3 = Color3.fromRGB(22, 26, 36)
+weaponFrame.BackgroundTransparency = 0.3
 weaponFrame.BorderSizePixel = 0
 weaponFrame.Parent = farmPage
 
@@ -745,10 +1094,10 @@ for _, wData in ipairs(weaponList) do
     end)
 end
 
--- Danh sách chọn quái
 mobListScroll = Instance.new("ScrollingFrame")
 mobListScroll.Size = UDim2.new(0.92, 0, 0, 75)
 mobListScroll.BackgroundColor3 = Color3.fromRGB(18, 20, 28)
+mobListScroll.BackgroundTransparency = 0.3
 mobListScroll.BorderSizePixel = 0
 mobListScroll.ScrollBarThickness = 3
 mobListScroll.ScrollBarImageColor3 = Color3.fromRGB(0, 180, 255)
@@ -766,81 +1115,32 @@ mll.Parent = mobListScroll
 
 updateMobList()
 
-createToggle(farmPage, "⚡ Auto Farm Level + Auto Quest", false, function(v)
-    AutoFarm = v
-end)
+createToggle(farmPage, "auto_farm", false, function(v) AutoFarm = v end)
+createToggle(farmPage, "auto_quest", true, function(v) AutoQuest = v end)
+createToggle(farmPage, "bring_mob", false, function(v) BringMob = v end)
 
-createToggle(farmPage, "📜 Tự Động Nhận Quest Phù Hợp", true, function(v)
-    AutoQuest = v
-end)
-
-createToggle(farmPage, "🧲 Bring Mob (Gom Quái Lại Gần)", false, function(v)
-    BringMob = v
-end)
-
--- [TAB PVP-ESP]
+-- [TAB 2: PVP-ESP]
 local pvpPage = tabPages["PVP-ESP"]
 
-createToggle(pvpPage, "Bật Tăng Tốc Độ (WalkSpeed)", false, function(v)
-    speedEnabled = v
-end)
+createToggle(pvpPage, "speed_toggle", false, function(v) speedEnabled = v end)
+createSlider(pvpPage, "speed_slider", 16, 300, 16, function(val) speedValue = val end)
+createToggle(pvpPage, "jump_toggle", false, function(v) jumpEnabled = v end)
+createSlider(pvpPage, "jump_slider", 50, 400, 50, function(val) jumpValue = val end)
 
-createSlider(pvpPage, "Chỉnh Speed", 16, 300, 16, function(val)
-    speedValue = val
-end)
+-- Nhóm tính năng định vị ESP
+createToggle(pvpPage, "player_esp", false, function(v) espPlayerEnabled = v end)
+createToggle(pvpPage, "fruit_esp", false, function(v) espFruitEnabled = v end)
+createToggle(pvpPage, "chest_wood", false, function(v) espChest1Enabled = v end)
+createToggle(pvpPage, "chest_gold", false, function(v) espChest2Enabled = v end)
+createToggle(pvpPage, "chest_diamond", false, function(v) espChest3Enabled = v end)
 
-createToggle(pvpPage, "Bật Nhảy Cao (High Jump)", false, function(v)
-    jumpEnabled = v
-end)
-
-createSlider(pvpPage, "Chỉnh JumpPower", 50, 400, 50, function(val)
-    jumpValue = val
-end)
-
-local espActive = false
-local function handleHighlight(character, enable)
-    local highlight = character:FindFirstChild("ZenithESP")
-    if enable then
-        if not highlight then
-            highlight = Instance.new("Highlight")
-            highlight.Name = "ZenithESP"
-            highlight.FillColor = Color3.fromRGB(255, 45, 85)
-            highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
-            highlight.FillTransparency = 0.4
-            highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-            highlight.Adornee = character
-            highlight.Parent = character
-        end
-    else
-        if highlight then highlight:Destroy() end
-    end
-end
-
-createToggle(pvpPage, "Player ESP (Định Vị Người Chơi)", false, function(enabled)
-    espActive = enabled
-    for _, p in ipairs(Players:GetPlayers()) do
-        if p ~= LocalPlayer and p.Character then
-            handleHighlight(p.Character, enabled)
-        end
-    end
-end)
-
-Players.PlayerAdded:Connect(function(p)
-    p.CharacterAdded:Connect(function(char)
-        if espActive and p ~= LocalPlayer then
-            task.wait(0.5)
-            handleHighlight(char, true)
-        end
-    end)
-end)
-
--- [TAB SERVER]
+-- [TAB 3: SERVER]
 local serverPage = tabPages["Server"]
-createButton(serverPage, "Rejoin Server (Vào Lại)", function()
+createButton(serverPage, "rejoin_btn", function()
     TeleportService:Teleport(game.PlaceId, LocalPlayer)
 end)
 
-createButton(serverPage, "Server Hop (Đổi Server Khác)", function()
+createButton(serverPage, "serverhop_btn", function()
     local placeId = game.PlaceId
     local serversApi = "https://games.roblox.com/v1/games/" .. placeId .. "/servers/Public?sortOrder=Asc&limit=100"
     local success, response = pcall(function()
@@ -856,25 +1156,100 @@ createButton(serverPage, "Server Hop (Đổi Server Khác)", function()
     end
 end)
 
--- [TAB RAID]
+-- [TAB 4: RAID]
 local raidPage = tabPages["RAID"]
-createToggle(raidPage, "Auto Start Raid", false, function(v) end)
-createToggle(raidPage, "Auto Kill Raid Mobs", false, function(v) end)
+createToggle(raidPage, "auto_raid_start", false, function(v) end)
+createToggle(raidPage, "auto_raid_kill", false, function(v) end)
 
--- [TAB FARM ITEM]
+-- [TAB 5: FARM ITEM]
 local farmItemPage = tabPages["FARM ITEM"]
-createToggle(farmItemPage, "Auto Farm Bones (Xương)", false, function(v) end)
-createToggle(farmItemPage, "Auto Collect Chests (Nhặt Rương)", false, function(v) end)
+createToggle(farmItemPage, "auto_bones", false, function(v) end)
+createToggle(farmItemPage, "auto_chest", false, function(v) end)
 
--- [TAB SETTING]
+-- [TAB 6: SETTING]
 local settingPage = tabPages["SETTING"]
 
--- Thanh trượt điều chỉnh kích thước Menu Hub (60% - 140%)
-createSlider(settingPage, "Kích Thước Giao Diện (UI Scale %)", 60, 140, 100, function(val)
+-- Chọn Ngôn Ngữ (Language Switcher)
+local langFrame = Instance.new("Frame")
+langFrame.Size = UDim2.new(0.92, 0, 0, 46)
+langFrame.BackgroundColor3 = Color3.fromRGB(22, 26, 36)
+langFrame.BackgroundTransparency = 0.3
+langFrame.BorderSizePixel = 0
+langFrame.Parent = settingPage
+
+local langCorner = Instance.new("UICorner")
+langCorner.CornerRadius = UDim.new(0, 5)
+langCorner.Parent = langFrame
+
+local langLabel = Instance.new("TextLabel")
+langLabel.Size = UDim2.new(0.48, 0, 1, 0)
+langLabel.Position = UDim2.new(0, 10, 0, 0)
+langLabel.BackgroundTransparency = 1
+langLabel.TextColor3 = Color3.fromRGB(230, 230, 230)
+langLabel.Font = Enum.Font.Gotham
+langLabel.TextSize = 11
+langLabel.TextXAlignment = Enum.TextXAlignment.Left
+langLabel.Parent = langFrame
+registerText(langLabel, "lang_title")
+
+local vnBtn = Instance.new("TextButton")
+vnBtn.Size = UDim2.new(0.22, 0, 0.7, 0)
+vnBtn.Position = UDim2.new(0.52, 0, 0.15, 0)
+vnBtn.BackgroundColor3 = (currentLang == "VI") and Color3.fromRGB(0, 180, 255) or Color3.fromRGB(35, 40, 55)
+vnBtn.Text = "🇻🇳 VN"
+vnBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+vnBtn.Font = Enum.Font.GothamBold
+vnBtn.TextSize = 10
+vnBtn.BorderSizePixel = 0
+vnBtn.Parent = langFrame
+
+local vnC = Instance.new("UICorner")
+vnC.CornerRadius = UDim.new(0, 4)
+vnC.Parent = vnBtn
+
+local enBtn = Instance.new("TextButton")
+enBtn.Size = UDim2.new(0.22, 0, 0.7, 0)
+enBtn.Position = UDim2.new(0.76, 0, 0.15, 0)
+enBtn.BackgroundColor3 = (currentLang == "EN") and Color3.fromRGB(0, 180, 255) or Color3.fromRGB(35, 40, 55)
+enBtn.Text = "🇬🇧 EN"
+enBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+enBtn.Font = Enum.Font.GothamBold
+enBtn.TextSize = 10
+enBtn.BorderSizePixel = 0
+enBtn.Parent = langFrame
+
+local enC = Instance.new("UICorner")
+enC.CornerRadius = UDim.new(0, 4)
+enC.Parent = enBtn
+
+vnBtn.MouseButton1Click:Connect(function()
+    vnBtn.BackgroundColor3 = Color3.fromRGB(0, 180, 255)
+    enBtn.BackgroundColor3 = Color3.fromRGB(35, 40, 55)
+    setLanguage("VI")
+    for _, item in ipairs(translatableElements) do
+        if item.Update then item.Update() end
+    end
+end)
+
+enBtn.MouseButton1Click:Connect(function()
+    enBtn.BackgroundColor3 = Color3.fromRGB(0, 180, 255)
+    vnBtn.BackgroundColor3 = Color3.fromRGB(35, 40, 55)
+    setLanguage("EN")
+    for _, item in ipairs(translatableElements) do
+        if item.Update then item.Update() end
+    end
+end)
+
+createSlider(settingPage, "ui_scale", 60, 140, 100, function(val)
     UIScale.Scale = val / 100
 end)
 
-createButton(settingPage, "Fix Lag / Boost FPS", function()
+createSlider(settingPage, "ui_transparency", 0, 80, 18, function(val)
+    MainFrame.BackgroundTransparency = val / 100
+    Sidebar.BackgroundTransparency = math.clamp((val + 10) / 100, 0, 1)
+end)
+
+createButton(settingPage, "fix_lag", function()
     Lighting.GlobalShadows = false
     Lighting.FogEnd = 9e9
     Lighting.Brightness = 1
@@ -897,7 +1272,7 @@ createButton(settingPage, "Fix Lag / Boost FPS", function()
     end
 end)
 
-createButton(settingPage, "Tắt Giao Diện (Close Hub)", function()
+createButton(settingPage, "close_hub", function()
     ScreenGui:Destroy()
 end)
 
