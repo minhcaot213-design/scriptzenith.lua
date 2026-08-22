@@ -1,4 +1,4 @@
--- [[ ZENITH BLOX FRUIT - V12.24 (SIMPLE UI + FIX AUTO FARM) ]] --
+-- [[ ZENITH BLOX FRUIT - V12.24 (FIX UI ĐẸP + AUTO FARM CHUẨN) ]] --
 
 task.wait(0.5)
 if not game:IsLoaded() then game.Loaded:Wait() end
@@ -44,7 +44,7 @@ local autoCollectFruit = false
 local autoStoreFruit = false
 
 -- ===================================================
--- 1. UI ĐƠN GIẢN (KHÔNG LỖI FONT)
+-- 1. UI ĐẸP
 -- ===================================================
 local UI_NAME = "ZenithBloxFruit_Zyrox_V12"
 
@@ -68,15 +68,15 @@ if not ScreenGui.Parent then ScreenGui.Parent = LocalPlayer:WaitForChild("Player
 
 -- MAIN FRAME
 local MainFrame = Instance.new("Frame", ScreenGui)
-MainFrame.Size = UDim2.new(0, 380, 0, 420)
+MainFrame.Size = UDim2.new(0, 400, 0, 450)
 MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-MainFrame.BackgroundColor3 = Color3.fromRGB(13, 15, 22)
+MainFrame.BackgroundColor3 = Color3.fromRGB(10, 12, 20)
 MainFrame.BorderSizePixel = 0
 MainFrame.ClipsDescendants = true
-Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 8)
-Instance.new("UIStroke", MainFrame).Color = Color3.fromRGB(30, 36, 50)
-Instance.new("UIStroke", MainFrame).Thickness = 1
+Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 12)
+Instance.new("UIStroke", MainFrame).Color = Color3.fromRGB(50, 60, 90)
+Instance.new("UIStroke", MainFrame).Thickness = 1.5
 
 local UIScale = Instance.new("UIScale", MainFrame)
 
@@ -101,43 +101,44 @@ end)
 
 -- TOPBAR
 local TopBar = Instance.new("Frame", MainFrame)
-TopBar.Size = UDim2.new(1, 0, 0, 32)
-TopBar.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+TopBar.Size = UDim2.new(1, 0, 0, 36)
+TopBar.BackgroundColor3 = Color3.fromRGB(0, 160, 255)
 
 local Title = Instance.new("TextLabel", TopBar)
-Title.Size = UDim2.new(1, -60, 1, 0)
-Title.Position = UDim2.new(0, 10, 0, 0)
+Title.Size = UDim2.new(1, -50, 1, 0)
+Title.Position = UDim2.new(0, 12, 0, 0)
 Title.BackgroundTransparency = 1
-Title.Text = "ZYROX VN - V12.24"
+Title.Text = "⚡ ZYROX VN - V12.24"
 Title.TextColor3 = Color3.fromRGB(255, 255, 255)
 Title.Font = Enum.Font.GothamBold
-Title.TextSize = 13
+Title.TextSize = 14
 Title.TextXAlignment = Enum.TextXAlignment.Left
 
 local CloseBtn = Instance.new("TextButton", TopBar)
 CloseBtn.Size = UDim2.new(0, 28, 0, 28)
-CloseBtn.Position = UDim2.new(1, -32, 0.5, -14)
+CloseBtn.Position = UDim2.new(1, -34, 0.5, -14)
 CloseBtn.BackgroundColor3 = Color3.fromRGB(255, 50, 80)
-CloseBtn.Text = "X"
+CloseBtn.Text = "✕"
 CloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 CloseBtn.Font = Enum.Font.GothamBold
 CloseBtn.TextSize = 12
 Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(0, 6)
 CloseBtn.MouseButton1Click:Connect(function()
     MainFrame.Visible = false
+    FloatingBtn.Visible = true
 end)
 
--- NÚT FLOATING (Z)
+-- FLOATING BUTTON
 local FloatingBtn = Instance.new("TextButton", ScreenGui)
 FloatingBtn.Size = UDim2.new(0, 44, 0, 44)
 FloatingBtn.AnchorPoint = Vector2.new(0.5, 0.5)
 FloatingBtn.Position = UDim2.new(0.05, 0, 0.5, 0)
-FloatingBtn.BackgroundColor3 = Color3.fromRGB(13, 15, 22)
+FloatingBtn.BackgroundColor3 = Color3.fromRGB(10, 12, 20)
 FloatingBtn.Visible = false
 FloatingBtn.Text = "Z"
 FloatingBtn.TextColor3 = Color3.fromRGB(0, 200, 255)
 FloatingBtn.Font = Enum.Font.GothamBlack
-FloatingBtn.TextSize = 24
+FloatingBtn.TextSize = 26
 Instance.new("UICorner", FloatingBtn).CornerRadius = UDim.new(0, 12)
 Instance.new("UIStroke", FloatingBtn).Color = Color3.fromRGB(0, 200, 255)
 FloatingBtn.MouseButton1Click:Connect(function()
@@ -145,57 +146,57 @@ FloatingBtn.MouseButton1Click:Connect(function()
     FloatingBtn.Visible = false
 end)
 
--- CONTENT SCROLL
+-- CONTENT
 local Content = Instance.new("ScrollingFrame", MainFrame)
-Content.Size = UDim2.new(1, 0, 1, -32)
-Content.Position = UDim2.new(0, 0, 0, 32)
+Content.Size = UDim2.new(1, 0, 1, -36)
+Content.Position = UDim2.new(0, 0, 0, 36)
 Content.BackgroundTransparency = 1
 Content.ScrollBarThickness = 3
 Content.CanvasSize = UDim2.new(0, 0, 0, 0)
 Content.AutomaticCanvasSize = Enum.AutomaticSize.Y
 
 local Layout = Instance.new("UIListLayout", Content)
-Layout.Padding = UDim.new(0, 5)
+Layout.Padding = UDim.new(0, 6)
 Layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 
 -- ===================================================
--- HÀM TẠO UI
+-- HÀM TẠO UI COMPONENTS
 -- ===================================================
 local function addToggle(text, default, callback)
     local state = default or false
     local frame = Instance.new("Frame", Content)
-    frame.Size = UDim2.new(0.94, 0, 0, 28)
-    frame.BackgroundColor3 = Color3.fromRGB(18, 22, 32)
-    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 4)
+    frame.Size = UDim2.new(0.94, 0, 0, 30)
+    frame.BackgroundColor3 = Color3.fromRGB(18, 22, 34)
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 6)
     
     local label = Instance.new("TextLabel", frame)
-    label.Size = UDim2.new(1, -50, 1, 0)
-    label.Position = UDim2.new(0, 8, 0, 0)
+    label.Size = UDim2.new(1, -55, 1, 0)
+    label.Position = UDim2.new(0, 10, 0, 0)
     label.BackgroundTransparency = 1
     label.Text = text
-    label.TextColor3 = Color3.fromRGB(220, 225, 235)
+    label.TextColor3 = Color3.fromRGB(230, 235, 245)
     label.Font = Enum.Font.Gotham
-    label.TextSize = 11
+    label.TextSize = 12
     label.TextXAlignment = Enum.TextXAlignment.Left
     label.TextYAlignment = Enum.TextYAlignment.Center
     
     local sw = Instance.new("TextButton", frame)
-    sw.Size = UDim2.new(0, 28, 0, 14)
-    sw.Position = UDim2.new(1, -36, 0.5, -7)
-    sw.BackgroundColor3 = state and Color3.fromRGB(0, 190, 255) or Color3.fromRGB(35, 40, 54)
+    sw.Size = UDim2.new(0, 30, 0, 16)
+    sw.Position = UDim2.new(1, -40, 0.5, -8)
+    sw.BackgroundColor3 = state and Color3.fromRGB(0, 190, 255) or Color3.fromRGB(40, 45, 60)
     sw.Text = ""
     Instance.new("UICorner", sw).CornerRadius = UDim.new(1, 0)
     
     local circle = Instance.new("Frame", sw)
-    circle.Size = UDim2.new(0, 10, 0, 10)
-    circle.Position = state and UDim2.new(1, -12, 0.5, -5) or UDim2.new(0, 2, 0.5, -5)
+    circle.Size = UDim2.new(0, 12, 0, 12)
+    circle.Position = state and UDim2.new(1, -14, 0.5, -6) or UDim2.new(0, 2, 0.5, -6)
     circle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     Instance.new("UICorner", circle).CornerRadius = UDim.new(1, 0)
     
     sw.MouseButton1Click:Connect(function()
         state = not state
-        sw.BackgroundColor3 = state and Color3.fromRGB(0, 190, 255) or Color3.fromRGB(35, 40, 54)
-        circle:TweenPosition(state and UDim2.new(1, -12, 0.5, -5) or UDim2.new(0, 2, 0.5, -5), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.12, true)
+        sw.BackgroundColor3 = state and Color3.fromRGB(0, 190, 255) or Color3.fromRGB(40, 45, 60)
+        circle:TweenPosition(state and UDim2.new(1, -14, 0.5, -6) or UDim2.new(0, 2, 0.5, -6), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.12, true)
         if callback then callback(state) end
     end)
 end
@@ -203,34 +204,34 @@ end
 local function addSlider(text, min, max, default, callback, isFloat)
     local current = default or min
     local frame = Instance.new("Frame", Content)
-    frame.Size = UDim2.new(0.94, 0, 0, 36)
-    frame.BackgroundColor3 = Color3.fromRGB(18, 22, 32)
-    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 4)
+    frame.Size = UDim2.new(0.94, 0, 0, 38)
+    frame.BackgroundColor3 = Color3.fromRGB(18, 22, 34)
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 6)
     
     local label = Instance.new("TextLabel", frame)
-    label.Size = UDim2.new(1, -70, 0, 16)
-    label.Position = UDim2.new(0, 8, 0, 2)
+    label.Size = UDim2.new(1, -75, 0, 18)
+    label.Position = UDim2.new(0, 10, 0, 2)
     label.BackgroundTransparency = 1
     label.Text = text
-    label.TextColor3 = Color3.fromRGB(220, 225, 235)
+    label.TextColor3 = Color3.fromRGB(230, 235, 245)
     label.Font = Enum.Font.Gotham
-    label.TextSize = 11
+    label.TextSize = 12
     label.TextXAlignment = Enum.TextXAlignment.Left
     
     local valLabel = Instance.new("TextLabel", frame)
-    valLabel.Size = UDim2.new(0, 50, 0, 16)
-    valLabel.Position = UDim2.new(1, -58, 0, 2)
+    valLabel.Size = UDim2.new(0, 55, 0, 18)
+    valLabel.Position = UDim2.new(1, -65, 0, 2)
     valLabel.BackgroundTransparency = 1
     valLabel.Text = isFloat and string.format("%.2f", current) or tostring(current)
-    valLabel.TextColor3 = Color3.fromRGB(0, 200, 255)
+    valLabel.TextColor3 = Color3.fromRGB(0, 210, 255)
     valLabel.Font = Enum.Font.GothamBold
-    valLabel.TextSize = 11
+    valLabel.TextSize = 12
     valLabel.TextXAlignment = Enum.TextXAlignment.Right
     
     local track = Instance.new("TextButton", frame)
-    track.Size = UDim2.new(0.94, 0, 0, 3)
-    track.Position = UDim2.new(0.03, 0, 0, 24)
-    track.BackgroundColor3 = Color3.fromRGB(35, 42, 58)
+    track.Size = UDim2.new(0.94, 0, 0, 4)
+    track.Position = UDim2.new(0.03, 0, 0, 26)
+    track.BackgroundColor3 = Color3.fromRGB(40, 45, 60)
     track.AutoButtonColor = false
     track.Text = ""
     Instance.new("UICorner", track).CornerRadius = UDim.new(1, 0)
@@ -271,13 +272,13 @@ end
 
 local function addButton(text, callback)
     local btn = Instance.new("TextButton", Content)
-    btn.Size = UDim2.new(0.94, 0, 0, 28)
-    btn.BackgroundColor3 = Color3.fromRGB(18, 22, 32)
+    btn.Size = UDim2.new(0.94, 0, 0, 30)
+    btn.BackgroundColor3 = Color3.fromRGB(18, 22, 34)
     btn.Text = text
-    btn.TextColor3 = Color3.fromRGB(0, 200, 255)
+    btn.TextColor3 = Color3.fromRGB(0, 210, 255)
     btn.Font = Enum.Font.GothamMedium
-    btn.TextSize = 11
-    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 4)
+    btn.TextSize = 12
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
     Instance.new("UIStroke", btn).Color = Color3.fromRGB(0, 180, 255)
     btn.MouseButton1Click:Connect(function() if callback then callback() end end)
 end
@@ -286,23 +287,23 @@ end
 -- TẠO UI
 -- ===================================================
 local infoLabel = Instance.new("TextLabel", Content)
-infoLabel.Size = UDim2.new(0.94, 0, 0, 28)
+infoLabel.Size = UDim2.new(0.94, 0, 0, 30)
 infoLabel.BackgroundTransparency = 1
 infoLabel.Text = "⚡ Sẵn sàng"
 infoLabel.TextColor3 = Color3.fromRGB(0, 255, 150)
 infoLabel.Font = Enum.Font.GothamBold
-infoLabel.TextSize = 12
+infoLabel.TextSize = 13
 
--- Weapon select
+-- Weapon
 local wFrame = Instance.new("Frame", Content)
-wFrame.Size = UDim2.new(0.94, 0, 0, 26)
-wFrame.BackgroundColor3 = Color3.fromRGB(18, 22, 32)
-Instance.new("UICorner", wFrame).CornerRadius = UDim.new(0, 4)
+wFrame.Size = UDim2.new(0.94, 0, 0, 28)
+wFrame.BackgroundColor3 = Color3.fromRGB(18, 22, 34)
+Instance.new("UICorner", wFrame).CornerRadius = UDim.new(0, 6)
 local wLayout = Instance.new("UIListLayout", wFrame)
 wLayout.FillDirection = Enum.FillDirection.Horizontal
 wLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 wLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-wLayout.Padding = UDim.new(0, 4)
+wLayout.Padding = UDim.new(0, 5)
 
 local wBtns = {}
 local wList = {"Melee", "Sword", "Fruit"}
@@ -311,10 +312,10 @@ for i, name in ipairs(wList) do
     local b = Instance.new("TextButton", wFrame)
     b.Size = UDim2.new(0.3, 0, 0.8, 0)
     b.BackgroundColor3 = (selectedWeapon == name) and Color3.fromRGB(0, 160, 240) or Color3.fromRGB(28, 35, 48)
-    b.Text = wIcons[i]
+    b.Text = wIcons[i] .. " " .. name
     b.TextColor3 = (selectedWeapon == name) and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(160, 170, 190)
     b.Font = Enum.Font.GothamMedium
-    b.TextSize = 14
+    b.TextSize = 10
     Instance.new("UICorner", b).CornerRadius = UDim.new(0, 4)
     wBtns[name] = b
     b.MouseButton1Click:Connect(function()
@@ -521,17 +522,27 @@ task.spawn(function()
 end)
 
 -- ===================================================
--- 5. AUTO FARM (CHUẨN - KHÔNG LẶP, KHÔNG GIẬT)
+-- 5. AUTO FARM (CHUẨN - KHÔNG LẶP)
 -- ===================================================
-local function checkQuest()
-    local q = LocalPlayer:FindFirstChild("Quest")
-    if q and q.Value ~= "" and q.Value ~= nil then return true end
-    local gui = LocalPlayer.PlayerGui:FindFirstChild("Quest")
-    if gui and gui.Enabled then return true end
+local questAccepted = false
+local currentQuestName = ""
+
+-- KIỂM TRA QUEST CHÍNH XÁC
+local function hasQuest()
+    -- Kiểm tra UI Quest
+    local questGui = LocalPlayer.PlayerGui:FindFirstChild("Quest")
+    if questGui and questGui.Enabled then
+        return true
+    end
+    -- Kiểm tra Data
+    local questData = LocalPlayer:FindFirstChild("Quest")
+    if questData and questData.Value ~= "" and questData.Value ~= nil then
+        return true
+    end
     return false
 end
 
-local function getQuest()
+local function getQuestByLevel()
     local lv = LocalPlayer.Data and LocalPlayer.Data.Level and LocalPlayer.Data.Level.Value or 1
     local qs = {
         {Mon = "Bandit", Name = "BanditQuest1", Lv = 1},
@@ -542,7 +553,9 @@ local function getQuest()
         {Mon = "Light", Name = "LightQuest1", Lv = 400},
         {Mon = "Dough", Name = "DoughQuest1", Lv = 500},
     }
-    for _, q in ipairs(qs) do if lv >= q.Lv then return q end end
+    for _, q in ipairs(qs) do
+        if lv >= q.Lv then return q end
+    end
     return qs[#qs]
 end
 
@@ -552,7 +565,8 @@ local function getMobs(name)
     for _, obj in ipairs(Workspace:GetDescendants()) do
         if obj:IsA("Model") and obj:FindFirstChild("Humanoid") and obj:FindFirstChild("HumanoidRootPart") then
             local hum = obj:FindFirstChildOfClass("Humanoid")
-            if hum and hum.Health > 0 then
+            local hrp = obj:FindFirstChild("HumanoidRootPart")
+            if hum and hrp and hum.Health > 0 then
                 local n = string.lower(obj.Name)
                 if string.find(n, lower) then
                     table.insert(list, obj)
@@ -563,19 +577,27 @@ local function getMobs(name)
     return list
 end
 
-local function equipTool()
+local function equipWeapon()
     pcall(function()
         local char = LocalPlayer.Character
         if not char then return end
         local backpack = LocalPlayer:FindFirstChild("Backpack")
         local list = {}
-        if backpack then for _, t in ipairs(backpack:GetChildren()) do if t:IsA("Tool") then table.insert(list, t) end end end
-        if char then for _, t in ipairs(char:GetChildren()) do if t:IsA("Tool") then table.insert(list, t) end end end
+        if backpack then
+            for _, t in ipairs(backpack:GetChildren()) do
+                if t:IsA("Tool") then table.insert(list, t) end
+            end
+        end
+        if char then
+            for _, t in ipairs(char:GetChildren()) do
+                if t:IsA("Tool") then table.insert(list, t) end
+            end
+        end
         
         local function match(t, n)
             local nl = string.lower(n)
-            if t == "Melee" and (string.find(nl, "melee") or string.find(nl, "fist") or string.find(nl, "combat")) then return true
-            elseif t == "Sword" and (string.find(nl, "sword") or string.find(nl, "blade") or string.find(nl, "katana") or string.find(nl, "cutlass")) then return true
+            if t == "Melee" and (string.find(nl, "melee") or string.find(nl, "fist") or string.find(nl, "combat") or string.find(nl, "fighting")) then return true
+            elseif t == "Sword" and (string.find(nl, "sword") or string.find(nl, "blade") or string.find(nl, "katana") or string.find(nl, "cutlass") or string.find(nl, "saber")) then return true
             elseif t == "Fruit" and (string.find(nl, "fruit") or string.find(nl, "devil") or string.find(nl, "paw") or string.find(nl, "buddha") or string.find(nl, "light") or string.find(nl, "dough")) then return true
             end
             return false
@@ -635,7 +657,10 @@ local function doAttack()
         local c = CbFw.activeController
         if not c then
             for _, v in pairs(debug.getupvalues(CbFw)) do
-                if type(v) == "table" and v.activeController then c = v.activeController break end
+                if type(v) == "table" and v.activeController then
+                    c = v.activeController
+                    break
+                end
             end
         end
         if c then
@@ -645,7 +670,7 @@ local function doAttack()
             c.increment = 10
             c.attacking = false
             c.blocking = false
-            for i = 1, 5 do
+            for i = 1, 6 do
                 c:attack()
                 task.wait(0.008)
             end
@@ -653,15 +678,15 @@ local function doAttack()
     end)
 end
 
--- MAIN LOOP
+-- MAIN FARM LOOP
 task.spawn(function()
     local lastQuestTime = 0
-    local isFarming = false
+    local hasAcceptedQuest = false
     
     while true do
         task.wait(0.1)
         if not AutoFarm then
-            isFarming = false
+            hasAcceptedQuest = false
             task.wait(0.5)
             continue
         end
@@ -671,23 +696,28 @@ task.spawn(function()
         local root = char:FindFirstChild("HumanoidRootPart")
         if not root then task.wait(0.5) continue end
         
-        -- QUEST
+        -- NHẬN QUEST (CHỈ GỌI 1 LẦN)
         if AutoQuest then
-            if not checkQuest() and tick() - lastQuestTime > 2 then
-                local q = getQuest()
+            if not hasQuest() and tick() - lastQuestTime > 3 then
+                local q = getQuestByLevel()
                 if q then
                     pcall(function()
                         CommF:InvokeServer("StartQuest", q.Name, q.Lv)
                         infoLabel.Text = "📜 Quest: " .. q.Mon
+                        lastQuestTime = tick()
+                        hasAcceptedQuest = true
                     end)
-                    lastQuestTime = tick()
+                    task.wait(0.5)
                 end
+            elseif hasQuest() then
+                hasAcceptedQuest = true
             end
         end
         
-        local quest = getQuest()
+        -- LẤY QUEST HIỆN TẠI
+        local quest = getQuestByLevel()
         if not quest then
-            infoLabel.Text = "⚠️ No quest"
+            infoLabel.Text = "⚠️ Không có quest"
             task.wait(1)
             continue
         end
@@ -725,9 +755,9 @@ task.spawn(function()
         local lv = LocalPlayer.Data.Level.Value
         infoLabel.Text = string.format("⚔️ %s | Lv.%d | %d mobs", quest.Mon, lv, #mobs)
         
-        equipTool()
+        equipWeapon()
         
-        -- BAY ĐẾN
+        -- BAY ĐẾN QUÁI
         local dist = (tHRP.Position - root.Position).Magnitude
         if dist > 15 then
             flyTo(tHRP.Position)
@@ -735,7 +765,7 @@ task.spawn(function()
             continue
         end
         
-        -- ĐÁNH
+        -- ĐÁNH QUÁI
         if dist <= 18 then
             -- GIỮ ĐỘ CAO
             local y = root.Position.Y
@@ -747,7 +777,7 @@ task.spawn(function()
                 root.AssemblyLinearVelocity = Vector3.zero
             end
             
-            -- QUAY MẶT
+            -- QUAY MẶT VÀO QUÁI
             local look = (tHRP.Position - root.Position).Unit
             if look.Magnitude > 0 then
                 root.CFrame = CFrame.lookAt(root.Position, root.Position + look * 10)
@@ -795,6 +825,6 @@ task.spawn(function()
     end
 end)
 
-print("✅ ZENITH V12.24 - UI ĐƠN GIẢN + AUTO FARM CHUẨN")
-print("📌 Bật 'AFK Farm' để farm")
-print("📌 ESP hoạt động khi bật toggle")
+print("✅ ZENITH V12.24 - UI ĐẸP + AUTO FARM CHUẨN")
+print("📌 Bật 'AFK Farm' để bắt đầu farm")
+print("📌 Auto Quest chỉ gọi 1 lần khi chưa có quest")
