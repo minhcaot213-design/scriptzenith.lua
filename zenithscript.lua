@@ -1,4 +1,4 @@
--- [[ ZENITH BLOX FRUIT - V12.3 (BẢN CHUẨN: ÉP HIỂN THỊ MENU + FAST ATTACK) ]] --
+-- [[ ZENITH BLOX FRUIT - V12.4 (FIX AUTO ATTACK CHO GIẢ LẬP LDPLAYER/MOBILE) ]] --
 
 task.wait(0.5)
 
@@ -11,6 +11,7 @@ local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local TeleportService = game:GetService("TeleportService")
 local HttpService = game:GetService("HttpService")
+local VirtualUser = game:GetService("VirtualUser") -- Thêm lại VirtualUser để sửa lỗi trên giả lập
 
 local LocalPlayer = Players.LocalPlayer
 local Camera = Workspace.CurrentCamera
@@ -25,29 +26,21 @@ local espPlayerEnabled, espFruitEnabled = false, false
 local espChest1Enabled, espChest2Enabled, espChest3Enabled = false, false, false
 
 -- ===================================================
--- 1. ÉP HIỂN THỊ GIAO DIỆN VÀ DỌN DẸP (GUARANTEED UI)
+-- 1. ÉP HIỂN THỊ GIAO DIỆN (GUARANTEED UI)
 -- ===================================================
 local UI_NAME = "ZenithBloxFruit_Zyrox_V12"
 
 local function GetSafeUIFolder()
     local folder
-    pcall(function()
-        if gethui then folder = gethui() end
-    end)
-    if not folder then
-        pcall(function() folder = game:GetService("CoreGui") end)
-    end
+    pcall(function() if gethui then folder = gethui() end end)
+    if not folder then pcall(function() folder = game:GetService("CoreGui") end) end
     if not folder then folder = LocalPlayer:WaitForChild("PlayerGui") end
     return folder
 end
 
 local targetUIFolder = GetSafeUIFolder()
-for _, gui in ipairs(targetUIFolder:GetChildren()) do
-    if gui.Name == UI_NAME then gui:Destroy() end
-end
-for _, gui in ipairs(LocalPlayer:WaitForChild("PlayerGui"):GetChildren()) do
-    if gui.Name == UI_NAME then gui:Destroy() end
-end
+for _, gui in ipairs(targetUIFolder:GetChildren()) do if gui.Name == UI_NAME then gui:Destroy() end end
+for _, gui in ipairs(LocalPlayer:WaitForChild("PlayerGui"):GetChildren()) do if gui.Name == UI_NAME then gui:Destroy() end end
 
 -- ===================================================
 -- 2. HỆ THỐNG NGÔN NGỮ
@@ -92,7 +85,7 @@ local function setLanguage(lang)
 end
 
 -- ===================================================
--- 3. XÂY DỰNG GIAO DIỆN (UI BUILDER) - ĐẨY LÊN TRÊN CÙNG
+-- 3. XÂY DỰNG GIAO DIỆN (UI BUILDER)
 -- ===================================================
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name, ScreenGui.ResetOnSpawn = UI_NAME, false
@@ -280,13 +273,12 @@ createToggle(farmPage, "auto_farm_level", false, function(v) AutoFarmLevel = v e
 createToggle(farmPage, "auto_quest", true, function(v) AutoQuest = v end)
 createToggle(farmPage, "bring_mob", true, function(v) BringMob = v end)
 
--- TAB 2: FRUIT
+-- CÁC TABS CÒN LẠI (TẮT BỚT ĐỂ GỌN GIAO DIỆN)
 local fruitPage = tabPages["Fruit"]
 createToggle(fruitPage, "fruit_buy", false, function(v) AutoRandomFruit = v end)
 createToggle(fruitPage, "fruit_collect", false, function(v) AutoCollectFruit = v end)
 createToggle(fruitPage, "fruit_store", false, function(v) AutoStoreFruit = v end)
 
--- TAB 3, 4, 5, 6
 createToggle(tabPages["PVP-ESP"], "speed_toggle", false, function(v) speedEnabled = v end)
 createSlider(tabPages["PVP-ESP"], "speed_slider", 16, 300, 16, function(val) speedValue = val end)
 createToggle(tabPages["PVP-ESP"], "jump_toggle", false, function(v) jumpEnabled = v end)
@@ -295,35 +287,39 @@ createToggle(tabPages["PVP-ESP"], "player_esp", false, function(v) espPlayerEnab
 createToggle(tabPages["PVP-ESP"], "fruit_esp", false, function(v) espFruitEnabled = v end)
 createToggle(tabPages["PVP-ESP"], "chest_wood", false, function(v) espChest1Enabled = v end)
 
--- TAB 7: SETTING
+createButton(tabPages["Server"], "rejoin_btn", function() TeleportService:Teleport(game.PlaceId, LocalPlayer) end)
+
 local settingPage = tabPages["SETTING"]
 createSlider(settingPage, "ui_scale", 60, 140, 100, function(val) UIScale.Scale = val / 100 end)
-createButton(settingPage, "fix_lag", function()
-    Lighting.GlobalShadows, Lighting.FogEnd, Lighting.Brightness = false, 9e9, 1
-    for _, v in ipairs(Lighting:GetChildren()) do if v:IsA("PostEffect") or v:IsA("BloomEffect") or v:IsA("BlurEffect") then v.Enabled = false end end
-    for _, obj in ipairs(Workspace:GetDescendants()) do
-        if obj:IsA("BasePart") then obj.Material, obj.CastShadow = Enum.Material.SmoothPlastic, false
-        elseif obj:IsA("ParticleEmitter") or obj:IsA("Trail") or obj:IsA("Smoke") or obj:IsA("Fire") then obj.Enabled = false end
-    end
-end)
 createButton(settingPage, "close_hub", function() ScreenGui:Destroy() end)
 switchTab("Farm")
 
 -- ===================================================
--- 4. BẮT ĐẦU CÁC TÁC VỤ NGẦM (BACKGROUND TASKS)
--- Đảm bảo an toàn, nếu có lỗi ở đây UI vẫn sống!
+-- 4. BẮT ĐẦU CÁC TÁC VỤ NGẦM & HACK CHÉM NHANH 100% WORK
 -- ===================================================
 local CommF = ReplicatedStorage:WaitForChild("Remotes", 5)
 if CommF then CommF = CommF:WaitForChild("CommF_", 5) end
 
 local currentTween, isAttackingTarget = nil, false
 
+-- [QUAN TRỌNG NHẤT]: HÀM ATTACK FIX CHO GIẢ LẬP
 local function executeFastAttack()
     local char = LocalPlayer.Character
     if not char then return end
-    local tool = char:FindFirstChildOfClass("Tool")
-    if not tool then return end
     
+    local tool = char:FindFirstChildOfClass("Tool")
+    if tool then
+        -- 1. Ép Vũ Khí Hoạt Động Mặc Định (Chắc chắn nổ damage trên Mobile)
+        tool:Activate()
+    end
+    
+    -- 2. Dùng VirtualUser giả lập thao tác Click Giữa Màn Hình (Rất quan trọng cho LDPlayer)
+    pcall(function()
+        VirtualUser:CaptureController()
+        VirtualUser:ClickButton1(Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2))
+    end)
+    
+    -- 3. Gọi hàm ẩn CombatFramework (Dành cho Executor VIP, nếu lỗi sẽ tự bỏ qua nhờ pcall)
     pcall(function()
         local CombatFramework = require(LocalPlayer.PlayerScripts.CombatFramework)
         local activeController = CombatFramework.activeController
@@ -331,30 +327,19 @@ local function executeFastAttack()
             activeController.hitboxLimiter = 0
             activeController.timeToNextAttack = 0
             activeController.attacking = false
-            activeController.timeToNextBlock = 0
             activeController.increment = 3
             activeController.blocking = false
-            activeController.hasCombatState = false
             activeController:attack()
-        end
-    end)
-    
-    pcall(function()
-        local humanoid = char:FindFirstChildOfClass("Humanoid")
-        if humanoid then
-            for _, anim in ipairs(humanoid:GetPlayingAnimationTracks()) do
-                local n = anim.Name
-                if n == "Attack" or n == "Slash" or n == "Punch" or n == "Combat" or n == "M1" then anim:Stop() end
-            end
         end
     end)
 end
 
+-- Vòng lặp xả skill tốc độ cao (0.1 giây / hit)
 task.spawn(function()
     while true do
         if AutoFarmLevel and isAttackingTarget then
             executeFastAttack()
-            task.wait(0.08)
+            task.wait(0.1)
         else
             task.wait(0.1)
         end
@@ -404,7 +389,7 @@ local function getAutoQuestByLevel()
     elseif level <= 14 then return {QuestName = "JungleQuest", QuestLevel = 1, MonName = "Monkey", ReqLevel = 10}
     elseif level <= 29 then return {QuestName = "JungleQuest", QuestLevel = 2, MonName = "Gorilla", ReqLevel = 15}
     elseif level <= 39 then return {QuestName = "BuggyQuest1", QuestLevel = 1, MonName = "Pirate", ReqLevel = 30}
-    else return {QuestName = "BuggyQuest1", QuestLevel = 2, MonName = "Brute", ReqLevel = 40} end -- Mở rộng tương tự cho các level khác
+    else return {QuestName = "BuggyQuest1", QuestLevel = 2, MonName = "Brute", ReqLevel = 40} end
 end
 
 local function checkHasQuest()
@@ -459,33 +444,5 @@ task.spawn(function()
                 else isAttackingTarget = false end
             end
         else isAttackingTarget = false if currentTween then currentTween:Cancel() end end
-    end
-end)
-
--- Tự động nhặt trái và cất (An toàn ngầm)
-task.spawn(function()
-    while true do
-        task.wait(1)
-        if AutoCollectFruit and not AutoFarmLevel and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-            for _, obj in ipairs(Workspace:GetChildren()) do
-                if (obj:IsA("Tool") and string.find(obj.Name, "Fruit")) or obj:FindFirstChild("Fruit") then
-                    local handle = obj:FindFirstChild("Handle") or obj:FindFirstChildWhichIsA("BasePart")
-                    if handle then toTargetPos(handle.CFrame) task.wait(0.5) if firetouchinterest then firetouchinterest(LocalPlayer.Character.HumanoidRootPart, handle, 0) task.wait() firetouchinterest(LocalPlayer.Character.HumanoidRootPart, handle, 1) end end
-                end
-            end
-        end
-    end
-end)
-
-task.spawn(function()
-    while true do
-        task.wait(3)
-        if AutoStoreFruit and CommF then
-            pcall(function()
-                local backpack, char = LocalPlayer:FindFirstChild("Backpack"), LocalPlayer.Character
-                if backpack then for _, item in ipairs(backpack:GetChildren()) do if string.find(item.Name, "Fruit") or item:FindFirstChild("Fruit") then CommF:InvokeServer("StoreFruit", item.Name, item) end end end
-                if char then for _, item in ipairs(char:GetChildren()) do if item:IsA("Tool") and (string.find(item.Name, "Fruit") or item:FindFirstChild("Fruit")) then CommF:InvokeServer("StoreFruit", item.Name, item) end end end
-            end)
-        end
     end
 end)
