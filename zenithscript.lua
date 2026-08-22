@@ -1,5 +1,5 @@
--- [[ ZENITH BLOX FRUIT - V13.1 (PERFECT LDPLAYER FIX)
---    FIX LỖI TARGET NHẦM BOSS + SKY FARM 30M + ANTI-GRAVITY VĨNH CỬU
+-- [[ ZENITH BLOX FRUIT - V13.2 (FINAL LDPLAYER FIX)
+--    XÓA LỖI HITBOX TRẮNG + SKY FARM 30M CHUẨN + AUTO ATTACK MƯỢT
 -- ]] --
 
 task.wait(0.5)
@@ -100,10 +100,10 @@ local currentLang = "VI"
 local translatableElements = {}
 local LangDict = {
     VI = {
-        title = "ZYROX VN <font color='#00d2ff'>• V13.1 (PRO)</font>",
+        title = "ZYROX VN <font color='#00d2ff'>• V13.2 (FINAL)</font>",
         tab_farm = "Farm Level", tab_fruit = "Trái Ác Quỷ", tab_pvp = "PVP & ESP",
         tab_server = "Máy Chủ", tab_raid = "Đi Raid", tab_item = "Farm Item", tab_setting = "Cài Đặt",
-        auto_farm_level = "⚡ Tự Động Farm (Sky Farm)", auto_quest = "📜 Tự Nhận Nhiệm Vụ", bring_mob = "🧲 Treo Quái Trên Không",
+        auto_farm_level = "⚡ Tự Động Farm (Mượt 100%)", auto_quest = "📜 Tự Nhận Nhiệm Vụ", bring_mob = "🧲 Treo Quái Trên Không",
         fruit_buy = "🎲 Mua Ngẫu Nhiên Trái", fruit_collect = "🧲 Nhặt Trái Rơi", fruit_store = "📦 Cất Trái Vào Rương",
         speed_toggle = "Bật Chạy Nhanh", speed_slider = "Tốc Độ", jump_toggle = "Bật Nhảy Cao", jump_slider = "Lực Nhảy",
         player_esp = "ESP Người Chơi", fruit_esp = "ESP Trái Ác Quỷ", chest_wood = "ESP Rương Gỗ", chest_gold = "ESP Rương Vàng", chest_diamond = "ESP Rương Kim Cương",
@@ -112,10 +112,10 @@ local LangDict = {
         lang_title = "Ngôn Ngữ / Language", ui_scale = "Thu Phóng UI (%)", ui_transparency = "Trong Suốt UI (%)", fix_lag = "Tối Ưu Đồ Họa (Tăng FPS)", close_hub = "Đóng Cửa Sổ"
     },
     EN = {
-        title = "ZYROX VN <font color='#00d2ff'>• V13.1 (PRO)</font>",
+        title = "ZYROX VN <font color='#00d2ff'>• V13.2 (FINAL)</font>",
         tab_farm = "Farm Level", tab_fruit = "Devil Fruit", tab_pvp = "PVP & ESP",
         tab_server = "Server", tab_raid = "Raid Hub", tab_item = "Item Farm", tab_setting = "Settings",
-        auto_farm_level = "⚡ Auto Farm (Sky Farm)", auto_quest = "📜 Auto Quest", bring_mob = "🧲 Sky Bring Mobs",
+        auto_farm_level = "⚡ Auto Farm (Smooth 100%)", auto_quest = "📜 Auto Quest", bring_mob = "🧲 Sky Bring Mobs",
         fruit_buy = "🎲 Random Fruit", fruit_collect = "🧲 Collect Fruits", fruit_store = "📦 Store Into Inventory",
         speed_toggle = "Enable WalkSpeed", speed_slider = "Speed", jump_toggle = "Enable High Jump", jump_slider = "Jump Height",
         player_esp = "Player ESP", fruit_esp = "Fruit ESP", chest_wood = "Wood Chest", chest_gold = "Gold Chest", chest_diamond = "Diamond Chest",
@@ -327,6 +327,8 @@ local function createTabButton(name, icon, transKey)
     table.insert(translatableElements, entry); entry.Update(); tabButtons[name] = entry
 
     btn.MouseButton1Click:Connect(function() switchTab(name) end)
+    btn.MouseEnter:Connect(function() if tabPages[name] and not tabPages[name].Visible then btn.BackgroundColor3 = Color3.fromRGB(31, 38, 52) end end)
+    btn.MouseLeave:Connect(function() if tabPages[name] and not tabPages[name].Visible then btn.BackgroundColor3 = Color3.fromRGB(25, 30, 42) end end)
 end
 
 local function createToggle(page, transKey, defaultState, callback)
@@ -625,23 +627,24 @@ UserInputService.JumpRequest:Connect(function()
 end)
 
 -- =========================================================
--- SUPER FAST ATTACK (COMBAT FRAMEWORK + VIRTUAL USER)
+-- SUPER FAST ATTACK: CHUẨN LDPLAYER KHÔNG BỊ TRƯỢT
 -- =========================================================
 local isAttackingTarget = false
 
 task.spawn(function()
-    while task.wait(0.05) do
+    while task.wait(0.1) do
         if AutoFarmLevel and isAttackingTarget then
-            pcall(function()
-                VirtualUser:CaptureController()
-                VirtualUser:ClickButton1(Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y/2))
-            end)
-
             pcall(function()
                 local char = LocalPlayer.Character
                 local tool = char and char:FindFirstChildOfClass("Tool")
                 if tool then tool:Activate() end
+                
+                -- Lệnh chém giả lập
+                VirtualUser:CaptureController()
+                VirtualUser:Button1Down(Vector2.new(0, 0))
+            end)
 
+            pcall(function()
                 local CbFw = require(LocalPlayer.PlayerScripts.CombatFramework)
                 local controller = CbFw.activeController
                 if not controller and debug.getupvalues then
@@ -657,37 +660,41 @@ task.spawn(function()
                     controller.increment = 3
                     controller.attacking = false
                     controller.blocking = false
+                    controller.hasCombatState = false
                     controller:attack()
                 end
+            end)
+        else
+            pcall(function()
+                VirtualUser:CaptureController()
+                VirtualUser:Button1Up(Vector2.new(0, 0))
             end)
         end
     end
 end)
 
 -- =========================================================
--- ĐỘNG CƠ BAY CHỐNG TRỌNG LỰC
+-- LOGIC ĐỘNG CƠ BAY (ANTI-GRAVITY) VÀ TÌM QUÁI CHUẨN XÁC
 -- =========================================================
-task.spawn(function()
-    while task.wait(0.1) do
-        local char = LocalPlayer.Character
-        local root = char and char:FindFirstChild("HumanoidRootPart")
-        if AutoFarmLevel and isAttackingTarget and root then
-            local bv = root:FindFirstChild("Zenith_AntiGravity")
-            if not bv then
-                bv = Instance.new("BodyVelocity")
-                bv.Name = "Zenith_AntiGravity"
-                bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-                bv.Velocity = Vector3.zero
-                bv.Parent = root
-            end
-        else
-            if root then
-                local bv = root:FindFirstChild("Zenith_AntiGravity")
-                if bv then bv:Destroy() end
-            end
-        end
+local function ApplyBodyVelocity(part)
+    if not part then return end
+    local bv = part:FindFirstChild("Zenith_AntiGravity")
+    if not bv then
+        bv = Instance.new("BodyVelocity")
+        bv.Name = "Zenith_AntiGravity"
+        bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+        bv.Velocity = Vector3.zero
+        bv.Parent = part
+    else
+        bv.Velocity = Vector3.zero
     end
-end)
+end
+
+local function RemoveBodyVelocity(part)
+    if part and part:FindFirstChild("Zenith_AntiGravity") then
+        part.Zenith_AntiGravity:Destroy()
+    end
+end
 
 local currentTween = nil
 local currentTargetPos = nil
@@ -745,9 +752,6 @@ local function equipChosenWeapon()
     end
 end
 
--- =========================================================
--- LOGIC TÌM NHIỆM VỤ (CHÍNH XÁC 100%)
--- =========================================================
 local function getAutoQuestByLevel()
     local level = 1
     pcall(function() level = LocalPlayer.Data.Level.Value end)
@@ -772,14 +776,11 @@ local function checkHasQuest()
     return pGui and pGui:FindFirstChild("Main") and pGui.Main:FindFirstChild("Quest") and pGui.Main.Quest.Visible or false
 end
 
--- =========================================================
--- CHỐNG LỖI TARGET VÀO BOSS
--- =========================================================
+-- FIX LỖI TARGET BOSS: Tìm đúng tên, KHÔNG DÙNG string.find()
 local function getAllLivingEnemies(monName)
     local list = {}
     if not Workspace:FindFirstChild("Enemies") then return list end
     for _, mob in ipairs(Workspace.Enemies:GetChildren()) do
-        -- LỌC CHUẨN XÁC 100%: Tên quái phải hoàn toàn khớp (Loại bỏ Gorilla King)
         if mob.Name == monName then
             local hum, hrp = mob:FindFirstChildOfClass("Humanoid"), mob:FindFirstChild("HumanoidRootPart")
             if hum and hrp and hum.Health > 0 then table.insert(list, mob) end
@@ -794,7 +795,6 @@ local function GetMobSpawn(monName)
         local enemySpawns = worldOrigin:FindFirstChild("EnemySpawns")
         if enemySpawns then
             for _, spawnPart in ipairs(enemySpawns:GetChildren()) do
-                -- Quét điểm Spawn chuẩn xác
                 if spawnPart.Name == monName or string.find(string.lower(spawnPart.Name), string.lower(monName)) then
                     return spawnPart.CFrame
                 end
@@ -804,14 +804,14 @@ local function GetMobSpawn(monName)
     return nil
 end
 
--- =========================================================
--- MAIN FARM LOOP (SKY FARM 30M CHUẨN)
--- =========================================================
 local lockedFarmPosition = nil
 
 task.spawn(function()
     while task.wait(0.05) do
         if AutoFarmLevel and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and CommF then
+            local myHRP = LocalPlayer.Character.HumanoidRootPart
+            ApplyBodyVelocity(myHRP)
+            
             local currentQuest = getAutoQuestByLevel()
             if currentQuest then
                 pcall(function()
@@ -830,24 +830,23 @@ task.spawn(function()
                     pcall(function() equipChosenWeapon() end)
                     local primaryMob = mobList[1]
                     local primaryHRP = primaryMob:FindFirstChild("HumanoidRootPart")
-                    local myHRP = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
 
-                    if primaryHRP and myHRP then
+                    if primaryHRP then
                         if not lockedFarmPosition or (lockedFarmPosition.Position - primaryHRP.Position).Magnitude > 300 then
                             lockedFarmPosition = primaryHRP.CFrame
                         end
 
                         local groundPos = lockedFarmPosition.Position
                         
-                        -- KIẾN TRÚC SKY FARM: Bạn bay tít trên trời 30 mét
+                        -- Bạn bay trên trời cao 30 Mét
                         local safePlayerPos = CFrame.new(groundPos.X, groundPos.Y + 30, groundPos.Z)
                         
-                        -- Quái sẽ được hút lên lơ lửng ngay trước mặt bạn đúng 5 mét để nổ sát thương
-                        local mobTargetPos = safePlayerPos * CFrame.new(0, -3, -5)
+                        -- Quái sẽ đặt trước mặt bạn 3.5 Mét, giữ nguyên kích thước gốc! (Hủy cục trắng khổng lồ)
+                        local mobTargetPos = safePlayerPos * CFrame.new(0, 0, -3.5)
 
                         local distance = (myHRP.Position - safePlayerPos.Position).Magnitude
                         
-                        if distance > 10 then
+                        if distance > 5 then
                             isAttackingTarget = false
                             toTargetPos(safePlayerPos)
                         else
@@ -856,7 +855,6 @@ task.spawn(function()
                             myHRP.CFrame = safePlayerPos
                             isAttackingTarget = true
                             
-                            -- Xoay mặt bạn nhìn xuống quái
                             myHRP.CFrame = CFrame.lookAt(myHRP.Position, mobTargetPos.Position)
 
                             if BringMob then
@@ -865,18 +863,12 @@ task.spawn(function()
                                     local oHum = otherMob:FindFirstChildOfClass("Humanoid")
                                     if oHRP and oHum and oHum.Health > 0 and (oHRP.Position - groundPos).Magnitude <= 350 then
                                         pcall(function()
-                                            -- Đặt quái trước mặt bạn, không khổng lồ để tránh Anti-Cheat
+                                            ApplyBodyVelocity(oHRP)
                                             oHRP.CFrame = mobTargetPos
-                                            oHRP.Size = Vector3.new(10, 10, 10)
-                                            oHRP.Transparency = 0.5
                                             oHRP.CanCollide = false
-                                            oHRP.AssemblyLinearVelocity = Vector3.zero
-                                            
-                                            -- Làm liệt nửa người quái vật
                                             oHum.WalkSpeed = 0
                                             oHum.JumpPower = 0
                                             oHum.Sit = true
-                                            oHum.PlatformStand = true
                                         end)
                                     end
                                 end
@@ -889,7 +881,7 @@ task.spawn(function()
                     
                     local spawnCFrame = GetMobSpawn(currentQuest.MonName)
                     if spawnCFrame then
-                        local safeSpawnPos = CFrame.new(spawnCFrame.Position.X, spawnCFrame.Position.Y + 40, spawnCFrame.Position.Z)
+                        local safeSpawnPos = CFrame.new(spawnCFrame.Position.X, spawnCFrame.Position.Y + 30, spawnCFrame.Position.Z)
                         toTargetPos(safeSpawnPos)
                     else
                         if currentTween then pcall(function() currentTween:Cancel() end); currentTween = nil end
@@ -899,6 +891,8 @@ task.spawn(function()
         else
             isAttackingTarget = false
             lockedFarmPosition = nil
+            local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+            if hrp then RemoveBodyVelocity(hrp) end
             if currentTween then pcall(function() currentTween:Cancel() end); currentTween = nil end
         end
     end
