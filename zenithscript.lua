@@ -1,4 +1,4 @@
--- [[ ZENITH BLOX FRUIT - V6 (FIXED AUTO ATTACK & COMBAT ENGINE) ]] --
+-- [[ ZENITH BLOX FRUIT - V7 (AUTO LEVEL INTEGRATED & COMBAT ENGINE FIXED) ]] --
 
 local Players = game:GetService("Players")
 local Lighting = game:GetService("Lighting")
@@ -10,7 +10,6 @@ local UserInputService = game:GetService("UserInputService")
 local TeleportService = game:GetService("TeleportService")
 local HttpService = game:GetService("HttpService")
 local VirtualUser = game:GetService("VirtualUser")
-local VirtualInputManager = game:GetService("VirtualInputManager")
 
 local LocalPlayer = Players.LocalPlayer
 local CommF = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("CommF_")
@@ -18,7 +17,7 @@ local CommF = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("CommF_")
 -- ===================================================
 -- 0. DỌN DẸP INSTANCE CŨ (CLEANUP)
 -- ===================================================
-local UI_NAME = "ZenithBloxFruit_Zyrox_V6"
+local UI_NAME = "ZenithBloxFruit_Zyrox_V7"
 local function getSafeParent()
     local success, coreGui = pcall(function() return game:GetService("CoreGui") end)
     if success and coreGui then return coreGui end
@@ -45,9 +44,9 @@ local LangDict = {
         tab_item = "Farm Item",
         tab_setting = "Cài Đặt",
         
-        auto_farm = "⚡ Auto Farm Quái + Quest",
-        auto_quest = "📜 Tự Nhận Quest Phù Hợp",
-        bring_mob = "🧲 Gom Quái (Cùng Đảo)",
+        auto_farm_level = "⚡ Auto Farm Level (Tự Theo Cấp)",
+        auto_quest = "📜 Tự Động Nhận & Trả Quest",
+        bring_mob = "🧲 Gom Quái (Cùng Bãi Đảo)",
         
         speed_toggle = "Bật Tăng Tốc Độ (WalkSpeed)",
         speed_slider = "Chỉnh Speed",
@@ -82,9 +81,9 @@ local LangDict = {
         tab_item = "Farm Item",
         tab_setting = "Settings",
         
-        auto_farm = "⚡ Auto Farm Mob + Quest",
-        auto_quest = "📜 Auto Accept Quest",
-        bring_mob = "🧲 Bring Mobs (Same Island)",
+        auto_farm_level = "⚡ Auto Farm Level (Auto Quest)",
+        auto_quest = "📜 Auto Accept & Return Quest",
+        bring_mob = "🧲 Bring Mobs (Same Island Area)",
         
         speed_toggle = "Enable WalkSpeed Boost",
         speed_slider = "Adjust Speed",
@@ -161,41 +160,86 @@ task.spawn(function()
 end)
 
 -- ===================================================
--- 3. DỮ LIỆU QUEST & QUÁI THEO SEA
+-- 3. HỆ THỐNG TỰ ĐỘNG PHÂN TÍCH LEVEL & QUEST TẤT CẢ SEA
 -- ===================================================
-local QuestMap = {
+local function getAutoQuestByLevel()
+    local level = 1
+    pcall(function()
+        if LocalPlayer:FindFirstChild("Data") and LocalPlayer.Data:FindFirstChild("Level") then
+            level = LocalPlayer.Data.Level.Value
+        end
+    end)
+
     -- SEA 1
-    ["Bandit [Lv. 5]"] = {QuestName = "BanditQuest1", QuestLevel = 1, MonName = "Bandit"},
-    ["Monkey [Lv. 14]"] = {QuestName = "JungleQuest", QuestLevel = 1, MonName = "Monkey"},
-    ["Gorilla [Lv. 20]"] = {QuestName = "JungleQuest", QuestLevel = 2, MonName = "Gorilla"},
-    ["Pirate [Lv. 35]"] = {QuestName = "BuggyQuest1", QuestLevel = 1, MonName = "Pirate"},
-    ["Brute [Lv. 45]"] = {QuestName = "BuggyQuest1", QuestLevel = 2, MonName = "Brute"},
-    ["Desert Bandit [Lv. 60]"] = {QuestName = "DesertQuest", QuestLevel = 1, MonName = "Desert Bandit"},
-    ["Snowman [Lv. 100]"] = {QuestName = "SnowQuest", QuestLevel = 1, MonName = "Snowman"},
-    
+    if level >= 1 and level <= 9 then
+        return {QuestName = "BanditQuest1", QuestLevel = 1, MonName = "Bandit", ReqLevel = 1}
+    elseif level >= 10 and level <= 14 then
+        return {QuestName = "JungleQuest", QuestLevel = 1, MonName = "Monkey", ReqLevel = 10}
+    elseif level >= 15 and level <= 29 then
+        return {QuestName = "JungleQuest", QuestLevel = 2, MonName = "Gorilla", ReqLevel = 15}
+    elseif level >= 30 and level <= 39 then
+        return {QuestName = "BuggyQuest1", QuestLevel = 1, MonName = "Pirate", ReqLevel = 30}
+    elseif level >= 40 and level <= 59 then
+        return {QuestName = "BuggyQuest1", QuestLevel = 2, MonName = "Brute", ReqLevel = 40}
+    elseif level >= 60 and level <= 74 then
+        return {QuestName = "DesertQuest", QuestLevel = 1, MonName = "Desert Bandit", ReqLevel = 60}
+    elseif level >= 75 and level <= 89 then
+        return {QuestName = "DesertQuest", QuestLevel = 2, MonName = "Desert Officer", ReqLevel = 75}
+    elseif level >= 90 and level <= 99 then
+        return {QuestName = "SnowQuest", QuestLevel = 1, MonName = "Snow Bandit", ReqLevel = 90}
+    elseif level >= 100 and level <= 119 then
+        return {QuestName = "SnowQuest", QuestLevel = 2, MonName = "Snowman", ReqLevel = 100}
+    elseif level >= 120 and level <= 149 then
+        return {QuestName = "MarineQuest2", QuestLevel = 1, MonName = "Chief Petty Officer", ReqLevel = 120}
+    elseif level >= 150 and level <= 174 then
+        return {QuestName = "SkyQuest", QuestLevel = 1, MonName = "Sky Bandit", ReqLevel = 150}
+    elseif level >= 175 and level <= 189 then
+        return {QuestName = "SkyQuest", QuestLevel = 2, MonName = "Dark Master", ReqLevel = 175}
+    elseif level >= 190 and level <= 209 then
+        return {QuestName = "PrisonerQuest", QuestLevel = 1, MonName = "Prisoner", ReqLevel = 190}
+    elseif level >= 210 and level <= 249 then
+        return {QuestName = "PrisonerQuest", QuestLevel = 2, MonName = "Dangerous Prisoner", ReqLevel = 210}
+    elseif level >= 250 and level <= 299 then
+        return {QuestName = "ColosseumQuest", QuestLevel = 1, MonName = "Toga Warrior", ReqLevel = 250}
+    elseif level >= 300 and level <= 374 then
+        return {QuestName = "MagmaQuest", QuestLevel = 1, MonName = "Military Soldier", ReqLevel = 300}
+    elseif level >= 375 and level <= 449 then
+        return {QuestName = "FishmanQuest", QuestLevel = 1, MonName = "Fishman Warrior", ReqLevel = 375}
+    elseif level >= 450 and level <= 524 then
+        return {QuestName = "SkyExp1Quest", QuestLevel = 1, MonName = "God's Guard", ReqLevel = 450}
+    elseif level >= 525 and level <= 624 then
+        return {QuestName = "SkyExp2Quest", QuestLevel = 1, MonName = "Royal Squad", ReqLevel = 525}
+    elseif level >= 625 and level <= 699 then
+        return {QuestName = "FountainQuest", QuestLevel = 1, MonName = "Galley Pirate", ReqLevel = 625}
+        
     -- SEA 2
-    ["Raider [Lv. 700]"] = {QuestName = "Area1Quest", QuestLevel = 1, MonName = "Raider"},
-    ["Mercenary [Lv. 725]"] = {QuestName = "Area1Quest", QuestLevel = 2, MonName = "Mercenary"},
-    ["Swan Pirate [Lv. 775]"] = {QuestName = "Area2Quest", QuestLevel = 1, MonName = "Swan Pirate"},
-    ["Factory Staff [Lv. 800]"] = {QuestName = "Area2Quest", QuestLevel = 2, MonName = "Factory Staff"},
-
+    elseif level >= 700 and level <= 774 then
+        return {QuestName = "Area1Quest", QuestLevel = 1, MonName = "Raider", ReqLevel = 700}
+    elseif level >= 775 and level <= 874 then
+        return {QuestName = "Area2Quest", QuestLevel = 1, MonName = "Swan Pirate", ReqLevel = 775}
+    elseif level >= 875 and level <= 999 then
+        return {QuestName = "MarineQuest3", QuestLevel = 1, MonName = "Marine Lieutenant", ReqLevel = 875}
+    elseif level >= 1000 and level <= 1249 then
+        return {QuestName = "SnowMountainQuest", QuestLevel = 1, MonName = "Snow Trooper", ReqLevel = 1000}
+    elseif level >= 1250 and level <= 1499 then
+        return {QuestName = "ShipQuest1", QuestLevel = 1, MonName = "Ship Deckhand", ReqLevel = 1250}
+        
     -- SEA 3
-    ["Pirate Millionaire [Lv. 1500]"] = {QuestName = "PiratePortQuest", QuestLevel = 1, MonName = "Pirate Millionaire"},
-    ["Pistol Billionaire [Lv. 1525]"] = {QuestName = "PiratePortQuest", QuestLevel = 2, MonName = "Pistol Billionaire"},
-    ["Dragon Crew Warrior [Lv. 1575]"] = {QuestName = "DragonCrewQuest", QuestLevel = 1, MonName = "Dragon Crew Warrior"}
-}
+    elseif level >= 1500 and level <= 1574 then
+        return {QuestName = "PiratePortQuest", QuestLevel = 1, MonName = "Pirate Millionaire", ReqLevel = 1500}
+    elseif level >= 1575 and level <= 1699 then
+        return {QuestName = "DragonCrewQuest", QuestLevel = 1, MonName = "Dragon Crew Warrior", ReqLevel = 1575}
+    elseif level >= 1700 and level <= 1899 then
+        return {QuestName = "MusketeerQuest", QuestLevel = 1, MonName = "Marine Commodore", ReqLevel = 1700}
+    elseif level >= 1900 and level <= 2199 then
+        return {QuestName = "HauntedQuest1", QuestLevel = 1, MonName = "Reborn Skeleton", ReqLevel = 1900}
+    else
+        return {QuestName = "PeanutQuest", QuestLevel = 1, MonName = "Peanut Scout", ReqLevel = 2200}
+    end
+end
 
-local SeaCategories = {
-    ["Sea 1"] = {"Bandit [Lv. 5]", "Monkey [Lv. 14]", "Gorilla [Lv. 20]", "Pirate [Lv. 35]", "Brute [Lv. 45]", "Desert Bandit [Lv. 60]", "Snowman [Lv. 100]"},
-    ["Sea 2"] = {"Raider [Lv. 700]", "Mercenary [Lv. 725]", "Swan Pirate [Lv. 775]", "Factory Staff [Lv. 800]"},
-    ["Sea 3"] = {"Pirate Millionaire [Lv. 1500]", "Pistol Billionaire [Lv. 1525]", "Dragon Crew Warrior [Lv. 1575]"}
-}
-
-local selectedSea = "Sea 1"
-local selectedMobKey = SeaCategories["Sea 1"][1]
 local selectedWeaponType = "Melee"
-
-local AutoFarm = false
+local AutoFarmLevel = false
 local AutoQuest = true
 local BringMob = false
 
@@ -390,7 +434,7 @@ task.spawn(function()
 end)
 
 -- ===================================================
--- 6. CORE COMBAT & FAST ATTACK MODULE (FIXED)
+-- 6. CORE COMBAT & FAST ATTACK (FIXED CHO ANDROID/EMULATOR)
 -- ===================================================
 local currentTween = nil
 local isAttackingTarget = false
@@ -399,36 +443,28 @@ local function executeFastAttack()
     local char = LocalPlayer.Character
     if not char then return end
 
-    -- 1. Gọi trực tiếp Tool Activate
-    local tool = char:FindFirstChildOfClass("Tool")
-    if tool then
-        tool:Activate()
+    -- 1. Kích hoạt trực tiếp Tool đang cầm
+    for _, tool in ipairs(char:GetChildren()) do
+        if tool:IsA("Tool") then
+            tool:Activate()
+        end
     end
 
-    -- 2. Mô phỏng chuột qua VirtualInputManager (Chu kỳ Down -> Up)
+    -- 2. Gửi tín hiệu click qua VirtualUser
     pcall(function()
-        VirtualInputManager:SendMouseButtonEvent(0, 0, 0, true, game, 1)
-        task.wait(0.01)
-        VirtualInputManager:SendMouseButtonEvent(0, 0, 0, false, game, 1)
-    end)
-
-    -- 3. Fallback Executor Click & VirtualUser
-    pcall(function()
-        if mouse1click then
-            mouse1click()
-        elseif VirtualUser then
-            VirtualUser:CaptureController()
-            VirtualUser:ClickButton1(Vector2.new(100, 100))
-        end
+        VirtualUser:CaptureController()
+        VirtualUser:Button1Down(Vector2.new(0, 0))
+        task.wait()
+        VirtualUser:Button1Up(Vector2.new(0, 0))
     end)
 end
 
--- Vòng lặp bắn đòn đánh liên tục tốc độ cao
+-- Vòng lặp ra đòn liên tục tốc độ cao (~20 cps)
 task.spawn(function()
     while true do
-        if AutoFarm and isAttackingTarget then
+        if AutoFarmLevel and isAttackingTarget then
             executeFastAttack()
-            task.wait(0.05) -- Tốc độ ~20 đòn/giây
+            task.wait(0.05)
         else
             task.wait(0.15)
         end
@@ -451,7 +487,7 @@ local function toTargetPos(targetCFrame)
 end
 
 RunService.Stepped:Connect(function()
-    if AutoFarm and LocalPlayer.Character then
+    if AutoFarmLevel and LocalPlayer.Character then
         for _, part in ipairs(LocalPlayer.Character:GetDescendants()) do
             if part:IsA("BasePart") and part.CanCollide then
                 part.CanCollide = false
@@ -467,22 +503,30 @@ local function equipChosenWeapon()
     local humanoid = char:FindFirstChildOfClass("Humanoid")
     if not humanoid then return nil end
     
+    -- Kiểm tra nếu đã cầm đúng loại vũ khí
     for _, item in ipairs(char:GetChildren()) do
         if item:IsA("Tool") then
-            if item.ToolTip == selectedWeaponType or (selectedWeaponType == "Melee" and (item.ToolTip == "Melee" or item.ToolTip == "Combat")) then
+            if item.ToolTip == selectedWeaponType or (selectedWeaponType == "Melee" and (item.ToolTip == "Melee" or item.ToolTip == "Combat" or item.Name == "Combat")) then
                 return item
             end
         end
     end
 
+    -- Lấy từ Backpack ra tay
     if backpack then
         for _, tool in ipairs(backpack:GetChildren()) do
             if tool:IsA("Tool") then
-                if tool.ToolTip == selectedWeaponType or (selectedWeaponType == "Melee" and (tool.ToolTip == "Melee" or tool.ToolTip == "Combat")) then
+                if tool.ToolTip == selectedWeaponType or (selectedWeaponType == "Melee" and (tool.ToolTip == "Melee" or tool.ToolTip == "Combat" or tool.Name == "Combat")) then
                     humanoid:EquipTool(tool)
                     return tool
                 end
             end
+        end
+        -- Fallback: Nếu không tìm thấy loại yêu cầu, cầm vũ khí đầu tiên có trong balo
+        local firstTool = backpack:FindFirstChildOfClass("Tool")
+        if firstTool then
+            humanoid:EquipTool(firstTool)
+            return firstTool
         end
     end
     return nil
@@ -513,46 +557,50 @@ local function getEnemyInstance(monName)
     return nil
 end
 
--- Vòng lặp điều hướng và khóa mục tiêu Farm
+-- VÒNG LẶP CHÍNH: AUTO LEVEL FARM ENGINE
 task.spawn(function()
     while true do
         task.wait(0.05)
-        if AutoFarm and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-            local mobData = QuestMap[selectedMobKey]
-            if mobData then
+        if AutoFarmLevel and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            local currentQuest = getAutoQuestByLevel()
+            if currentQuest then
+                -- 1. Tự động nhận Quest phù hợp với cấp hiện tại
                 if AutoQuest and not checkHasQuest() then
-                    CommF:InvokeServer("StartQuest", mobData.QuestName, mobData.QuestLevel)
-                    task.wait(0.4)
+                    CommF:InvokeServer("StartQuest", currentQuest.QuestName, currentQuest.QuestLevel)
+                    task.wait(0.3)
                 end
 
-                local mob = getEnemyInstance(mobData.MonName)
+                -- 2. Tìm quái mục tiêu
+                local mob = getEnemyInstance(currentQuest.MonName)
                 if mob and mob:FindFirstChild("HumanoidRootPart") then
                     equipChosenWeapon()
                     local mobHRP = mob.HumanoidRootPart
-                    -- Đứng cách quái 6.5 studs phía trên
-                    local targetCFrame = mobHRP.CFrame * CFrame.new(0, 6.5, 0) * CFrame.Angles(math.rad(-90), 0, 0)
+                    local myHRP = LocalPlayer.Character.HumanoidRootPart
                     
-                    local dist = (LocalPlayer.Character.HumanoidRootPart.Position - mobHRP.Position).Magnitude
+                    -- Vị trí khóa: Ngay trên đầu quái 5 studs, quay mặt thẳng vào quái
+                    local targetCFrame = CFrame.new(mobHRP.Position + Vector3.new(0, 5, 0), mobHRP.Position)
+                    local dist = (myHRP.Position - mobHRP.Position).Magnitude
+                    
                     if dist > 14 then
                         isAttackingTarget = false
                         toTargetPos(targetCFrame)
                     else
                         if currentTween then currentTween:Cancel() end
-                        LocalPlayer.Character.HumanoidRootPart.CFrame = targetCFrame
-                        LocalPlayer.Character.HumanoidRootPart.AssemblyLinearVelocity = Vector3.zero
+                        myHRP.CFrame = targetCFrame
+                        myHRP.AssemblyLinearVelocity = Vector3.zero
                         isAttackingTarget = true
 
-                        -- Gom quái cùng đảo (bán kính tối đa 280 studs)
+                        -- Gom quái xung quanh (Bán kính 250 studs chuẩn bãi quái)
                         if BringMob then
                             local enemies = Workspace:FindFirstChild("Enemies")
                             if enemies then
                                 for _, other in ipairs(enemies:GetChildren()) do
-                                    if other ~= mob and string.find(other.Name, mobData.MonName) then
+                                    if other ~= mob and string.find(other.Name, currentQuest.MonName) then
                                         local oHRP = other:FindFirstChild("HumanoidRootPart")
                                         local oHum = other:FindFirstChildOfClass("Humanoid")
                                         if oHRP and oHum and oHum.Health > 0 then
                                             local distFromOrigin = (oHRP.Position - mobHRP.Position).Magnitude
-                                            if distFromOrigin <= 280 then
+                                            if distFromOrigin <= 250 then
                                                 oHRP.CFrame = mobHRP.CFrame
                                                 oHRP.CanCollide = false
                                             end
@@ -610,6 +658,7 @@ MainStroke.Transparency = 0.3
 MainStroke.Thickness = 1.2
 MainStroke.Parent = MainFrame
 
+-- Kéo thả cửa sổ
 local isDraggingWindow = false
 local dragStartPos, frameStartPos
 
@@ -969,7 +1018,7 @@ local function createButton(page, transKey, callback)
 end
 
 -- ===================================================
--- 8. TẠO TABS
+-- 8. TẠO 6 DANH MỤC (TABS SETUP)
 -- ===================================================
 local cats = {
     {"Farm", "🌾", "tab_farm"},
@@ -984,84 +1033,50 @@ for _, c in ipairs(cats) do
     createPage(c[1])
 end
 
--- [TAB 1: FARM]
+-- [TAB 1: FARM] (AUTO LEVEL FARM THAY CHO BẢNG CHỌN DANH SÁCH)
 local farmPage = tabPages["Farm"]
 
-local seaFrame = Instance.new("Frame")
-seaFrame.Size = UDim2.new(0.92, 0, 0, 30)
-seaFrame.BackgroundColor3 = Color3.fromRGB(22, 26, 36)
-seaFrame.BackgroundTransparency = 0.3
-seaFrame.BorderSizePixel = 0
-seaFrame.Parent = farmPage
+-- Khung hiển thị thông tin Level và Nhiệm vụ hiện tại
+local infoCard = Instance.new("Frame")
+infoCard.Size = UDim2.new(0.92, 0, 0, 48)
+infoCard.BackgroundColor3 = Color3.fromRGB(20, 24, 34)
+infoCard.BackgroundTransparency = 0.2
+infoCard.BorderSizePixel = 0
+infoCard.Parent = farmPage
 
-local sCorner = Instance.new("UICorner")
-sCorner.CornerRadius = UDim.new(0, 5)
-sCorner.Parent = seaFrame
+local icCorner = Instance.new("UICorner")
+icCorner.CornerRadius = UDim.new(0, 6)
+icCorner.Parent = infoCard
 
-local sLayout = Instance.new("UIListLayout")
-sLayout.FillDirection = Enum.FillDirection.Horizontal
-sLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-sLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-sLayout.Padding = UDim.new(0, 5)
-sLayout.Parent = seaFrame
+local icStroke = Instance.new("UIStroke")
+icStroke.Color = Color3.fromRGB(0, 180, 255)
+icStroke.Transparency = 0.7
+icStroke.Parent = infoCard
 
-local seaBtns = {}
-local mobListScroll
+local infoLabel = Instance.new("TextLabel")
+infoLabel.Size = UDim2.new(1, -16, 1, 0)
+infoLabel.Position = UDim2.new(0, 8, 0, 0)
+infoLabel.BackgroundTransparency = 1
+infoLabel.RichText = true
+infoLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+infoLabel.Font = Enum.Font.GothamMedium
+infoLabel.TextSize = 11
+infoLabel.TextXAlignment = Enum.TextXAlignment.Left
+infoLabel.Parent = infoCard
 
-local function updateMobList()
-    if not mobListScroll then return end
-    for _, ch in ipairs(mobListScroll:GetChildren()) do
-        if ch:IsA("TextButton") then ch:Destroy() end
-    end
-
-    for _, mobKey in ipairs(SeaCategories[selectedSea]) do
-        local b = Instance.new("TextButton")
-        b.Size = UDim2.new(0.95, 0, 0, 24)
-        b.BackgroundColor3 = (selectedMobKey == mobKey) and Color3.fromRGB(0, 150, 255) or Color3.fromRGB(28, 30, 42)
-        b.Text = mobKey
-        b.TextColor3 = Color3.fromRGB(255, 255, 255)
-        b.Font = Enum.Font.Gotham
-        b.TextSize = 10
-        b.BorderSizePixel = 0
-        b.Parent = mobListScroll
-
-        local bc = Instance.new("UICorner")
-        bc.CornerRadius = UDim.new(0, 4)
-        bc.Parent = b
-
-        b.MouseButton1Click:Connect(function()
-            selectedMobKey = mobKey
-            updateMobList()
-        end)
-    end
-end
-
-for _, sName in ipairs({"Sea 1", "Sea 2", "Sea 3"}) do
-    local b = Instance.new("TextButton")
-    b.Size = UDim2.new(0.3, 0, 0.75, 0)
-    b.BackgroundColor3 = (selectedSea == sName) and Color3.fromRGB(0, 180, 255) or Color3.fromRGB(32, 35, 48)
-    b.Text = sName
-    b.TextColor3 = Color3.fromRGB(255, 255, 255)
-    b.Font = Enum.Font.GothamBold
-    b.TextSize = 10
-    b.BorderSizePixel = 0
-    b.Parent = seaFrame
-
-    local c = Instance.new("UICorner")
-    c.CornerRadius = UDim.new(0, 4)
-    c.Parent = b
-
-    seaBtns[sName] = b
-    b.MouseButton1Click:Connect(function()
-        selectedSea = sName
-        for k, btn in pairs(seaBtns) do
-            btn.BackgroundColor3 = (k == sName) and Color3.fromRGB(0, 180, 255) or Color3.fromRGB(32, 35, 48)
+task.spawn(function()
+    while true do
+        task.wait(1)
+        local curQuest = getAutoQuestByLevel()
+        local pLevel = 1
+        pcall(function() pLevel = LocalPlayer.Data.Level.Value end)
+        if curQuest then
+            infoLabel.Text = string.format("Level: <font color='#00d2ff'>%d</font> | Auto Target:\nQuái: <font color='#ffb703'>%s</font> (Lv. %d)", pLevel, curQuest.MonName, curQuest.ReqLevel)
         end
-        selectedMobKey = SeaCategories[sName][1]
-        updateMobList()
-    end)
-end
+    end
+end)
 
+-- Bộ chọn loại vũ khí (Melee, Sword, Blox Fruit, Gun)
 local weaponFrame = Instance.new("Frame")
 weaponFrame.Size = UDim2.new(0.92, 0, 0, 30)
 weaponFrame.BackgroundColor3 = Color3.fromRGB(22, 26, 36)
@@ -1112,28 +1127,7 @@ for _, wData in ipairs(weaponList) do
     end)
 end
 
-mobListScroll = Instance.new("ScrollingFrame")
-mobListScroll.Size = UDim2.new(0.92, 0, 0, 75)
-mobListScroll.BackgroundColor3 = Color3.fromRGB(18, 20, 28)
-mobListScroll.BackgroundTransparency = 0.3
-mobListScroll.BorderSizePixel = 0
-mobListScroll.ScrollBarThickness = 3
-mobListScroll.ScrollBarImageColor3 = Color3.fromRGB(0, 180, 255)
-mobListScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
-mobListScroll.Parent = farmPage
-
-local mlc = Instance.new("UICorner")
-mlc.CornerRadius = UDim.new(0, 5)
-mlc.Parent = mobListScroll
-
-local mll = Instance.new("UIListLayout")
-mll.Padding = UDim.new(0, 3)
-mll.HorizontalAlignment = Enum.HorizontalAlignment.Center
-mll.Parent = mobListScroll
-
-updateMobList()
-
-createToggle(farmPage, "auto_farm", false, function(v) AutoFarm = v end)
+createToggle(farmPage, "auto_farm_level", false, function(v) AutoFarmLevel = v end)
 createToggle(farmPage, "auto_quest", true, function(v) AutoQuest = v end)
 createToggle(farmPage, "bring_mob", false, function(v) BringMob = v end)
 
