@@ -1,4 +1,4 @@
--- [[ ZENITH BLOX FRUIT - V7 (AUTO LEVEL INTEGRATED & COMBAT ENGINE FIXED) ]] --
+-- [[ ZENITH BLOX FRUIT - V9 (REDEEM ALL CODES & DEEP CHEST SCANNER FIXED) ]] --
 
 local Players = game:GetService("Players")
 local Lighting = game:GetService("Lighting")
@@ -10,6 +10,7 @@ local UserInputService = game:GetService("UserInputService")
 local TeleportService = game:GetService("TeleportService")
 local HttpService = game:GetService("HttpService")
 local VirtualUser = game:GetService("VirtualUser")
+local VirtualInputManager = game:GetService("VirtualInputManager")
 
 local LocalPlayer = Players.LocalPlayer
 local CommF = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("CommF_")
@@ -17,7 +18,7 @@ local CommF = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("CommF_")
 -- ===================================================
 -- 0. DỌN DẸP INSTANCE CŨ (CLEANUP)
 -- ===================================================
-local UI_NAME = "ZenithBloxFruit_Zyrox_V7"
+local UI_NAME = "ZenithBloxFruit_Zyrox_V9"
 local function getSafeParent()
     local success, coreGui = pcall(function() return game:GetService("CoreGui") end)
     if success and coreGui then return coreGui end
@@ -46,7 +47,7 @@ local LangDict = {
         
         auto_farm_level = "⚡ Auto Farm Level (Tự Theo Cấp)",
         auto_quest = "📜 Tự Động Nhận & Trả Quest",
-        bring_mob = "🧲 Gom Quái (Cùng Bãi Đảo)",
+        bring_mob = "🧲 Gom Cả Bãi Quái (Cluster Bring)",
         
         speed_toggle = "Bật Tăng Tốc Độ (WalkSpeed)",
         speed_slider = "Chỉnh Speed",
@@ -59,6 +60,7 @@ local LangDict = {
         chest_gold = "🪙 Rương Bạc/Vàng (Tier 2)",
         chest_diamond = "💎 Rương Kim Cương (Tier 3)",
         
+        redeem_codes = "🎁 Nhập Tất Cả Code Game (Auto Redeem)",
         rejoin_btn = "Rejoin Server (Vào Lại)",
         serverhop_btn = "Server Hop (Đổi Server Khác)",
         auto_raid_start = "Tự Động Bắt Đầu Raid",
@@ -83,7 +85,7 @@ local LangDict = {
         
         auto_farm_level = "⚡ Auto Farm Level (Auto Quest)",
         auto_quest = "📜 Auto Accept & Return Quest",
-        bring_mob = "🧲 Bring Mobs (Same Island Area)",
+        bring_mob = "🧲 Bring Whole Mob Camp (Cluster)",
         
         speed_toggle = "Enable WalkSpeed Boost",
         speed_slider = "Adjust Speed",
@@ -96,6 +98,7 @@ local LangDict = {
         chest_gold = "🪙 Silver/Gold Chest (Tier 2)",
         chest_diamond = "💎 Diamond Chest (Tier 3)",
         
+        redeem_codes = "🎁 Redeem All Game Codes",
         rejoin_btn = "Rejoin Server",
         serverhop_btn = "Server Hop (Find New)",
         auto_raid_start = "Auto Start Raid",
@@ -160,7 +163,7 @@ task.spawn(function()
 end)
 
 -- ===================================================
--- 3. HỆ THỐNG TỰ ĐỘNG PHÂN TÍCH LEVEL & QUEST TẤT CẢ SEA
+-- 3. HỆ THỐNG LEVEL & NHẬN QUEST TỰ ĐỘNG
 -- ===================================================
 local function getAutoQuestByLevel()
     local level = 1
@@ -241,7 +244,7 @@ end
 local selectedWeaponType = "Melee"
 local AutoFarmLevel = false
 local AutoQuest = true
-local BringMob = false
+local BringMob = true
 
 -- ===================================================
 -- 4. SPEED & HIGH JUMP (PVP MODULE)
@@ -273,13 +276,45 @@ UserInputService.JumpRequest:Connect(function()
 end)
 
 -- ===================================================
--- 5. HỆ THỐNG ĐỊNH VỊ NÂNG CAO (ADVANCED ESP)
+-- 5. HỆ THỐNG ĐỊNH VỊ SÂU (DEEP SCAN CHEST, FRUIT & PLAYER ESP)
 -- ===================================================
 local espPlayerEnabled = false
 local espFruitEnabled = false
 local espChest1Enabled = false
 local espChest2Enabled = false
 local espChest3Enabled = false
+
+local detectedChests = {}
+
+-- Quét toàn bộ Descendants để phát hiện mọi loại Rương trên bản đồ
+local function refreshChestList()
+    detectedChests = {}
+    for _, obj in ipairs(Workspace:GetDescendants()) do
+        if obj:IsA("BasePart") then
+            local name = string.lower(obj.Name)
+            local pName = obj.Parent and string.lower(obj.Parent.Name) or ""
+            
+            if string.find(name, "chest") or string.find(pName, "chest") then
+                local tier = 1
+                if string.find(name, "3") or string.find(pName, "3") or string.find(name, "diamond") or string.find(pName, "diamond") then
+                    tier = 3
+                elseif string.find(name, "2") or string.find(pName, "2") or string.find(name, "gold") or string.find(pName, "gold") or string.find(name, "silver") or string.find(pName, "silver") then
+                    tier = 2
+                else
+                    tier = 1
+                end
+                table.insert(detectedChests, {Part = obj, Tier = tier})
+            end
+        end
+    end
+end
+
+task.spawn(function()
+    while true do
+        refreshChestList()
+        task.wait(3)
+    end
+end)
 
 local function updatePlayerESP()
     for _, p in ipairs(Players:GetPlayers()) do
@@ -345,13 +380,14 @@ end
 
 task.spawn(function()
     while true do
-        task.wait(0.2)
+        task.wait(0.15)
         local myChar = LocalPlayer.Character
         local myHRP = myChar and myChar:FindFirstChild("HumanoidRootPart")
         
         updatePlayerESP()
         
         if myHRP then
+            -- Fruit ESP
             for _, obj in ipairs(Workspace:GetChildren()) do
                 if (obj:IsA("Tool") and string.find(obj.Name, "Fruit")) or obj:FindFirstChild("Fruit") then
                     local handle = obj:FindFirstChild("Handle") or obj:FindFirstChildWhichIsA("BasePart")
@@ -386,45 +422,44 @@ task.spawn(function()
                         end
                     end
                 end
+            end
+            
+            -- Deep Chest ESP Scanner
+            for _, item in ipairs(detectedChests) do
+                local rootPart = item.Part
+                local tier = item.Tier
                 
-                if string.find(obj.Name, "Chest") and (obj:IsA("Model") or obj:IsA("BasePart")) then
-                    local rootPart = obj:IsA("BasePart") and obj or obj:FindFirstChildWhichIsA("BasePart")
-                    if rootPart then
-                        local isTier3 = string.find(obj.Name, "3")
-                        local isTier2 = string.find(obj.Name, "2")
-                        local isTier1 = not isTier2 and not isTier3
-                        
-                        local shouldShow = (isTier1 and espChest1Enabled) or (isTier2 and espChest2Enabled) or (isTier3 and espChest3Enabled)
-                        local chestColor = isTier3 and Color3.fromRGB(0, 240, 255) or (isTier2 and Color3.fromRGB(255, 215, 0) or Color3.fromRGB(205, 127, 50))
-                        local chestTitle = isTier3 and "💎 Diamond Chest" or (isTier2 and "🪙 Gold Chest" or "📦 Bronze Chest")
-                        
-                        if shouldShow then
-                            local dist = math.floor((rootPart.Position - myHRP.Position).Magnitude)
-                            local b = rootPart:FindFirstChild("Zenith_ChestESP")
-                            if not b then
-                                b = Instance.new("BillboardGui")
-                                b.Name = "Zenith_ChestESP"
-                                b.Size = UDim2.new(0, 160, 0, 25)
-                                b.StudsOffset = Vector3.new(0, 1.8, 0)
-                                b.AlwaysOnTop = true
-                                b.Adornee = rootPart
-                                b.Parent = rootPart
-                                
-                                local t = Instance.new("TextLabel")
-                                t.Name = "Label"
-                                t.Size = UDim2.new(1, 0, 1, 0)
-                                t.BackgroundTransparency = 1
-                                t.Font = Enum.Font.GothamBold
-                                t.TextSize = 11
-                                t.TextStrokeTransparency = 0
-                                t.Parent = b
-                            end
-                            b.Label.TextColor3 = chestColor
-                            b.Label.Text = string.format("%s [%dm]", chestTitle, dist)
-                        else
-                            if rootPart:FindFirstChild("Zenith_ChestESP") then
-                                rootPart.Zenith_ChestESP:Destroy()
-                            end
+                if rootPart and rootPart.Parent then
+                    local shouldShow = (tier == 1 and espChest1Enabled) or (tier == 2 and espChest2Enabled) or (tier == 3 and espChest3Enabled)
+                    local chestColor = (tier == 3 and Color3.fromRGB(0, 240, 255)) or (tier == 2 and Color3.fromRGB(255, 215, 0)) or Color3.fromRGB(205, 127, 50)
+                    local chestTitle = (tier == 3 and "💎 Diamond Chest") or (tier == 2 and "🪙 Gold Chest") or "📦 Bronze Chest"
+                    
+                    if shouldShow then
+                        local dist = math.floor((rootPart.Position - myHRP.Position).Magnitude)
+                        local b = rootPart:FindFirstChild("Zenith_ChestESP")
+                        if not b then
+                            b = Instance.new("BillboardGui")
+                            b.Name = "Zenith_ChestESP"
+                            b.Size = UDim2.new(0, 160, 0, 25)
+                            b.StudsOffset = Vector3.new(0, 2, 0)
+                            b.AlwaysOnTop = true
+                            b.Adornee = rootPart
+                            b.Parent = rootPart
+                            
+                            local t = Instance.new("TextLabel")
+                            t.Name = "Label"
+                            t.Size = UDim2.new(1, 0, 1, 0)
+                            t.BackgroundTransparency = 1
+                            t.Font = Enum.Font.GothamBold
+                            t.TextSize = 11
+                            t.TextStrokeTransparency = 0
+                            t.Parent = b
+                        end
+                        b.Label.TextColor3 = chestColor
+                        b.Label.Text = string.format("%s [%dm]", chestTitle, dist)
+                    else
+                        if rootPart:FindFirstChild("Zenith_ChestESP") then
+                            rootPart.Zenith_ChestESP:Destroy()
                         end
                     end
                 end
@@ -434,39 +469,48 @@ task.spawn(function()
 end)
 
 -- ===================================================
--- 6. CORE COMBAT & FAST ATTACK (FIXED CHO ANDROID/EMULATOR)
+-- 6. COMBAT ENGINE: FAST ATTACK CHO GIẢ LẬP & GOM CẢ BÃI
 -- ===================================================
 local currentTween = nil
 local isAttackingTarget = false
 
-local function executeFastAttack()
+local function performDirectAttack()
     local char = LocalPlayer.Character
     if not char then return end
 
-    -- 1. Kích hoạt trực tiếp Tool đang cầm
-    for _, tool in ipairs(char:GetChildren()) do
-        if tool:IsA("Tool") then
-            tool:Activate()
+    for _, item in ipairs(char:GetChildren()) do
+        if item:IsA("Tool") then
+            item:Activate()
         end
     end
 
-    -- 2. Gửi tín hiệu click qua VirtualUser
+    local camera = Workspace.CurrentCamera
+    local vp = camera and camera.ViewportSize or Vector2.new(800, 600)
+    local cx, cy = vp.X / 2, vp.Y / 2
+
+    pcall(function()
+        VirtualInputManager:SendMouseButtonEvent(cx, cy, 0, true, game, 1)
+        task.wait()
+        VirtualInputManager:SendMouseButtonEvent(cx, cy, 0, false, game, 1)
+    end)
+
     pcall(function()
         VirtualUser:CaptureController()
-        VirtualUser:Button1Down(Vector2.new(0, 0))
-        task.wait()
-        VirtualUser:Button1Up(Vector2.new(0, 0))
+        VirtualUser:ClickButton1(Vector2.new(cx, cy))
+    end)
+
+    pcall(function()
+        if mouse1click then mouse1click() end
     end)
 end
 
--- Vòng lặp ra đòn liên tục tốc độ cao (~20 cps)
 task.spawn(function()
     while true do
         if AutoFarmLevel and isAttackingTarget then
-            executeFastAttack()
-            task.wait(0.05)
+            performDirectAttack()
+            task.wait(0.04)
         else
-            task.wait(0.15)
+            task.wait(0.12)
         end
     end
 end)
@@ -503,26 +547,23 @@ local function equipChosenWeapon()
     local humanoid = char:FindFirstChildOfClass("Humanoid")
     if not humanoid then return nil end
     
-    -- Kiểm tra nếu đã cầm đúng loại vũ khí
     for _, item in ipairs(char:GetChildren()) do
         if item:IsA("Tool") then
-            if item.ToolTip == selectedWeaponType or (selectedWeaponType == "Melee" and (item.ToolTip == "Melee" or item.ToolTip == "Combat" or item.Name == "Combat")) then
+            if item.ToolTip == selectedWeaponType or (selectedWeaponType == "Melee" and (item.ToolTip == "Melee" or item.ToolTip == "Combat" or item.Name == "Combat" or item.Name == "Võ Tân Binh")) then
                 return item
             end
         end
     end
 
-    -- Lấy từ Backpack ra tay
     if backpack then
         for _, tool in ipairs(backpack:GetChildren()) do
             if tool:IsA("Tool") then
-                if tool.ToolTip == selectedWeaponType or (selectedWeaponType == "Melee" and (tool.ToolTip == "Melee" or tool.ToolTip == "Combat" or tool.Name == "Combat")) then
+                if tool.ToolTip == selectedWeaponType or (selectedWeaponType == "Melee" and (tool.ToolTip == "Melee" or tool.ToolTip == "Combat" or tool.Name == "Combat" or tool.Name == "Võ Tân Binh")) then
                     humanoid:EquipTool(tool)
                     return tool
                 end
             end
         end
-        -- Fallback: Nếu không tìm thấy loại yêu cầu, cầm vũ khí đầu tiên có trong balo
         local firstTool = backpack:FindFirstChildOfClass("Tool")
         if firstTool then
             humanoid:EquipTool(firstTool)
@@ -541,69 +582,66 @@ local function checkHasQuest()
     return false
 end
 
-local function getEnemyInstance(monName)
+local function getAllLivingEnemies(monName)
+    local list = {}
     local enemies = Workspace:FindFirstChild("Enemies")
-    if not enemies then return nil end
+    if not enemies then return list end
 
     for _, mob in ipairs(enemies:GetChildren()) do
         if string.find(mob.Name, monName) then
             local hum = mob:FindFirstChildOfClass("Humanoid")
             local hrp = mob:FindFirstChild("HumanoidRootPart")
             if hum and hrp and hum.Health > 0 then
-                return mob
+                table.insert(list, mob)
             end
         end
     end
-    return nil
+    return list
 end
 
--- VÒNG LẶP CHÍNH: AUTO LEVEL FARM ENGINE
+-- VÒNG LẶP CHÍNH: TỰ ĐỘNG BAY TỚI ĐẢO, GOM CẢ BÃI VÀ ĐÁNH LIÊN TỤC
 task.spawn(function()
     while true do
         task.wait(0.05)
         if AutoFarmLevel and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
             local currentQuest = getAutoQuestByLevel()
             if currentQuest then
-                -- 1. Tự động nhận Quest phù hợp với cấp hiện tại
                 if AutoQuest and not checkHasQuest() then
                     CommF:InvokeServer("StartQuest", currentQuest.QuestName, currentQuest.QuestLevel)
                     task.wait(0.3)
                 end
 
-                -- 2. Tìm quái mục tiêu
-                local mob = getEnemyInstance(currentQuest.MonName)
-                if mob and mob:FindFirstChild("HumanoidRootPart") then
+                local mobList = getAllLivingEnemies(currentQuest.MonName)
+                if #mobList > 0 then
                     equipChosenWeapon()
-                    local mobHRP = mob.HumanoidRootPart
+                    local primaryMob = mobList[1]
+                    local primaryHRP = primaryMob:FindFirstChild("HumanoidRootPart")
                     local myHRP = LocalPlayer.Character.HumanoidRootPart
-                    
-                    -- Vị trí khóa: Ngay trên đầu quái 5 studs, quay mặt thẳng vào quái
-                    local targetCFrame = CFrame.new(mobHRP.Position + Vector3.new(0, 5, 0), mobHRP.Position)
-                    local dist = (myHRP.Position - mobHRP.Position).Magnitude
-                    
-                    if dist > 14 then
-                        isAttackingTarget = false
-                        toTargetPos(targetCFrame)
-                    else
-                        if currentTween then currentTween:Cancel() end
-                        myHRP.CFrame = targetCFrame
-                        myHRP.AssemblyLinearVelocity = Vector3.zero
-                        isAttackingTarget = true
 
-                        -- Gom quái xung quanh (Bán kính 250 studs chuẩn bãi quái)
-                        if BringMob then
-                            local enemies = Workspace:FindFirstChild("Enemies")
-                            if enemies then
-                                for _, other in ipairs(enemies:GetChildren()) do
-                                    if other ~= mob and string.find(other.Name, currentQuest.MonName) then
-                                        local oHRP = other:FindFirstChild("HumanoidRootPart")
-                                        local oHum = other:FindFirstChildOfClass("Humanoid")
-                                        if oHRP and oHum and oHum.Health > 0 then
-                                            local distFromOrigin = (oHRP.Position - mobHRP.Position).Magnitude
-                                            if distFromOrigin <= 250 then
-                                                oHRP.CFrame = mobHRP.CFrame
-                                                oHRP.CanCollide = false
-                                            end
+                    if primaryHRP then
+                        local clusterPosition = primaryHRP.Position
+                        local targetCFrame = CFrame.new(clusterPosition + Vector3.new(0, 4.5, 0), clusterPosition)
+                        local dist = (myHRP.Position - clusterPosition).Magnitude
+
+                        if dist > 14 then
+                            isAttackingTarget = false
+                            toTargetPos(targetCFrame)
+                        else
+                            if currentTween then currentTween:Cancel() end
+                            myHRP.CFrame = targetCFrame
+                            myHRP.AssemblyLinearVelocity = Vector3.zero
+                            isAttackingTarget = true
+
+                            if BringMob then
+                                for _, otherMob in ipairs(mobList) do
+                                    local oHRP = otherMob:FindFirstChild("HumanoidRootPart")
+                                    local oHum = otherMob:FindFirstChildOfClass("Humanoid")
+                                    if oHRP and oHum and oHum.Health > 0 then
+                                        local d = (oHRP.Position - clusterPosition).Magnitude
+                                        if d <= 320 then
+                                            oHRP.CFrame = CFrame.new(clusterPosition)
+                                            oHRP.AssemblyLinearVelocity = Vector3.zero
+                                            oHRP.CanCollide = false
                                         end
                                     end
                                 end
@@ -1033,10 +1071,9 @@ for _, c in ipairs(cats) do
     createPage(c[1])
 end
 
--- [TAB 1: FARM] (AUTO LEVEL FARM THAY CHO BẢNG CHỌN DANH SÁCH)
+-- [TAB 1: FARM] (AUTO LEVEL FARM)
 local farmPage = tabPages["Farm"]
 
--- Khung hiển thị thông tin Level và Nhiệm vụ hiện tại
 local infoCard = Instance.new("Frame")
 infoCard.Size = UDim2.new(0.92, 0, 0, 48)
 infoCard.BackgroundColor3 = Color3.fromRGB(20, 24, 34)
@@ -1076,7 +1113,6 @@ task.spawn(function()
     end
 end)
 
--- Bộ chọn loại vũ khí (Melee, Sword, Blox Fruit, Gun)
 local weaponFrame = Instance.new("Frame")
 weaponFrame.Size = UDim2.new(0.92, 0, 0, 30)
 weaponFrame.BackgroundColor3 = Color3.fromRGB(22, 26, 36)
@@ -1129,7 +1165,7 @@ end
 
 createToggle(farmPage, "auto_farm_level", false, function(v) AutoFarmLevel = v end)
 createToggle(farmPage, "auto_quest", true, function(v) AutoQuest = v end)
-createToggle(farmPage, "bring_mob", false, function(v) BringMob = v end)
+createToggle(farmPage, "bring_mob", true, function(v) BringMob = v end)
 
 -- [TAB 2: PVP-ESP]
 local pvpPage = tabPages["PVP-ESP"]
@@ -1147,6 +1183,28 @@ createToggle(pvpPage, "chest_diamond", false, function(v) espChest3Enabled = v e
 
 -- [TAB 3: SERVER]
 local serverPage = tabPages["Server"]
+
+-- TÍNH NĂNG NHẬP TOÀN BỘ CODE GAME
+local gameCodes = {
+    "ADMINHACKED", "ADMINDARES", "SECRET_ADMIN", "NOOB2PRO", "StrawHatMaine",
+    "Sub2Fer999", "Enyu_is_Pro", "Magicbus", "JCWK", "Starcodeheo",
+    "Bluxxy", "THEGREATACE", "SUB2GAMERROBOT_EXP1", "Sub2OfficialNoobie",
+    "FUDD10", "BIGNEWS", "KITT_RESET", "SUB2NOOBMASTER123", "Sub2UncleKizaru",
+    "Sub2Daigrock", "Axiore", "TantaiGaming", "FUDD10_V2", "CHANDLER",
+    "GAMER_ROBOT_1M", "TY_FOR_WATCHING", "UPD16", "3BVISITS", "2BILLION"
+}
+
+createButton(serverPage, "redeem_codes", function()
+    task.spawn(function()
+        for _, code in ipairs(gameCodes) do
+            pcall(function()
+                CommF:InvokeServer("RedeemCustomCode", code)
+            end)
+            task.wait(0.1)
+        end
+    end)
+end)
+
 createButton(serverPage, "rejoin_btn", function()
     TeleportService:Teleport(game.PlaceId, LocalPlayer)
 end)
