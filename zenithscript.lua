@@ -1,4 +1,4 @@
--- [[ ZENITH BLOX FRUIT - V12.22 (KHÔI PHỤC 100% CHỨC NĂNG + AURA AFK CHUẨN) ]] --
+-- [[ ZENITH BLOX FRUIT - V12.FINAL (FULL LOGIC ESP/FRUIT/PVP + AURA AFK) ]] --
 
 task.wait(0.5)
 if not game:IsLoaded() then game.Loaded:Wait() end
@@ -11,19 +11,21 @@ local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local VirtualUser = game:GetService("VirtualUser")
+local HttpService = game:GetService("HttpService")
+local TeleportService = game:GetService("TeleportService")
 local Stats = game:GetService("Stats")
 
 local LocalPlayer = Players.LocalPlayer
 local CommF = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("CommF_")
 local Camera = Workspace.CurrentCamera
 
--- Chống AFK (Tránh văng game khi treo)
+-- Chống AFK
 LocalPlayer.Idled:Connect(function()
     VirtualUser:CaptureController()
     VirtualUser:ClickButton2(Vector2.new())
 end)
 
--- Biến Global
+-- BIẾN TOÀN CỤC (FULL CHỨC NĂNG)
 local selectedWeaponType = "Melee"
 local AutoFarmLevel, AutoQuest, BringMob = false, true, true
 local espPlayerEnabled, espFruitEnabled = false, false
@@ -36,7 +38,6 @@ local AutoRandomFruit, AutoCollectFruit, AutoStoreFruit = false, false, false
 -- 1. ÉP HIỂN THỊ GIAO DIỆN & DỌN DẸP
 -- ===================================================
 local UI_NAME = "ZenithBloxFruit_Zyrox_V12"
-
 local function GetSafeUIFolder()
     local folder
     pcall(function() if gethui then folder = gethui() end end)
@@ -50,16 +51,16 @@ for _, gui in ipairs(targetUIFolder:GetChildren()) do if gui.Name == UI_NAME the
 for _, gui in ipairs(LocalPlayer:WaitForChild("PlayerGui"):GetChildren()) do if gui.Name == UI_NAME then gui:Destroy() end end
 
 -- ===================================================
--- 2. HỆ THỐNG NGÔN NGỮ (FULL)
+-- 2. HỆ THỐNG NGÔN NGỮ
 -- ===================================================
 local currentLang = "VI"
 local translatableElements = {}
 local LangDict = {
     VI = {
-        title = "ZYROX VN <font color='#00d2ff'>• V12.22 (AURA AFK)</font>",
+        title = "ZYROX VN <font color='#00d2ff'>• V12 FINAL</font>",
         tab_farm = "Farm Level", tab_fruit = "Trái Ác Quỷ", tab_pvp = "PVP & ESP",
         tab_server = "Máy Chủ", tab_raid = "Đi Raid", tab_item = "Farm Item", tab_setting = "Cài Đặt",
-        auto_farm_level = "⚡ Tự Động Farm (Aura)", auto_quest = "📜 Tự Nhận Nhiệm Vụ", bring_mob = "🧲 Gom Quái An Toàn",
+        auto_farm_level = "⚡ Tự Động Farm (Aura AFK)", auto_quest = "📜 Tự Nhận Nhiệm Vụ", bring_mob = "🧲 Gom Quái An Toàn",
         fruit_buy = "🎲 Mua Ngẫu Nhiên Trái", fruit_collect = "🧲 Nhặt Trái Rơi", fruit_store = "📦 Cất Trái Vào Rương",
         speed_toggle = "Bật Chạy Nhanh", speed_slider = "Tốc Độ", jump_toggle = "Bật Nhảy Cao", jump_slider = "Lực Nhảy",
         player_esp = "ESP Người Chơi", fruit_esp = "ESP Trái Ác Quỷ", chest_wood = "ESP Rương Gỗ", chest_gold = "ESP Rương Vàng", chest_diamond = "ESP Rương Kim Cương",
@@ -67,10 +68,10 @@ local LangDict = {
         lang_title = "Ngôn Ngữ / Language", ui_scale = "Thu Phóng UI (%)", fix_lag = "Tối Ưu Đồ Họa (Tăng FPS)", close_hub = "Đóng Cửa Sổ"
     },
     EN = {
-        title = "ZYROX VN <font color='#00d2ff'>• V12.22 (AURA AFK)</font>",
+        title = "ZYROX VN <font color='#00d2ff'>• V12 FINAL</font>",
         tab_farm = "Farm Level", tab_fruit = "Devil Fruit", tab_pvp = "PVP & ESP",
         tab_server = "Server", tab_raid = "Raid Hub", tab_item = "Item Farm", tab_setting = "Settings",
-        auto_farm_level = "⚡ Auto Farm (Aura)", auto_quest = "📜 Auto Quest", bring_mob = "🧲 Safe Bring Mobs",
+        auto_farm_level = "⚡ Auto Farm (Aura AFK)", auto_quest = "📜 Auto Quest", bring_mob = "🧲 Safe Bring Mobs",
         fruit_buy = "🎲 Random Fruit", fruit_collect = "🧲 Collect Fruits", fruit_store = "📦 Store Into Inventory",
         speed_toggle = "Enable WalkSpeed", speed_slider = "Speed", jump_toggle = "Enable High Jump", jump_slider = "Jump Height",
         player_esp = "Player ESP", fruit_esp = "Fruit ESP", chest_wood = "Wood Chest", chest_gold = "Gold Chest", chest_diamond = "Diamond Chest",
@@ -84,13 +85,12 @@ local function registerText(label, key, isRich)
 end
 
 -- ===================================================
--- 3. XÂY DỰNG GIAO DIỆN CHUẨN XÁC
+-- 3. XÂY DỰNG GIAO DIỆN (UI BUILDER)
 -- ===================================================
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name, ScreenGui.ResetOnSpawn = UI_NAME, false
 pcall(function() ScreenGui.Parent = targetUIFolder end)
 
--- NÚT THU NHỎ (Z) CÓ BORDER VÀ CHỐNG LỖI CLICK
 local FloatingButton = Instance.new("TextButton", ScreenGui)
 FloatingButton.Size, FloatingButton.AnchorPoint, FloatingButton.Position = UDim2.new(0, 48, 0, 48), Vector2.new(0.5, 0.5), UDim2.new(0.1, 0, 0.5, 0)
 FloatingButton.BackgroundColor3, FloatingButton.Visible = Color3.fromRGB(13, 16, 22), false
@@ -109,22 +109,15 @@ Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 10)
 Instance.new("UIStroke", MainFrame).Color = Color3.fromRGB(30, 36, 50)
 Instance.new("UIStroke", MainFrame).Thickness = 1.2
 
--- Logic Kéo Thả an toàn
 local isDraggingWindow, isDraggingFloating = false, false
 local dragStartPos, frameStartPos = nil, nil
 
 MainFrame.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then 
-        isDraggingWindow, dragStartPos, frameStartPos = true, input.Position, MainFrame.Position 
-    end
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then isDraggingWindow, dragStartPos, frameStartPos = true, input.Position, MainFrame.Position end
 end)
-
 FloatingButton.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then 
-        isDraggingFloating, dragStartPos, frameStartPos = true, input.Position, FloatingButton.Position 
-    end
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then isDraggingFloating, dragStartPos, frameStartPos = true, input.Position, FloatingButton.Position end
 end)
-
 UserInputService.InputEnded:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then 
         if isDraggingFloating then
@@ -134,7 +127,6 @@ UserInputService.InputEnded:Connect(function(input)
         isDraggingWindow = false 
     end
 end)
-
 UserInputService.InputChanged:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
         if isDraggingWindow and MainFrame.Visible then
@@ -153,7 +145,6 @@ local Title = Instance.new("TextLabel", TopBar)
 Title.Size, Title.Position, Title.BackgroundTransparency, Title.RichText, Title.TextColor3, Title.Font, Title.TextSize, Title.TextXAlignment = UDim2.new(0, 300, 1, 0), UDim2.new(0, 15, 0, 0), 1, true, Color3.fromRGB(255, 255, 255), Enum.Font.GothamBold, 12, Enum.TextXAlignment.Left
 registerText(Title, "title", true)
 
--- BỘ ĐẾM FPS VÀ PING
 local StatsFrame = Instance.new("Frame", TopBar)
 StatsFrame.Size, StatsFrame.Position, StatsFrame.BackgroundColor3, StatsFrame.BorderSizePixel = UDim2.new(0, 120, 0, 24), UDim2.new(1, -190, 0.5, -12), Color3.fromRGB(22, 26, 38), 0
 Instance.new("UICorner", StatsFrame).CornerRadius = UDim.new(0, 6)
@@ -285,9 +276,7 @@ local function createButton(page, transKey, callback)
     registerText(btn, transKey) btn.MouseButton1Click:Connect(function() if callback then callback() end end)
 end
 
--- ===================================================
--- KHỞI TẠO ĐẦY ĐỦ 7 DANH MỤC
--- ===================================================
+-- KHỞI TẠO TẤT CẢ TABS (ĐÃ TRẢ LẠI ĐẦY ĐỦ)
 local cats = {{"Farm", "🌾", "tab_farm"}, {"Fruit", "🍎", "tab_fruit"}, {"PVP-ESP", "⚔️", "tab_pvp"}, {"Server", "🌐", "tab_server"}, {"RAID", "⚡", "tab_raid"}, {"FARM ITEM", "🗡️", "tab_item"}, {"SETTING", "⚙️", "tab_setting"}}
 for _, c in ipairs(cats) do createTabButton(c[1], c[2], c[3]) createPage(c[1]) end
 
@@ -318,9 +307,10 @@ createToggle(farmPage, "auto_quest", true, function(v) AutoQuest = v end)
 createToggle(farmPage, "bring_mob", true, function(v) BringMob = v end)
 
 -- TAB 2: FRUIT
-createToggle(tabPages["Fruit"], "fruit_buy", false, function(v) AutoRandomFruit = v end)
-createToggle(tabPages["Fruit"], "fruit_collect", false, function(v) AutoCollectFruit = v end)
-createToggle(tabPages["Fruit"], "fruit_store", false, function(v) AutoStoreFruit = v end)
+local fruitPage = tabPages["Fruit"]
+createToggle(fruitPage, "fruit_buy", false, function(v) AutoRandomFruit = v end)
+createToggle(fruitPage, "fruit_collect", false, function(v) AutoCollectFruit = v end)
+createToggle(fruitPage, "fruit_store", false, function(v) AutoStoreFruit = v end)
 
 -- TAB 3: PVP-ESP
 local pvpPage = tabPages["PVP-ESP"]
@@ -331,9 +321,20 @@ createSlider(pvpPage, "jump_slider", 50, 400, 50, function(val) jumpValue = val 
 createToggle(pvpPage, "player_esp", false, function(v) espPlayerEnabled = v end)
 createToggle(pvpPage, "fruit_esp", false, function(v) espFruitEnabled = v end)
 createToggle(pvpPage, "chest_wood", false, function(v) espChest1Enabled = v end)
+createToggle(pvpPage, "chest_gold", false, function(v) espChest2Enabled = v end)
+createToggle(pvpPage, "chest_diamond", false, function(v) espChest3Enabled = v end)
 
 -- TAB 4: SERVER
-createButton(tabPages["Server"], "rejoin_btn", function() TeleportService:Teleport(game.PlaceId, LocalPlayer) end)
+local serverPage = tabPages["Server"]
+createButton(serverPage, "redeem_codes", function() 
+    local codes = {"ADMINHACKED", "ADMINDARES", "SECRET_ADMIN", "NOOB2PRO", "Sub2Fer999", "Enyu_is_Pro", "Magicbus", "JCWK", "Starcodeheo", "Bluxxy", "THEGREATACE", "SUB2GAMERROBOT_EXP1", "Sub2OfficialNoobie", "FUDD10", "BIGNEWS", "KITT_RESET", "SUB2NOOBMASTER123", "Sub2UncleKizaru", "Sub2Daigrock", "Axiore", "TantaiGaming", "FUDD10_V2", "CHANDLER", "GAMER_ROBOT_1M", "TY_FOR_WATCHING", "UPD16", "3BVISITS", "2BILLION"}
+    task.spawn(function() for _, c in ipairs(codes) do pcall(function() CommF:InvokeServer("RedeemCustomCode", c) end) task.wait(0.1) end end) 
+end)
+createButton(serverPage, "rejoin_btn", function() TeleportService:Teleport(game.PlaceId, LocalPlayer) end)
+createButton(serverPage, "serverhop_btn", function()
+    local success, response = pcall(function() return HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100")) end)
+    if success and response and response.data then for _, s in ipairs(response.data) do if s.playing < s.maxPlayers and s.id ~= game.JobId then TeleportService:TeleportToPlaceInstance(game.PlaceId, s.id, LocalPlayer) break end end end
+end)
 
 -- TAB 5: RAID
 createToggle(tabPages["RAID"], "auto_raid_start", false, function(v) end)
@@ -351,13 +352,180 @@ createSlider(settingPage, "ui_scale", 60, 140, 100, function(val) UIScale.Scale 
 createButton(settingPage, "close_hub", function() ScreenGui:Destroy() end)
 switchTab("Farm")
 
+-- ===================================================
+-- 4. HỆ THỐNG FULL LOGIC ESP VÀ FRUIT
+-- ===================================================
+
+-- Tốc độ & Nhảy
+RunService.Heartbeat:Connect(function()
+    if speedEnabled and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        local humanoid, rootPart = LocalPlayer.Character:FindFirstChildOfClass("Humanoid"), LocalPlayer.Character.HumanoidRootPart
+        if humanoid and rootPart and humanoid.MoveDirection.Magnitude > 0 then
+            rootPart.AssemblyLinearVelocity = Vector3.new(humanoid.MoveDirection.X * speedValue, rootPart.AssemblyLinearVelocity.Y, humanoid.MoveDirection.Z * speedValue)
+        end
+    end
+end)
+UserInputService.JumpRequest:Connect(function()
+    if jumpEnabled and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        LocalPlayer.Character.HumanoidRootPart.AssemblyLinearVelocity = Vector3.new(LocalPlayer.Character.HumanoidRootPart.AssemblyLinearVelocity.X, jumpValue, LocalPlayer.Character.HumanoidRootPart.AssemblyLinearVelocity.Z)
+    end
+end)
+
+-- ESP Players
+task.spawn(function()
+    while true do
+        task.wait(0.2)
+        for _, p in ipairs(Players:GetPlayers()) do
+            if p ~= LocalPlayer and p.Character then
+                local char, head, hum = p.Character, p.Character:FindFirstChild("Head"), p.Character:FindFirstChildOfClass("Humanoid")
+                local myHRP = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                if espPlayerEnabled and head and hum and myHRP and hum.Health > 0 then
+                    local dist = math.floor((head.Position - myHRP.Position).Magnitude)
+                    local bbGui = head:FindFirstChild("Zenith_PlayerBillboard")
+                    if not bbGui then
+                        bbGui = Instance.new("BillboardGui", head)
+                        bbGui.Name, bbGui.Size, bbGui.StudsOffset, bbGui.AlwaysOnTop = "Zenith_PlayerBillboard", UDim2.new(0, 200, 0, 45), Vector3.new(0, 2.8, 0), true
+                        local txt = Instance.new("TextLabel", bbGui)
+                        txt.Name, txt.Size, txt.BackgroundTransparency, txt.Font, txt.TextSize, txt.TextColor3 = "Info", UDim2.new(1, 0, 1, 0), 1, Enum.Font.GothamBold, 11, Color3.fromRGB(255, 60, 90)
+                    end
+                    bbGui.Info.Text = string.format("%s\n[%dm] • HP: %d/%d", p.DisplayName, dist, math.floor(hum.Health), math.floor(hum.MaxHealth))
+                else
+                    if head and head:FindFirstChild("Zenith_PlayerBillboard") then head.Zenith_PlayerBillboard:Destroy() end
+                end
+            end
+        end
+    end
+end)
+
+-- ESP Fruit & Chest
+local detectedChests = {}
+task.spawn(function()
+    while true do
+        detectedChests = {}
+        for _, obj in ipairs(Workspace:GetDescendants()) do
+            if obj:IsA("BasePart") then
+                local name, pName = string.lower(obj.Name), obj.Parent and string.lower(obj.Parent.Name) or ""
+                if string.find(name, "chest") or string.find(pName, "chest") then
+                    local tier = 1
+                    if string.find(name, "3") or string.find(pName, "3") or string.find(name, "diamond") then tier = 3
+                    elseif string.find(name, "2") or string.find(pName, "2") or string.find(name, "gold") or string.find(name, "silver") then tier = 2 end
+                    table.insert(detectedChests, {Part = obj, Tier = tier})
+                end
+            end
+        end
+        task.wait(3)
+    end
+end)
+
+task.spawn(function()
+    while true do
+        task.wait(0.2)
+        local myHRP = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+        if not myHRP then continue end
+
+        for _, obj in ipairs(Workspace:GetChildren()) do
+            if (obj:IsA("Tool") and string.find(obj.Name, "Fruit")) or obj:FindFirstChild("Fruit") then
+                local handle = obj:FindFirstChild("Handle") or obj:FindFirstChildWhichIsA("BasePart")
+                if handle then
+                    if espFruitEnabled then
+                        local b = handle:FindFirstChild("Zenith_FruitESP")
+                        if not b then
+                            b = Instance.new("BillboardGui", handle)
+                            b.Name, b.Size, b.StudsOffset, b.AlwaysOnTop = "Zenith_FruitESP", UDim2.new(0, 180, 0, 30), Vector3.new(0, 2, 0), true
+                            local t = Instance.new("TextLabel", b)
+                            t.Name, t.Size, t.BackgroundTransparency, t.Font, t.TextSize, t.TextColor3 = "Label", UDim2.new(1, 0, 1, 0), 1, Enum.Font.GothamBold, 12, Color3.fromRGB(255, 70, 220)
+                        end
+                        b.Label.Text = string.format("🍎 %s\n[%dm]", obj.Name, math.floor((handle.Position - myHRP.Position).Magnitude))
+                    else
+                        if handle:FindFirstChild("Zenith_FruitESP") then handle.Zenith_FruitESP:Destroy() end
+                    end
+                end
+            end
+        end
+        
+        for _, item in ipairs(detectedChests) do
+            local rootPart, tier = item.Part, item.Tier
+            if rootPart and rootPart.Parent then
+                local shouldShow = (tier == 1 and espChest1Enabled) or (tier == 2 and espChest2Enabled) or (tier == 3 and espChest3Enabled)
+                if shouldShow then
+                    local b = rootPart:FindFirstChild("Zenith_ChestESP")
+                    if not b then
+                        b = Instance.new("BillboardGui", rootPart)
+                        b.Name, b.Size, b.StudsOffset, b.AlwaysOnTop = "Zenith_ChestESP", UDim2.new(0, 160, 0, 25), Vector3.new(0, 2, 0), true
+                        local t = Instance.new("TextLabel", b)
+                        t.Name, t.Size, t.BackgroundTransparency, t.Font, t.TextSize = "Label", UDim2.new(1, 0, 1, 0), 1, Enum.Font.GothamBold, 11
+                    end
+                    b.Label.TextColor3 = (tier == 3 and Color3.fromRGB(0, 240, 255)) or (tier == 2 and Color3.fromRGB(255, 215, 0)) or Color3.fromRGB(205, 127, 50)
+                    b.Label.Text = string.format("%s [%dm]", (tier == 3 and "💎 Diamond") or (tier == 2 and "🪙 Gold") or "📦 Bronze", math.floor((rootPart.Position - myHRP.Position).Magnitude))
+                else
+                    if rootPart:FindFirstChild("Zenith_ChestESP") then rootPart.Zenith_ChestESP:Destroy() end
+                end
+            end
+        end
+    end
+end)
+
+-- Tự động thao tác Trái ác quỷ
+task.spawn(function() while true do task.wait(5) if AutoRandomFruit then pcall(function() CommF:InvokeServer("Cousin", "Buy") end) end end end)
+task.spawn(function()
+    while true do
+        task.wait(1)
+        if AutoCollectFruit and not AutoFarmLevel and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            for _, obj in ipairs(Workspace:GetChildren()) do
+                if (obj:IsA("Tool") and string.find(obj.Name, "Fruit")) or obj:FindFirstChild("Fruit") then
+                    local handle = obj:FindFirstChild("Handle") or obj:FindFirstChildWhichIsA("BasePart")
+                    if handle then
+                        LocalPlayer.Character.HumanoidRootPart.CFrame = handle.CFrame
+                        task.wait(0.5)
+                        if firetouchinterest then firetouchinterest(LocalPlayer.Character.HumanoidRootPart, handle, 0); task.wait(); firetouchinterest(LocalPlayer.Character.HumanoidRootPart, handle, 1) end
+                    end
+                end
+            end
+        end
+    end
+end)
+task.spawn(function()
+    while true do
+        task.wait(2)
+        if AutoStoreFruit and CommF then
+            pcall(function()
+                local backpack, char = LocalPlayer:FindFirstChild("Backpack"), LocalPlayer.Character
+                if backpack then for _, item in ipairs(backpack:GetChildren()) do if string.find(item.Name, "Fruit") or item:FindFirstChild("Fruit") then CommF:InvokeServer("StoreFruit", item.Name, item) end end end
+                if char then for _, item in ipairs(char:GetChildren()) do if item:IsA("Tool") and (string.find(item.Name, "Fruit") or item:FindFirstChild("Fruit")) then CommF:InvokeServer("StoreFruit", item.Name, item) end end end
+            end)
+        end
+    end
+end)
+
+-- Tự động đứng trên nước
+task.spawn(function()
+    local waterPlatform = Instance.new("Part")
+    waterPlatform.Name, waterPlatform.Size, waterPlatform.Transparency, waterPlatform.Anchored, waterPlatform.CanCollide = "Zenith_WaterPlatform", Vector3.new(120, 1, 120), 1, true, true
+    waterPlatform.Parent = Workspace
+    RunService.RenderStepped:Connect(function()
+        local char = LocalPlayer.Character
+        if char and char:FindFirstChild("HumanoidRootPart") then
+            local hrp, humanoid = char.HumanoidRootPart, char:FindFirstChildOfClass("Humanoid")
+            if humanoid and humanoid:GetState() == Enum.HumanoidStateType.Swimming then
+                humanoid:SetStateEnabled(Enum.HumanoidStateType.Swimming, false)
+                humanoid:ChangeState(Enum.HumanoidStateType.Running)
+            end
+            if hrp.Position.Y <= 15 and hrp.Position.Y >= -60 then
+                waterPlatform.CFrame, waterPlatform.CanCollide = CFrame.new(hrp.Position.X, 0.5, hrp.Position.Z), true
+            else
+                waterPlatform.CFrame, waterPlatform.CanCollide = CFrame.new(hrp.Position.X, -500, hrp.Position.Z), false
+            end
+        end
+    end)
+end)
+
 
 -- ===================================================
--- 4. HỆ THỐNG AURA ATTACK (ĐỨNG IM GÂY DAME - NO CLICK)
+-- 5. HỆ THỐNG AURA AFK (ĐỨNG IM GÂY DAME TRÊN KHÔNG 6 MÉT)
 -- ===================================================
 local isAttackingTarget = false
 
--- ĐÓNG BĂNG HOẠT ẢNH: Xóa hết animation vung tay chân, nhân vật đứng im lơ lửng như AFK
+-- ĐÓNG BĂNG HOẠT ẢNH: Xóa hết animation vung tay chân, nhân vật đứng im lơ lửng
 RunService.Stepped:Connect(function()
     if AutoFarmLevel and isAttackingTarget then
         local char = LocalPlayer.Character
@@ -378,7 +546,7 @@ RunService.Stepped:Connect(function()
     end
 end)
 
--- AUTO ATTACK DÀNH RIÊNG CHO LDPLAYER / ĐIỆN THOẠI (KHÔNG CẦN CHUỘT)
+-- HACK SÁT THƯƠNG NGẦM QUA COMBAT FRAMEWORK (KHÔNG CẦN CHUỘT)
 task.spawn(function()
     while true do
         if AutoFarmLevel and isAttackingTarget then
@@ -386,14 +554,23 @@ task.spawn(function()
             if char then
                 local tool = char:FindFirstChildOfClass("Tool")
                 if tool then 
-                    tool:Activate() -- Ép vũ khí hoạt động ngầm (Server ghi nhận)
+                    tool:Activate() -- Bật Tool ngầm, không gây Animation
                 end
             end
             
-            -- Hack Combat Framework (Không cần click vật lý)
             pcall(function()
                 local CbFw = require(LocalPlayer.PlayerScripts.CombatFramework)
                 local controller = CbFw.activeController
+                
+                -- Tìm Controller nếu bị ẩn trên Executor
+                if not controller and debug.getupvalues then
+                    for _, v in pairs(debug.getupvalues(CbFw)) do
+                        if type(v) == "table" and v.activeController then
+                            controller = v.activeController break
+                        end
+                    end
+                end
+                
                 if controller and controller.equipped then
                     controller.hitboxLimiter = 0
                     controller.timeToNextAttack = 0
@@ -402,11 +579,10 @@ task.spawn(function()
                     controller.attacking = false
                     controller.blocking = false
                     controller.hasCombatState = false
-                    controller:attack()
+                    controller:attack() -- Xả sát thương
                 end
             end)
-            
-            task.wait(0.12) -- Tốc độ chém an toàn 
+            task.wait(0.12)
         else
             task.wait(0.2)
         end
@@ -414,33 +590,8 @@ task.spawn(function()
 end)
 
 -- ===================================================
--- 5. LOGIC DI CHUYỂN & GOM QUÁI CHUẨN AURA
+-- 6. LOGIC TÌM NHIỆM VỤ, QUÁI & VŨ KHÍ
 -- ===================================================
-local currentTween = nil
-local function toTargetPos(targetCFrame)
-    local char = LocalPlayer.Character
-    if not char or not char:FindFirstChild("HumanoidRootPart") then return end
-    local root = char.HumanoidRootPart
-    
-    if currentTween and currentTween.PlaybackState == Enum.PlaybackState.Playing then return end
-    
-    local distance = (root.Position - targetCFrame.Position).Magnitude
-    if distance < 3 then return end
-    
-    local speed = 350 
-    local time = distance / speed
-    currentTween = TweenService:Create(root, TweenInfo.new(time, Enum.EasingStyle.Linear), {CFrame = targetCFrame})
-    currentTween:Play()
-end
-
-RunService.Stepped:Connect(function()
-    if AutoFarmLevel and LocalPlayer.Character then
-        for _, part in ipairs(LocalPlayer.Character:GetDescendants()) do
-            if part:IsA("BasePart") then part.CanCollide = false end
-        end
-    end
-end)
-
 local function equipChosenWeapon()
     local char = LocalPlayer.Character
     if not char then return end
@@ -457,7 +608,6 @@ local function equipChosenWeapon()
     end
 end
 
--- DATA QUÁI THEO LEVEL
 local function getAutoQuestByLevel()
     local level = 1
     pcall(function() level = LocalPlayer.Data.Level.Value end)
@@ -494,6 +644,34 @@ local function getAllLivingEnemies(monName)
     return list
 end
 
+-- ===================================================
+-- 7. VÒNG LẶP DI CHUYỂN & GOM QUÁI (TRỊ LỖI THANG MÁY + CÓ DAME 100%)
+-- ===================================================
+local currentTween = nil
+local function toTargetPos(targetCFrame)
+    local char = LocalPlayer.Character
+    if not char or not char:FindFirstChild("HumanoidRootPart") then return end
+    local root = char.HumanoidRootPart
+    
+    if currentTween and currentTween.PlaybackState == Enum.PlaybackState.Playing then return end
+    
+    local distance = (root.Position - targetCFrame.Position).Magnitude
+    if distance < 3 then return end
+    
+    local speed = 350 
+    local time = distance / speed
+    currentTween = TweenService:Create(root, TweenInfo.new(time, Enum.EasingStyle.Linear), {CFrame = targetCFrame})
+    currentTween:Play()
+end
+
+RunService.Stepped:Connect(function()
+    if AutoFarmLevel and LocalPlayer.Character then
+        for _, part in ipairs(LocalPlayer.Character:GetDescendants()) do
+            if part:IsA("BasePart") then part.CanCollide = false end
+        end
+    end
+end)
+
 local lockedFarmPosition = nil
 
 task.spawn(function()
@@ -517,15 +695,15 @@ task.spawn(function()
                     local myHRP = LocalPlayer.Character.HumanoidRootPart
                     
                     if primaryHRP then
-                        -- Ghi nhớ vị trí mặt đất để gom quái
+                        -- Ghi nhớ vị trí mặt đất để gom quái, chống bay lên trời
                         if not lockedFarmPosition or (lockedFarmPosition.Position - primaryHRP.Position).Magnitude > 300 then
                             lockedFarmPosition = primaryHRP.CFrame
                         end
                         
                         local groundPos = lockedFarmPosition.Position
                         
-                        -- FIX TUYỆT ĐỐI TẦM CHÉM: Khoảng cách vàng là 6 mét. 
-                        -- Bạn lơ lửng trên quái 6 mét, vừa đủ để game ghi nhận sát thương mà quái không thể đánh lên.
+                        -- FIX CỰC QUAN TRỌNG ĐỂ CÓ SÁT THƯƠNG:
+                        -- Lơ lửng trên quái ĐÚNG 6 MÉT (Khoảng cách hợp lệ của Server Blox Fruits)
                         local attackPos = CFrame.new(groundPos.X, groundPos.Y + 6, groundPos.Z)
                         local lookAtPos = CFrame.lookAt(attackPos.Position, groundPos)
                         
@@ -535,7 +713,7 @@ task.spawn(function()
                         else
                             if currentTween then currentTween:Cancel(); currentTween = nil end
                             
-                            -- Khóa nhân vật, xoay mặt nhìn xuống bãi quái
+                            -- Đứng im như Tượng
                             myHRP.CFrame = lookAtPos
                             myHRP.AssemblyLinearVelocity = Vector3.zero
                             isAttackingTarget = true
@@ -545,10 +723,8 @@ task.spawn(function()
                                     local oHRP, oHum = otherMob:FindFirstChild("HumanoidRootPart"), otherMob:FindFirstChildOfClass("Humanoid")
                                     if oHRP and oHum and oHum.Health > 0 and (oHRP.Position - groundPos).Magnitude <= 350 then
                                         
-                                        -- Gom quái về gốc dưới mặt đất
+                                        -- Cố định toàn bộ quái ngay mặt đất thẳng chân bạn
                                         oHRP.CFrame = CFrame.new(groundPos)
-                                        
-                                        -- Cố định quái để không đẩy nhau, và KHÔNG PHÓNG TO HITBOX (Gây lỗi server)
                                         oHRP.AssemblyLinearVelocity = Vector3.zero
                                         oHRP.CanCollide = false
                                         
