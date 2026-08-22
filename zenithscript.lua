@@ -1,4 +1,4 @@
--- [[ ZENITH BLOX FRUIT - V12.23 (ĐỘC LẬP LUỒNG: TỰ ĐỘNG ĐÁNH + FULL TÍNH NĂNG + SETTING ĐẦY ĐỦ) ]] --
+-- [[ ZENITH BLOX FRUIT - V12.24 (LDPLAYER MASTER FIX: SKY FARM 12M + AURA AFK + FULL TÍNH NĂNG) ]] --
 
 task.wait(0.5)
 if not game:IsLoaded() then game.Loaded:Wait() end
@@ -57,11 +57,11 @@ local currentLang = "VI"
 local translatableElements = {}
 local LangDict = {
     VI = {
-        title = "ZYROX VN <font color='#00d2ff'>• V12.23</font>",
+        title = "ZYROX VN <font color='#00d2ff'>• V12.24</font>",
         badge = "PRO",
         tab_farm = "Farm Level", tab_fruit = "Trái Ác Quỷ", tab_pvp = "PVP & ESP",
         tab_server = "Máy Chủ", tab_raid = "Đi Raid", tab_item = "Farm Item", tab_setting = "Cài Đặt",
-        auto_farm_level = "⚡ Tự Động Farm (Độc Lập)", auto_quest = "📜 Tự Nhận Nhiệm Vụ", bring_mob = "🧲 Gom Quái An Toàn",
+        auto_farm_level = "⚡ Tự Động Farm (Aura AFK)", auto_quest = "📜 Tự Nhận Nhiệm Vụ", bring_mob = "🧲 Gom Quái An Toàn",
         fruit_buy = "🎲 Mua Ngẫu Nhiên Trái", fruit_collect = "🧲 Nhặt Trái Rơi", fruit_store = "📦 Cất Trái Vào Rương",
         speed_toggle = "Bật Chạy Nhanh", speed_slider = "Tốc Độ", jump_toggle = "Bật Nhảy Cao", jump_slider = "Lực Nhảy",
         player_esp = "ESP Người Chơi", fruit_esp = "ESP Trái Ác Quỷ", chest_wood = "ESP Rương Gỗ", chest_gold = "ESP Rương Vàng", chest_diamond = "ESP Rương Kim Cương",
@@ -70,11 +70,11 @@ local LangDict = {
         lang_title = "Ngôn Ngữ / Language", ui_scale = "Thu Phóng UI (%)", ui_transparency = "Trong Suốt UI (%)", fix_lag = "Tối Ưu Đồ Họa (Tăng FPS)", close_hub = "Đóng Cửa Sổ"
     },
     EN = {
-        title = "ZYROX VN <font color='#00d2ff'>• V12.23</font>",
+        title = "ZYROX VN <font color='#00d2ff'>• V12.24</font>",
         badge = "PRO",
         tab_farm = "Farm Level", tab_fruit = "Devil Fruit", tab_pvp = "PVP & ESP",
         tab_server = "Server", tab_raid = "Raid Hub", tab_item = "Item Farm", tab_setting = "Settings",
-        auto_farm_level = "⚡ Auto Farm (Independent)", auto_quest = "📜 Auto Quest", bring_mob = "🧲 Safe Bring Mobs",
+        auto_farm_level = "⚡ Auto Farm (Aura AFK)", auto_quest = "📜 Auto Quest", bring_mob = "🧲 Safe Bring Mobs",
         fruit_buy = "🎲 Random Fruit", fruit_collect = "🧲 Collect Fruits", fruit_store = "📦 Store Into Inventory",
         speed_toggle = "Enable WalkSpeed", speed_slider = "Speed", jump_toggle = "Enable High Jump", jump_slider = "Jump Height",
         player_esp = "Player ESP", fruit_esp = "Fruit ESP", chest_wood = "Wood Chest", chest_gold = "Gold Chest", chest_diamond = "Diamond Chest",
@@ -356,18 +356,22 @@ createToggle(tabPages["RAID"], "auto_raid_start", false, function(v) end)
 -- TAB 6: ITEM
 createToggle(tabPages["FARM ITEM"], "auto_bones", false, function(v) end)
 
--- TAB 7: SETTING (ĐÃ CÓ ĐẦY ĐỦ NÚT ĐÓNG & FIX LAG)
+-- TAB 7: SETTING (ĐẦY ĐỦ 100% TÍNH NĂNG CŨ)
 local settingPage = tabPages["SETTING"]
 createToggle(settingPage, "fix_lag", false, function(v)
     Lighting.GlobalShadows = not v
     for _, obj in ipairs(Workspace:GetDescendants()) do if obj:IsA("BasePart") and v then obj.Material = Enum.Material.SmoothPlastic end end
 end)
 createSlider(settingPage, "ui_scale", 60, 140, 100, function(val) UIScale.Scale = val / 100 end)
+createSlider(settingPage, "ui_transparency", 0, 80, 12, function(val)
+    MainFrame.BackgroundTransparency = val / 100
+    Sidebar.BackgroundTransparency = math.clamp((val + 8) / 100, 0, 1)
+end)
 createButton(settingPage, "close_hub", function() ScreenGui:Destroy() end)
 switchTab("Farm")
 
 -- ===================================================
--- 4. HỆ THỐNG FULL LOGIC ESP & FRUIT
+-- 4. HỆ THỐNG FULL LOGIC ESP & FRUIT & WATER
 -- ===================================================
 RunService.Heartbeat:Connect(function()
     if speedEnabled and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
@@ -531,31 +535,11 @@ end)
 
 
 -- ===================================================
--- 5. HỆ THỐNG AURA AFK (ĐỨNG IM GÂY DAME TRÊN KHÔNG 6 MÉT)
--- ĐỘC LẬP HOÀN TOÀN KHÔNG BỊ TREO THREAD
+-- 5. HỆ THỐNG ĐỘC LẬP: AURA AFK & GOM QUÁI (FIX 100% NO DAMAGE & LỖI ĐƠ)
 -- ===================================================
 local isAttackingTarget = false
 
-RunService.Stepped:Connect(function()
-    if AutoFarmLevel and isAttackingTarget then
-        local char = LocalPlayer.Character
-        if char then
-            local hum = char:FindFirstChild("Humanoid")
-            if hum then
-                local animator = hum:FindFirstChild("Animator")
-                if animator then
-                    for _, anim in ipairs(animator:GetPlayingAnimationTracks()) do
-                        local name = anim.Name:lower()
-                        if name:match("attack") or name:match("punch") or name:match("slash") or name:match("swing") or name:match("m1") then
-                            anim:Stop()
-                        end
-                    end
-                end
-            end
-        end
-    end
-end)
-
+-- Luồng 1: Xả sát thương ngầm hoàn toàn độc lập (Không bị kẹt bởi nhận nhiệm vụ)
 task.spawn(function()
     while true do
         if AutoFarmLevel and isAttackingTarget then
@@ -588,10 +572,7 @@ task.spawn(function()
     end
 end)
 
-
--- ===================================================
--- 6. LOGIC DI CHUYỂN & GOM QUÁI ĐỘC LẬP
--- ===================================================
+-- Luồng 2: Di chuyển và nhận nhiệm vụ độc lập
 local currentTween = nil
 local function toTargetPos(targetCFrame)
     local char = LocalPlayer.Character
@@ -613,58 +594,6 @@ RunService.Stepped:Connect(function()
         end
     end
 end)
-
-local function equipChosenWeapon()
-    local char = LocalPlayer.Character
-    if not char then return end
-    local backpack, humanoid = LocalPlayer:FindFirstChild("Backpack"), char:FindFirstChildOfClass("Humanoid")
-    if not humanoid then return end
-    local currentTool = char:FindFirstChildOfClass("Tool")
-    if currentTool and (currentTool.ToolTip == selectedWeaponType or (selectedWeaponType == "Melee" and (currentTool.ToolTip == "Melee" or currentTool.ToolTip == "Combat" or currentTool.Name == "Combat" or currentTool.Name == "Võ Tân Binh"))) then return end
-    if backpack then
-        for _, tool in ipairs(backpack:GetChildren()) do
-            if tool:IsA("Tool") and (tool.ToolTip == selectedWeaponType or (selectedWeaponType == "Melee" and (tool.ToolTip == "Melee" or tool.ToolTip == "Combat" or tool.Name == "Combat" or tool.Name == "Võ Tân Binh"))) then
-                humanoid:EquipTool(tool) return
-            end
-        end
-    end
-end
-
-local function getAutoQuestByLevel()
-    local level = 1
-    pcall(function() level = LocalPlayer.Data.Level.Value end)
-    if level <= 9 then return {QuestName = "BanditQuest1", QuestLevel = 1, MonName = "Bandit", ReqLevel = 1}
-    elseif level <= 14 then return {QuestName = "JungleQuest", QuestLevel = 1, MonName = "Monkey", ReqLevel = 10}
-    elseif level <= 29 then return {QuestName = "JungleQuest", QuestLevel = 2, MonName = "Gorilla", ReqLevel = 15}
-    elseif level <= 39 then return {QuestName = "BuggyQuest1", QuestLevel = 1, MonName = "Pirate", ReqLevel = 30}
-    elseif level <= 59 then return {QuestName = "BuggyQuest1", QuestLevel = 2, MonName = "Brute", ReqLevel = 40}
-    elseif level <= 74 then return {QuestName = "DesertQuest", QuestLevel = 1, MonName = "Desert Bandit", ReqLevel = 60}
-    elseif level <= 89 then return {QuestName = "DesertQuest", QuestLevel = 2, MonName = "Desert Officer", ReqLevel = 75}
-    elseif level <= 99 then return {QuestName = "SnowQuest", QuestLevel = 1, MonName = "Snow Bandit", ReqLevel = 90}
-    elseif level <= 119 then return {QuestName = "SnowQuest", QuestLevel = 2, MonName = "Snowman", ReqLevel = 100}
-    elseif level <= 149 then return {QuestName = "MarineQuest2", QuestLevel = 1, MonName = "Chief Petty Officer", ReqLevel = 120}
-    elseif level <= 174 then return {QuestName = "SkyQuest", QuestLevel = 1, MonName = "Sky Bandit", ReqLevel = 150}
-    elseif level <= 189 then return {QuestName = "SkyQuest", QuestLevel = 2, MonName = "Dark Master", ReqLevel = 175}
-    elseif level <= 209 then return {QuestName = "PrisonerQuest", QuestLevel = 1, MonName = "Prisoner", ReqLevel = 190}
-    else return {QuestName = "PeanutQuest", QuestLevel = 1, MonName = "Peanut Scout", ReqLevel = 2200} end
-end
-
-local function checkHasQuest()
-    local pGui = LocalPlayer:FindFirstChild("PlayerGui")
-    return pGui and pGui:FindFirstChild("Main") and pGui.Main:FindFirstChild("Quest") and pGui.Main.Quest.Visible or false
-end
-
-local function getAllLivingEnemies(monName)
-    local list = {}
-    if not Workspace:FindFirstChild("Enemies") then return list end
-    for _, mob in ipairs(Workspace.Enemies:GetChildren()) do
-        if string.find(mob.Name, monName) then
-            local hum, hrp = mob:FindFirstChildOfClass("Humanoid"), mob:FindFirstChild("HumanoidRootPart")
-            if hum and hrp and hum.Health > 0 then table.insert(list, mob) end
-        end
-    end
-    return list
-end
 
 local lockedFarmPosition = nil
 
