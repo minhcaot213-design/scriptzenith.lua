@@ -1,4 +1,4 @@
--- [[ ZENITH BLOX FRUIT - V18.2 (FINAL FIXED UI + GOD MODE) ]] --
+-- [[ ZENITH BLOX FRUIT - V18.3 (GPS FLY + GOD MODE + FULL UI) ]] --
 
 task.wait(0.5)
 
@@ -79,7 +79,7 @@ pcall(function() for _, gui in ipairs(targetUIFolder:GetChildren()) do if gui.Na
 pcall(function() for _, gui in ipairs(LocalPlayer:WaitForChild("PlayerGui"):GetChildren()) do if gui.Name == UI_NAME then gui:Destroy() end end end)
 
 -- =========================================================
--- MAIN GUI (GIAO DIỆN GỐC CHUẨN XÁC KHÔNG LỖI)
+-- MAIN GUI (GIAO DIỆN CHUẨN XÁC)
 -- =========================================================
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = UI_NAME; ScreenGui.ResetOnSpawn = false
@@ -120,7 +120,7 @@ local TopStroke = Instance.new("UIStroke", TopBar); TopStroke.Color = Color3.fro
 
 local Title = Instance.new("TextLabel", TopBar)
 Title.Size = UDim2.new(0, 240, 1, 0); Title.Position = UDim2.new(0, 15, 0, 0); Title.BackgroundTransparency = 1; Title.RichText = true; Title.TextColor3 = Color3.fromRGB(255, 255, 255); Title.Font = Enum.Font.GothamBold; Title.TextSize = 12; Title.TextXAlignment = Enum.TextXAlignment.Left
-Title.Text = "ZYROX VN <font color='#00d2ff'>• V18.2 (GOD MODE)</font>"
+Title.Text = "ZYROX VN <font color='#00d2ff'>• V18.3 (GPS FIX)</font>"
 
 local StatsFrame = Instance.new("Frame", TopBar)
 StatsFrame.Size = UDim2.new(0, 120, 0, 24); StatsFrame.Position = UDim2.new(1, -190, 0.5, -12); StatsFrame.BackgroundColor3 = Color3.fromRGB(22, 26, 38); StatsFrame.BorderSizePixel = 0; Instance.new("UICorner", StatsFrame).CornerRadius = UDim.new(0, 6)
@@ -157,6 +157,12 @@ local function styleToggleFrame(frame)
     frame.BackgroundColor3 = Color3.fromRGB(16, 20, 29); frame.BorderSizePixel = 0
     local corner = frame:FindFirstChildOfClass("UICorner"); if corner then corner.CornerRadius = UDim.new(0, 4) end
     local stroke = Instance.new("UIStroke"); stroke.Name = "ZenithBorder"; stroke.Parent = frame; stroke.Color = Color3.fromRGB(31, 39, 54); stroke.Thickness = 1
+end
+
+local function styleButton(btn)
+    btn.BackgroundColor3 = Color3.fromRGB(19, 25, 36); btn.BorderSizePixel = 0
+    local corner = btn:FindFirstChildOfClass("UICorner"); if corner then corner.CornerRadius = UDim.new(0, 4) end
+    local stroke = Instance.new("UIStroke"); if stroke then stroke.Color = Color3.fromRGB(0, 170, 230); stroke.Thickness = 1; stroke.Transparency = 0.2 end
 end
 
 local tabButtons = {}
@@ -241,7 +247,7 @@ local cats = {
 for index, c in ipairs(cats) do createTabButton(c[1], c[2], c[3]); createPage(c[1]); if tabButtons[c[1]] then tabButtons[c[1]].Button.LayoutOrder = index end end
 
 -- =========================================================
--- ĐIỀN NỘI DUNG TABS GỐC
+-- ĐIỀN NỘI DUNG TABS
 -- =========================================================
 local farmPage = tabPages["Farm"]
 local infoLabel = Instance.new("TextLabel", farmPage); infoLabel.Size = UDim2.new(0.94, 0, 0, 30); infoLabel.BackgroundTransparency = 1; infoLabel.RichText = true; infoLabel.TextColor3 = Color3.fromRGB(0, 255, 150); infoLabel.Font = Enum.Font.GothamBold; infoLabel.TextSize = 12
@@ -310,33 +316,37 @@ createButton(settingPage, "Đóng Cửa Sổ", function() ScreenGui:Destroy() en
 switchTab("Farm")
 
 -- =========================================================
--- ESP & BACKGROUND TASKS
+-- ĐỔI VŨ KHÍ TỰ ĐỘNG
 -- =========================================================
 task.spawn(function()
     while task.wait(0.5) do
-        for _, p in ipairs(Players:GetPlayers()) do
-            if p ~= LocalPlayer and p.Character then
-                local head = p.Character:FindFirstChild("Head")
-                local hum = p.Character:FindFirstChildOfClass("Humanoid")
-                local myHRP = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-                if espPlayerEnabled and head and hum and myHRP and hum.Health > 0 then
-                    local dist = math.floor((head.Position - myHRP.Position).Magnitude)
-                    local bbGui = head:FindFirstChild("Zenith_PlayerBillboard")
-                    if not bbGui then
-                        bbGui = Instance.new("BillboardGui", head); bbGui.Name = "Zenith_PlayerBillboard"; bbGui.Size = UDim2.new(0, 200, 0, 45); bbGui.StudsOffset = Vector3.new(0, 2.8, 0); bbGui.AlwaysOnTop = true
-                        local txt = Instance.new("TextLabel", bbGui); txt.Name = "Info"; txt.Size = UDim2.new(1, 0, 1, 0); txt.BackgroundTransparency = 1; txt.Font = Enum.Font.GothamBold; txt.TextSize = 11; txt.TextColor3 = Color3.fromRGB(255, 60, 90)
-                    end
-                    bbGui.Info.Text = string.format("%s\n[%dm] • HP: %d", p.DisplayName, dist, math.floor(hum.Health))
-                else
-                    if head and head:FindFirstChild("Zenith_PlayerBillboard") then head.Zenith_PlayerBillboard:Destroy() end
+        if AutoFarmLevel then
+            pcall(function()
+                local char = LocalPlayer.Character
+                local backpack = LocalPlayer:FindFirstChild("Backpack")
+                local humanoid = char and char:FindFirstChildOfClass("Humanoid")
+                local currentTool = char and char:FindFirstChildOfClass("Tool")
+                
+                local needEquip = true
+                if currentTool and (string.find(currentTool.ToolTip, selectedWeaponType) or currentTool.Name == "Combat" or currentTool.Name == "Võ Tân Binh") then
+                    needEquip = false
                 end
-            end
+                
+                if needEquip and backpack and humanoid then
+                    for _, tool in ipairs(backpack:GetChildren()) do
+                        if tool:IsA("Tool") and (string.find(tool.ToolTip, selectedWeaponType) or tool.Name == "Combat" or tool.Name == "Võ Tân Binh") then
+                            humanoid:EquipTool(tool)
+                            break
+                        end
+                    end
+                end
+            end)
         end
     end
 end)
 
 -- =========================================================
--- LÕI GOD MODE: TIÊM BỘ NHỚ CHÉM KHÔNG CẦN CLICK
+-- LÕI GOD MODE: CHÉM XUYÊN BỘ NHỚ (KHÔNG CẦN CLICK)
 -- =========================================================
 local function getActiveController()
     local CbFw = require(LocalPlayer.PlayerScripts.CombatFramework)
@@ -371,29 +381,27 @@ task.spawn(function()
     end
 end)
 
--- Xóa Animation Tay của Player
 RunService.Stepped:Connect(function()
-    if AutoFarmLevel then
-        local char = LocalPlayer.Character
-        if char then
-            local hum = char:FindFirstChild("Humanoid")
-            if hum then
-                local animator = hum:FindFirstChild("Animator")
-                if animator then
-                    for _, anim in ipairs(animator:GetPlayingAnimationTracks()) do
-                        local name = anim.Name:lower()
-                        if name:match("attack") or name:match("punch") or name:match("slash") or name:match("swing") or name:match("m1") then
-                            anim:Stop()
-                        end
-                    end
-                end
+    if AutoFarmLevel and LocalPlayer.Character then
+        for _, part in ipairs(LocalPlayer.Character:GetDescendants()) do
+            if part:IsA("BasePart") then part.CanCollide = false end
+        end
+        local hrp = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+        if hrp then
+            local bv = hrp:FindFirstChild("GodMode_BV")
+            if not bv then
+                bv = Instance.new("BodyVelocity")
+                bv.Name = "GodMode_BV"; bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge); bv.Velocity = Vector3.new(0, 0, 0); bv.Parent = hrp
             end
         end
+    else
+        local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+        if hrp and hrp:FindFirstChild("GodMode_BV") then hrp.GodMode_BV:Destroy() end
     end
 end)
 
 -- =========================================================
--- ĐỘNG CƠ BAY TWEEN (MƯỢT 100%)
+-- HỆ THỐNG BAY GPS CHUẨN XÁC (KHÔNG BAO GIỜ KẸT)
 -- =========================================================
 local currentTween = nil
 local function toTargetPos(targetCFrame)
@@ -422,28 +430,6 @@ local function toTargetPos(targetCFrame)
     end
 end
 
-RunService.Stepped:Connect(function()
-    if AutoFarmLevel and LocalPlayer.Character then
-        for _, part in ipairs(LocalPlayer.Character:GetDescendants()) do
-            if part:IsA("BasePart") then part.CanCollide = false end
-        end
-        local hrp = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-        if hrp then
-            local bv = hrp:FindFirstChild("GodMode_BV")
-            if not bv then
-                bv = Instance.new("BodyVelocity")
-                bv.Name = "GodMode_BV"; bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge); bv.Velocity = Vector3.new(0, 0, 0); bv.Parent = hrp
-            end
-        end
-    else
-        local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-        if hrp and hrp:FindFirstChild("GodMode_BV") then hrp.GodMode_BV:Destroy() end
-    end
-end)
-
--- =========================================================
--- LOGIC NHIỆM VỤ & FARM
--- =========================================================
 local function getAutoQuestByLevel()
     local level = 1
     pcall(function() level = LocalPlayer.Data.Level.Value end)
@@ -505,7 +491,7 @@ end
 local lockedFarmPosition = nil
 
 task.spawn(function()
-    while task.wait(0.05) do
+    while task.wait(0.1) do
         if AutoFarmLevel and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and CommF then
             local currentQuest = getAutoQuestByLevel()
             if currentQuest then
