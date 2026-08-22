@@ -1,4 +1,4 @@
--- [[ ZENITH BLOX FRUIT - V5 (ZYROX VN MULTILINGUAL & ADVANCED ESP EDITION) ]] --
+-- [[ ZENITH BLOX FRUIT - V6 (FIXED AUTO ATTACK & COMBAT ENGINE) ]] --
 
 local Players = game:GetService("Players")
 local Lighting = game:GetService("Lighting")
@@ -10,6 +10,7 @@ local UserInputService = game:GetService("UserInputService")
 local TeleportService = game:GetService("TeleportService")
 local HttpService = game:GetService("HttpService")
 local VirtualUser = game:GetService("VirtualUser")
+local VirtualInputManager = game:GetService("VirtualInputManager")
 
 local LocalPlayer = Players.LocalPlayer
 local CommF = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("CommF_")
@@ -17,7 +18,7 @@ local CommF = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("CommF_")
 -- ===================================================
 -- 0. DỌN DẸP INSTANCE CŨ (CLEANUP)
 -- ===================================================
-local UI_NAME = "ZenithBloxFruit_Zyrox_V5"
+local UI_NAME = "ZenithBloxFruit_Zyrox_V6"
 local function getSafeParent()
     local success, coreGui = pcall(function() return game:GetService("CoreGui") end)
     if success and coreGui then return coreGui end
@@ -29,7 +30,7 @@ if parentGui:FindFirstChild(UI_NAME) then parentGui[UI_NAME]:Destroy() end
 if Workspace:FindFirstChild("Zenith_WaterPlatform") then Workspace.Zenith_WaterPlatform:Destroy() end
 
 -- ===================================================
--- 1. HỆ THỐNG ĐA NGÔN NGỮ (VIETNAMESE / ENGLISH SYSTEM)
+-- 1. HỆ THỐNG ĐA NGÔN NGỮ (VIETNAMESE / ENGLISH)
 -- ===================================================
 local currentLang = "VI"
 local translatableElements = {}
@@ -44,25 +45,21 @@ local LangDict = {
         tab_item = "Farm Item",
         tab_setting = "Cài Đặt",
         
-        -- Farm
         auto_farm = "⚡ Auto Farm Quái + Quest",
         auto_quest = "📜 Tự Nhận Quest Phù Hợp",
         bring_mob = "🧲 Gom Quái (Cùng Đảo)",
         
-        -- PVP & Speed
         speed_toggle = "Bật Tăng Tốc Độ (WalkSpeed)",
         speed_slider = "Chỉnh Speed",
         jump_toggle = "Bật Nhảy Cao (High Jump)",
         jump_slider = "Chỉnh JumpPower",
         
-        -- ESP
         player_esp = "Định Vị Người Chơi (Tên/Máu/Khoảng Cách)",
         fruit_esp = "🍎 Định Vị Trái Ác Quỷ (Devil Fruit)",
         chest_wood = "📦 Rương Đồng/Gỗ (Tier 1)",
         chest_gold = "🪙 Rương Bạc/Vàng (Tier 2)",
         chest_diamond = "💎 Rương Kim Cương (Tier 3)",
         
-        -- Server & Misc
         rejoin_btn = "Rejoin Server (Vào Lại)",
         serverhop_btn = "Server Hop (Đổi Server Khác)",
         auto_raid_start = "Tự Động Bắt Đầu Raid",
@@ -70,7 +67,6 @@ local LangDict = {
         auto_bones = "Auto Farm Xương (Bones)",
         auto_chest = "Tự Động Nhặt Rương Gần",
         
-        -- Settings
         lang_title = "🌐 Ngôn Ngữ / Language",
         ui_scale = "Kích Thước Giao Diện (UI Scale %)",
         ui_transparency = "Độ Trong Suốt Panel (%)",
@@ -86,25 +82,21 @@ local LangDict = {
         tab_item = "Farm Item",
         tab_setting = "Settings",
         
-        -- Farm
         auto_farm = "⚡ Auto Farm Mob + Quest",
         auto_quest = "📜 Auto Accept Quest",
         bring_mob = "🧲 Bring Mobs (Same Island)",
         
-        -- PVP & Speed
         speed_toggle = "Enable WalkSpeed Boost",
         speed_slider = "Adjust Speed",
         jump_toggle = "Enable High Jump",
         jump_slider = "Adjust JumpPower",
         
-        -- ESP
         player_esp = "Player ESP (Name/HP/Distance)",
         fruit_esp = "🍎 Devil Fruit ESP",
         chest_wood = "📦 Bronze/Wood Chest (Tier 1)",
         chest_gold = "🪙 Silver/Gold Chest (Tier 2)",
         chest_diamond = "💎 Diamond Chest (Tier 3)",
         
-        -- Server & Misc
         rejoin_btn = "Rejoin Server",
         serverhop_btn = "Server Hop (Find New)",
         auto_raid_start = "Auto Start Raid",
@@ -112,7 +104,6 @@ local LangDict = {
         auto_bones = "Auto Farm Bones",
         auto_chest = "Auto Collect Nearby Chests",
         
-        -- Settings
         lang_title = "🌐 Language / Ngôn Ngữ",
         ui_scale = "UI Scale (%)",
         ui_transparency = "Panel Transparency (%)",
@@ -123,11 +114,7 @@ local LangDict = {
 
 local function registerText(label, key, isRich)
     table.insert(translatableElements, {Label = label, Key = key, Rich = isRich})
-    if isRich then
-        label.Text = LangDict[currentLang][key]
-    else
-        label.Text = LangDict[currentLang][key]
-    end
+    label.Text = LangDict[currentLang][key]
 end
 
 local function setLanguage(lang)
@@ -250,7 +237,6 @@ local espChest1Enabled = false
 local espChest2Enabled = false
 local espChest3Enabled = false
 
--- ESP PLAYER (TÊN, MÁU VÀ KHOẢNG CÁCH CHI TIẾT)
 local function updatePlayerESP()
     for _, p in ipairs(Players:GetPlayers()) do
         if p ~= LocalPlayer and p.Character then
@@ -313,20 +299,16 @@ local function updatePlayerESP()
     end
 end
 
--- ESP FRUIT & CHEST VÒNG LẶP QUÉT VẬT THỂ
 task.spawn(function()
     while true do
         task.wait(0.2)
         local myChar = LocalPlayer.Character
         local myHRP = myChar and myChar:FindFirstChild("HumanoidRootPart")
         
-        -- Cập nhật Player ESP
         updatePlayerESP()
         
-        -- Cập nhật Trái Ác Quỷ & Rương
         if myHRP then
             for _, obj in ipairs(Workspace:GetChildren()) do
-                -- Trái Ác Quỷ (Devil Fruit)
                 if (obj:IsA("Tool") and string.find(obj.Name, "Fruit")) or obj:FindFirstChild("Fruit") then
                     local handle = obj:FindFirstChild("Handle") or obj:FindFirstChildWhichIsA("BasePart")
                     if handle then
@@ -361,13 +343,12 @@ task.spawn(function()
                     end
                 end
                 
-                -- Phân loại Rương (Chest 1, Chest 2, Chest 3)
                 if string.find(obj.Name, "Chest") and (obj:IsA("Model") or obj:IsA("BasePart")) then
                     local rootPart = obj:IsA("BasePart") and obj or obj:FindFirstChildWhichIsA("BasePart")
                     if rootPart then
-                        local isTier3 = string.find(obj.Name, "3") -- Kim Cương
-                        local isTier2 = string.find(obj.Name, "2") -- Vàng / Bạc
-                        local isTier1 = not isTier2 and not isTier3 -- Gỗ / Đồng
+                        local isTier3 = string.find(obj.Name, "3")
+                        local isTier2 = string.find(obj.Name, "2")
+                        local isTier1 = not isTier2 and not isTier3
                         
                         local shouldShow = (isTier1 and espChest1Enabled) or (isTier2 and espChest2Enabled) or (isTier3 and espChest3Enabled)
                         local chestColor = isTier3 and Color3.fromRGB(0, 240, 255) or (isTier2 and Color3.fromRGB(255, 215, 0) or Color3.fromRGB(205, 127, 50))
@@ -409,9 +390,50 @@ task.spawn(function()
 end)
 
 -- ===================================================
--- 6. LOGIC FARM & TỰ ĐỘNG TẤN CÔNG
+-- 6. CORE COMBAT & FAST ATTACK MODULE (FIXED)
 -- ===================================================
 local currentTween = nil
+local isAttackingTarget = false
+
+local function executeFastAttack()
+    local char = LocalPlayer.Character
+    if not char then return end
+
+    -- 1. Gọi trực tiếp Tool Activate
+    local tool = char:FindFirstChildOfClass("Tool")
+    if tool then
+        tool:Activate()
+    end
+
+    -- 2. Mô phỏng chuột qua VirtualInputManager (Chu kỳ Down -> Up)
+    pcall(function()
+        VirtualInputManager:SendMouseButtonEvent(0, 0, 0, true, game, 1)
+        task.wait(0.01)
+        VirtualInputManager:SendMouseButtonEvent(0, 0, 0, false, game, 1)
+    end)
+
+    -- 3. Fallback Executor Click & VirtualUser
+    pcall(function()
+        if mouse1click then
+            mouse1click()
+        elseif VirtualUser then
+            VirtualUser:CaptureController()
+            VirtualUser:ClickButton1(Vector2.new(100, 100))
+        end
+    end)
+end
+
+-- Vòng lặp bắn đòn đánh liên tục tốc độ cao
+task.spawn(function()
+    while true do
+        if AutoFarm and isAttackingTarget then
+            executeFastAttack()
+            task.wait(0.05) -- Tốc độ ~20 đòn/giây
+        else
+            task.wait(0.15)
+        end
+    end
+end)
 
 local function toTargetPos(targetCFrame)
     local char = LocalPlayer.Character
@@ -440,10 +462,10 @@ end)
 
 local function equipChosenWeapon()
     local char = LocalPlayer.Character
-    if not char then return end
+    if not char then return nil end
     local backpack = LocalPlayer:FindFirstChild("Backpack")
     local humanoid = char:FindFirstChildOfClass("Humanoid")
-    if not humanoid then return end
+    if not humanoid then return nil end
     
     for _, item in ipairs(char:GetChildren()) do
         if item:IsA("Tool") then
@@ -464,16 +486,6 @@ local function equipChosenWeapon()
         end
     end
     return nil
-end
-
-local function executeAttack()
-    local char = LocalPlayer.Character
-    if not char then return end
-    local tool = char:FindFirstChildOfClass("Tool")
-    if tool then tool:Activate() end
-    
-    VirtualUser:CaptureController()
-    VirtualUser:Button1Down(Vector2.new(50, 50))
 end
 
 local function checkHasQuest()
@@ -501,6 +513,7 @@ local function getEnemyInstance(monName)
     return nil
 end
 
+-- Vòng lặp điều hướng và khóa mục tiêu Farm
 task.spawn(function()
     while true do
         task.wait(0.05)
@@ -516,17 +529,20 @@ task.spawn(function()
                 if mob and mob:FindFirstChild("HumanoidRootPart") then
                     equipChosenWeapon()
                     local mobHRP = mob.HumanoidRootPart
-                    local targetCFrame = mobHRP.CFrame * CFrame.new(0, 9, 0) * CFrame.Angles(math.rad(-90), 0, 0)
+                    -- Đứng cách quái 6.5 studs phía trên
+                    local targetCFrame = mobHRP.CFrame * CFrame.new(0, 6.5, 0) * CFrame.Angles(math.rad(-90), 0, 0)
                     
-                    if (LocalPlayer.Character.HumanoidRootPart.Position - mobHRP.Position).Magnitude > 15 then
+                    local dist = (LocalPlayer.Character.HumanoidRootPart.Position - mobHRP.Position).Magnitude
+                    if dist > 14 then
+                        isAttackingTarget = false
                         toTargetPos(targetCFrame)
                     else
                         if currentTween then currentTween:Cancel() end
                         LocalPlayer.Character.HumanoidRootPart.CFrame = targetCFrame
                         LocalPlayer.Character.HumanoidRootPart.AssemblyLinearVelocity = Vector3.zero
+                        isAttackingTarget = true
 
-                        executeAttack()
-
+                        -- Gom quái cùng đảo (bán kính tối đa 280 studs)
                         if BringMob then
                             local enemies = Workspace:FindFirstChild("Enemies")
                             if enemies then
@@ -546,9 +562,12 @@ task.spawn(function()
                             end
                         end
                     end
+                else
+                    isAttackingTarget = false
                 end
             end
         else
+            isAttackingTarget = false
             if currentTween then currentTween:Cancel() end
         end
     end
@@ -591,7 +610,6 @@ MainStroke.Transparency = 0.3
 MainStroke.Thickness = 1.2
 MainStroke.Parent = MainFrame
 
--- Kéo thả cửa sổ
 local isDraggingWindow = false
 local dragStartPos, frameStartPos
 
@@ -951,7 +969,7 @@ local function createButton(page, transKey, callback)
 end
 
 -- ===================================================
--- 8. TẠO 6 DANH MỤC (TABS SETUP)
+-- 8. TẠO TABS
 -- ===================================================
 local cats = {
     {"Farm", "🌾", "tab_farm"},
@@ -1127,7 +1145,6 @@ createSlider(pvpPage, "speed_slider", 16, 300, 16, function(val) speedValue = va
 createToggle(pvpPage, "jump_toggle", false, function(v) jumpEnabled = v end)
 createSlider(pvpPage, "jump_slider", 50, 400, 50, function(val) jumpValue = val end)
 
--- Nhóm tính năng định vị ESP
 createToggle(pvpPage, "player_esp", false, function(v) espPlayerEnabled = v end)
 createToggle(pvpPage, "fruit_esp", false, function(v) espFruitEnabled = v end)
 createToggle(pvpPage, "chest_wood", false, function(v) espChest1Enabled = v end)
@@ -1169,7 +1186,6 @@ createToggle(farmItemPage, "auto_chest", false, function(v) end)
 -- [TAB 6: SETTING]
 local settingPage = tabPages["SETTING"]
 
--- Chọn Ngôn Ngữ (Language Switcher)
 local langFrame = Instance.new("Frame")
 langFrame.Size = UDim2.new(0.92, 0, 0, 46)
 langFrame.BackgroundColor3 = Color3.fromRGB(22, 26, 36)
