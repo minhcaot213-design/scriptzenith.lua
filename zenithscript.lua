@@ -1,4 +1,4 @@
--- [[ ZENITH BLOX FRUIT - V11 (MODERN GLASSMORPHISM OVERHAUL) ]] --
+-- [[ ZENITH BLOX FRUIT - V12 (DEFINITIVE COMBAT & LAYOUT FIX) ]] --
 
 local Players = game:GetService("Players")
 local Lighting = game:GetService("Lighting")
@@ -18,7 +18,7 @@ local CommF = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("CommF_")
 -- ===================================================
 -- 0. DỌN DẸP INSTANCE CŨ (CLEANUP)
 -- ===================================================
-local UI_NAME = "ZenithBloxFruit_Zyrox_V11"
+local UI_NAME = "ZenithBloxFruit_Zyrox_V12"
 local function getSafeParent()
     local success, coreGui = pcall(function() return game:GetService("CoreGui") end)
     if success and coreGui then return coreGui end
@@ -44,11 +44,11 @@ local LangDict = {
         tab_pvp = "PVP & ESP",
         tab_server = "Máy Chủ",
         tab_raid = "Đi Raid",
-        tab_item = "Farm Vật Phẩm",
+        tab_item = "Farm Item",
         tab_setting = "Cài Đặt",
         
         auto_farm_level = "⚡ Tự Động Farm Level (Auto Quest)",
-        auto_quest = "📜 Nhận & Trả Nhiệm Vụ",
+        auto_quest = "📜 Tự Nhận & Trả Nhiệm Vụ",
         bring_mob = "🧲 Gom Toàn Bộ Quái Lại Gần",
         
         fruit_buy = "🎲 Mua Ngẫu Nhiên Trái (Gacha)",
@@ -485,15 +485,24 @@ task.spawn(function()
 end)
 
 -- ===================================================
--- 6. COMBAT ENGINE & FARM TWEEN
+-- 6. COMBAT ENGINE & FARM TWEEN (RE-ENGINEERED)
 -- ===================================================
 local currentTween = nil
 local isAttackingTarget = false
 
-local function performHookedAttack()
+-- Kích hoạt đòn đánh trực diện bằng Tool + VirtualUser + Network Invoke
+local function executeDirectSlash()
     local char = LocalPlayer.Character
     if not char then return end
 
+    -- 1. Kích hoạt trực tiếp Tool
+    for _, item in ipairs(char:GetChildren()) do
+        if item:IsA("Tool") then
+            item:Activate()
+        end
+    end
+
+    -- 2. Hook Combat Controller
     pcall(function()
         local cf = require(LocalPlayer.PlayerScripts:WaitForChild("CombatFramework", 1))
         if cf and cf.activeController then
@@ -505,39 +514,24 @@ local function performHookedAttack()
         end
     end)
 
-    for _, item in ipairs(char:GetChildren()) do
-        if item:IsA("Tool") then
-            item:Activate()
-        end
-    end
-
-    local camera = Workspace.CurrentCamera
-    local vp = camera and camera.ViewportSize or Vector2.new(800, 600)
-    local cx, cy = vp.X / 2, vp.Y / 2
-
-    pcall(function()
-        VirtualInputManager:SendMouseButtonEvent(cx, cy, 0, true, game, 1)
-        task.wait()
-        VirtualInputManager:SendMouseButtonEvent(cx, cy, 0, false, game, 1)
-    end)
-
+    -- 3. Click chuột vào tâm màn hình
     pcall(function()
         VirtualUser:CaptureController()
-        VirtualUser:Button1Down(Vector2.new(cx, cy))
-        task.wait()
-        VirtualUser:Button1Up(Vector2.new(cx, cy))
+        VirtualUser:ClickButton1(Vector2.new(500, 500))
     end)
-
     pcall(function()
-        if mouse1click then mouse1click() end
+        VirtualInputManager:SendMouseButtonEvent(500, 500, 0, true, game, 1)
+        task.wait()
+        VirtualInputManager:SendMouseButtonEvent(500, 500, 0, false, game, 1)
     end)
 end
 
+-- Vòng lặp ra đòn cực nhanh
 task.spawn(function()
     while true do
         if AutoFarmLevel and isAttackingTarget then
-            performHookedAttack()
-            task.wait(0.035)
+            executeDirectSlash()
+            task.wait(0.04)
         else
             task.wait(0.12)
         end
@@ -628,6 +622,7 @@ local function getAllLivingEnemies(monName)
     return list
 end
 
+-- VÒNG LẶP CHÍNH: KHÓA MỤC TIÊU VÀ TỰ ĐỘNG TẤN CÔNG
 task.spawn(function()
     while true do
         task.wait(0.05)
@@ -648,10 +643,11 @@ task.spawn(function()
 
                     if primaryHRP then
                         local clusterPosition = primaryHRP.Position
-                        local targetCFrame = CFrame.new(clusterPosition + Vector3.new(0, 4, 0), clusterPosition)
+                        -- Áp sát trực diện ngang tầm quái (cách 2.5 studs) và nhìn thẳng vào quái để chém trúng 100%
+                        local targetCFrame = CFrame.new(clusterPosition + Vector3.new(0, 1.5, 2.5), clusterPosition)
                         local dist = (myHRP.Position - clusterPosition).Magnitude
 
-                        if dist > 14 then
+                        if dist > 12 then
                             isAttackingTarget = false
                             toTargetPos(targetCFrame)
                         else
@@ -748,7 +744,7 @@ task.spawn(function()
 end)
 
 -- ===================================================
--- 8. GIAO DIỆN CYBERPUNK GLASSMORPHISM MỚI (V11)
+-- 8. GIAO DIỆN CYBERPUNK GLASSMORPHISM CHUẨN ĐẸP (V12)
 -- ===================================================
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = UI_NAME
@@ -759,7 +755,6 @@ local FULL_HEIGHT = 310
 local MIN_HEIGHT = 38
 local isMinimized = false
 
--- Khung cửa sổ chính
 local MainFrame = Instance.new("Frame")
 MainFrame.Size = UDim2.new(0, 520, 0, FULL_HEIGHT)
 MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -904,11 +899,12 @@ CloseBtn.MouseButton1Click:Connect(function() ScreenGui:Destroy() end)
 
 -- Sidebar
 local Sidebar = Instance.new("Frame")
-Sidebar.Size = UDim2.new(0, 130, 1, -38)
+Sidebar.Size = UDim2.new(0, 140, 1, -38)
 Sidebar.Position = UDim2.new(0, 0, 0, 38)
 Sidebar.BackgroundColor3 = Color3.fromRGB(13, 15, 22)
-Sidebar.BackgroundTransparency = 0.2
+Sidebar.BackgroundTransparency = 0.15
 Sidebar.BorderSizePixel = 0
+Sidebar.ZIndex = 2
 Sidebar.Parent = MainFrame
 
 local SidebarRightBorder = Instance.new("Frame")
@@ -927,10 +923,12 @@ local TabPadding = Instance.new("UIPadding")
 TabPadding.PaddingTop = UDim.new(0, 6)
 TabPadding.Parent = Sidebar
 
+-- Content Container
 local ContentContainer = Instance.new("Frame")
-ContentContainer.Size = UDim2.new(1, -130, 1, -38)
-ContentContainer.Position = UDim2.new(0, 130, 0, 38)
+ContentContainer.Size = UDim2.new(1, -140, 1, -38)
+ContentContainer.Position = UDim2.new(0, 140, 0, 38)
 ContentContainer.BackgroundTransparency = 1
+ContentContainer.ZIndex = 1
 ContentContainer.Parent = MainFrame
 
 MinBtn.MouseButton1Click:Connect(function()
@@ -1042,7 +1040,6 @@ local function createTabButton(name, icon, transKey)
     btn.MouseButton1Click:Connect(function() switchTab(name) end)
 end
 
--- Component: Toggle Switch kiểu Modern Pill
 local function createToggle(page, transKey, defaultState, callback)
     local state = defaultState or false
     
@@ -1107,7 +1104,6 @@ local function createToggle(page, transKey, defaultState, callback)
     end)
 end
 
--- Component: Slider tinh giản
 local function createSlider(page, transKey, min, max, default, callback)
     local current = default or min
     
@@ -1202,7 +1198,6 @@ local function createSlider(page, transKey, min, max, default, callback)
     end)
 end
 
--- Component: Action Button
 local function createButton(page, transKey, callback)
     local btn = Instance.new("TextButton")
     btn.Size = UDim2.new(0.94, 0, 0, 30)
@@ -1249,7 +1244,6 @@ end
 -- [TAB 1: FARM LEVEL]
 local farmPage = tabPages["Farm"]
 
--- Info Card: Thiết kế dạng Status Widget sang trọng
 local infoCard = Instance.new("Frame")
 infoCard.Size = UDim2.new(0.94, 0, 0, 42)
 infoCard.BackgroundColor3 = Color3.fromRGB(15, 19, 28)
@@ -1300,7 +1294,6 @@ task.spawn(function()
     end
 end)
 
--- Segmented Bar: Thanh chọn vũ khí liền khối
 local weaponSegment = Instance.new("Frame")
 weaponSegment.Size = UDim2.new(0.94, 0, 0, 28)
 weaponSegment.BackgroundColor3 = Color3.fromRGB(15, 18, 25)
