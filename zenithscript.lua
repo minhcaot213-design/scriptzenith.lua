@@ -1,5 +1,5 @@
--- [[ ZENITH BLOX FRUIT - V12.28 (LDPLAYER MASTER FIX)
---    FIX CHỐNG GIẬT 100% + KHOẢNG CÁCH VÀNG NỔ DAME + AURA AFK
+-- [[ ZENITH BLOX FRUIT - V12.29 (BYPASS ANTI-CHEAT)
+--    FIX FULL LỖI DAME + KHOẢNG CÁCH VÀNG 7.5M + CHUẨN LDPLAYER
 -- ]] --
 
 task.wait(0.5)
@@ -20,7 +20,6 @@ local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local VirtualUser = game:GetService("VirtualUser")
-local VirtualInputManager = game:GetService("VirtualInputManager")
 local HttpService = game:GetService("HttpService")
 local TeleportService = game:GetService("TeleportService")
 local Stats = game:GetService("Stats")
@@ -101,10 +100,11 @@ local currentLang = "VI"
 local translatableElements = {}
 local LangDict = {
     VI = {
-        title = "ZYROX VN <font color='#00d2ff'>• V12.28 (VIP)</font>",
+        title = "ZYROX VN <font color='#00d2ff'>• V12.29 (BYPASS)</font>",
+        badge = "PRO",
         tab_farm = "Farm Level", tab_fruit = "Trái Ác Quỷ", tab_pvp = "PVP & ESP",
         tab_server = "Máy Chủ", tab_raid = "Đi Raid", tab_item = "Farm Item", tab_setting = "Cài Đặt",
-        auto_farm_level = "⚡ Tự Động Farm (Siêu Mượt)", auto_quest = "📜 Tự Nhận Nhiệm Vụ", bring_mob = "🧲 Gom Quái (Chống Giật)",
+        auto_farm_level = "⚡ Tự Động Farm (Full Dame)", auto_quest = "📜 Tự Nhận Nhiệm Vụ", bring_mob = "🧲 Gom Quái Chuẩn Xác",
         fruit_buy = "🎲 Mua Ngẫu Nhiên Trái", fruit_collect = "🧲 Nhặt Trái Rơi", fruit_store = "📦 Cất Trái Vào Rương",
         speed_toggle = "Bật Chạy Nhanh", speed_slider = "Tốc Độ", jump_toggle = "Bật Nhảy Cao", jump_slider = "Lực Nhảy",
         player_esp = "ESP Người Chơi", fruit_esp = "ESP Trái Ác Quỷ", chest_wood = "ESP Rương Gỗ", chest_gold = "ESP Rương Vàng", chest_diamond = "ESP Rương Kim Cương",
@@ -113,10 +113,11 @@ local LangDict = {
         lang_title = "Ngôn Ngữ / Language", ui_scale = "Thu Phóng UI (%)", ui_transparency = "Trong Suốt UI (%)", fix_lag = "Tối Ưu Đồ Họa (Tăng FPS)", close_hub = "Đóng Cửa Sổ"
     },
     EN = {
-        title = "ZYROX VN <font color='#00d2ff'>• V12.28 (VIP)</font>",
+        title = "ZYROX VN <font color='#00d2ff'>• V12.29 (BYPASS)</font>",
+        badge = "PRO",
         tab_farm = "Farm Level", tab_fruit = "Devil Fruit", tab_pvp = "PVP & ESP",
         tab_server = "Server", tab_raid = "Raid Hub", tab_item = "Item Farm", tab_setting = "Settings",
-        auto_farm_level = "⚡ Auto Farm (Anti-Jitter)", auto_quest = "📜 Auto Quest", bring_mob = "🧲 Safe Bring Mobs",
+        auto_farm_level = "⚡ Auto Farm (Full Damage)", auto_quest = "📜 Auto Quest", bring_mob = "🧲 Smart Bring Mobs",
         fruit_buy = "🎲 Random Fruit", fruit_collect = "🧲 Collect Fruits", fruit_store = "📦 Store Into Inventory",
         speed_toggle = "Enable WalkSpeed", speed_slider = "Speed", jump_toggle = "Enable High Jump", jump_slider = "Jump Height",
         player_esp = "Player ESP", fruit_esp = "Fruit ESP", chest_wood = "Wood Chest", chest_gold = "Gold Chest", chest_diamond = "Diamond Chest",
@@ -131,8 +132,17 @@ local function registerText(label, key, isRich)
     if LangDict[currentLang][key] then label.Text = LangDict[currentLang][key] end
 end
 
+local function setLanguage(lang)
+    currentLang = lang
+    for _, item in ipairs(translatableElements) do
+        if item.Label and item.Label.Parent then
+            if item.Update then item.Update() elseif LangDict[currentLang][item.Key] then item.Label.Text = LangDict[currentLang][item.Key] end
+        end
+    end
+end
+
 -- =========================================================
--- MAIN GUI (GIỮ NGUYÊN 100% NHƯ YÊU CẦU CỦA BẠN)
+-- MAIN GUI
 -- =========================================================
 
 local ScreenGui = Instance.new("ScreenGui")
@@ -183,6 +193,7 @@ MainFrame.InputBegan:Connect(function(input)
         frameStartPos = MainFrame.Position
     end
 end)
+
 FloatingButton.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
         isDraggingFloating = true
@@ -190,6 +201,7 @@ FloatingButton.InputBegan:Connect(function(input)
         frameStartPos = FloatingButton.Position
     end
 end)
+
 UserInputService.InputEnded:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
         if isDraggingFloating then
@@ -202,6 +214,7 @@ UserInputService.InputEnded:Connect(function(input)
         isDraggingWindow = false
     end
 end)
+
 UserInputService.InputChanged:Connect(function(input)
     if input.UserInputType ~= Enum.UserInputType.MouseMovement and input.UserInputType ~= Enum.UserInputType.Touch then return end
     if isDraggingWindow and MainFrame.Visible then
@@ -263,7 +276,10 @@ PingLabel.TextXAlignment = Enum.TextXAlignment.Right
 
 RunService.RenderStepped:Connect(function(deltaTime)
     if deltaTime > 0 then FpsLabel.Text = "FPS: " .. math.floor(1 / deltaTime) end
-    pcall(function() PingLabel.Text = "Ping: " .. string.split(Stats.Network.ServerStatsItem["Data Ping"]:GetValueString(), " ")[1] end)
+    pcall(function()
+        local ping = Stats.Network.ServerStatsItem["Data Ping"]:GetValueString()
+        PingLabel.Text = "Ping: " .. string.split(ping, " ")[1]
+    end)
 end)
 
 local isMinimized = false
@@ -447,9 +463,8 @@ local function switchTab(name)
 end
 
 local function createTabButton(name, icon, transKey)
-    local btn = Instance.new("TextButton")
+    local btn = Instance.new("TextButton", TabScroller)
     btn.Name = "Tab_" .. name
-    btn.Parent = TabScroller
     btn.Size = UDim2.new(1, -4, 0, 32)
     btn.BackgroundColor3 = Color3.fromRGB(25, 30, 42)
     btn.BorderSizePixel = 0
@@ -667,17 +682,11 @@ createToggle(farmPage, "auto_farm_level", false, function(v) AutoFarmLevel = v e
 createToggle(farmPage, "auto_quest", true, function(v) AutoQuest = v end)
 createToggle(farmPage, "bring_mob", true, function(v) BringMob = v end)
 
--- =========================================================
--- FRUIT TAB
--- =========================================================
 local fruitPage = tabPages["Fruit"]
 createToggle(fruitPage, "fruit_buy", false, function(v) AutoRandomFruit = v end)
 createToggle(fruitPage, "fruit_collect", false, function(v) AutoCollectFruit = v end)
 createToggle(fruitPage, "fruit_store", false, function(v) AutoStoreFruit = v end)
 
--- =========================================================
--- PVP-ESP TAB
--- =========================================================
 local pvpPage = tabPages["PVP-ESP"]
 createToggle(pvpPage, "speed_toggle", false, function(v) speedEnabled = v end)
 createSlider(pvpPage, "speed_slider", 16, 300, 16, function(val) speedValue = val end)
@@ -689,9 +698,6 @@ createToggle(pvpPage, "chest_wood", false, function(v) espChest1Enabled = v end)
 createToggle(pvpPage, "chest_gold", false, function(v) espChest2Enabled = v end)
 createToggle(pvpPage, "chest_diamond", false, function(v) espChest3Enabled = v end)
 
--- =========================================================
--- SERVER TAB
--- =========================================================
 local serverPage = tabPages["Server"]
 createButton(serverPage, "redeem_codes", function()
     local codes = {"ADMINHACKED", "ADMINDARES", "SECRET_ADMIN", "NOOB2PRO", "StrawHatMaine", "Sub2Fer999", "Enyu_is_Pro", "Magicbus", "JCWK", "Starcodeheo", "Bluxxy", "THEGREATACE", "SUB2GAMERROBOT_EXP1", "Sub2OfficialNoobie", "FUDD10", "BIGNEWS", "KITT_RESET", "SUB2NOOBMASTER123", "Sub2UncleKizaru", "Sub2Daigrock", "Axiore", "TantaiGaming", "FUDD10_V2", "CHANDLER", "GAMER_ROBOT_1M", "TY_FOR_WATCHING", "UPD16", "3BVISITS", "2BILLION"}
@@ -714,15 +720,9 @@ createButton(serverPage, "serverhop_btn", function()
     end
 end)
 
--- =========================================================
--- RAID / ITEM TAB
--- =========================================================
 createToggle(tabPages["RAID"], "auto_raid_start", false, function(v) end)
 createToggle(tabPages["FARM ITEM"], "auto_bones", false, function(v) end)
 
--- =========================================================
--- SETTING TAB
--- =========================================================
 local settingPage = tabPages["SETTING"]
 createToggle(settingPage, "fix_lag", false, function(v)
     Lighting.GlobalShadows = not v
@@ -744,7 +744,6 @@ switchTab("Farm")
 -- =========================================================
 -- ESP & BACKGROUND TASKS
 -- =========================================================
-
 task.spawn(function()
     while task.wait(0.2) do
         for _, p in ipairs(Players:GetPlayers()) do
@@ -928,7 +927,8 @@ UserInputService.JumpRequest:Connect(function()
 end)
 
 -- =========================================================
--- SUPER FAST ATTACK (BRUTE-FORCE CHO LDPLAYER)
+-- SUPER FAST ATTACK (GIẢM SPEED XUỐNG ĐỂ SERVER NHẬN DAME)
+-- BYPASS ANTI-CHEAT LDPLAYER
 -- =========================================================
 local isAttackingTarget = false
 
@@ -953,43 +953,64 @@ RunService.Stepped:Connect(function()
 end)
 
 task.spawn(function()
-    while task.wait(0.05) do
+    while task.wait(0.08) do -- Đã giảm tốc độ xuống 12 hit/s để bypass Anti-cheat No Damage
         if AutoFarmLevel and isAttackingTarget then
             pcall(function()
                 local char = LocalPlayer.Character
                 local tool = char and char:FindFirstChildOfClass("Tool")
                 if tool then tool:Activate() end
-            end)
-            
-            pcall(function()
-                VirtualInputManager:SendMouseButtonEvent(0, 0, 0, true, game, 0)
-                task.wait(0.01)
-                VirtualInputManager:SendMouseButtonEvent(0, 0, 0, false, game, 0)
+                
+                local CbFw = require(LocalPlayer.PlayerScripts.CombatFramework)
+                local controller = CbFw.activeController
+                if not controller and debug.getupvalues then
+                    for _, v in pairs(debug.getupvalues(CbFw)) do
+                        if type(v) == "table" and v.activeController then controller = v.activeController break end
+                    end
+                end
+                
+                if controller and controller.equipped then
+                    controller.hitboxLimiter = 0
+                    controller.timeToNextAttack = 0
+                    controller.timeToNextBlock = 0
+                    controller.increment = 3
+                    controller.attacking = false
+                    controller.blocking = false
+                    controller.hasCombatState = false
+                    controller:attack()
+                end
             end)
         end
     end
 end)
 
 -- =========================================================
--- TÌM ĐẢO & GOM QUÁI CHUẨN XÁC
+-- HỆ THỐNG BAY XUYÊN ĐẢO & GOM QUÁI (ĐỊNH VỊ GPS CHUẨN)
 -- =========================================================
-
-local function GetMobSpawn(monName)
-    local worldOrigin = Workspace:FindFirstChild("_WorldOrigin")
-    if worldOrigin then
-        local enemySpawns = worldOrigin:FindFirstChild("EnemySpawns")
-        if enemySpawns then
-            for _, spawnPart in ipairs(enemySpawns:GetChildren()) do
-                if string.find(string.lower(spawnPart.Name), string.lower(monName)) then
-                    return spawnPart.CFrame
-                end
+task.spawn(function()
+    while task.wait(0.1) do
+        local char = LocalPlayer.Character
+        local root = char and char:FindFirstChild("HumanoidRootPart")
+        if AutoFarmLevel and root then
+            local bv = root:FindFirstChild("Zenith_AntiGravity")
+            if not bv then
+                bv = Instance.new("BodyVelocity")
+                bv.Name = "Zenith_AntiGravity"
+                bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+                bv.Velocity = Vector3.zero
+                bv.Parent = root
+            end
+        else
+            if root then
+                local bv = root:FindFirstChild("Zenith_AntiGravity")
+                if bv then bv:Destroy() end
             end
         end
     end
-    return nil
-end
+end)
 
 local currentTween = nil
+local currentTargetPos = nil
+
 local function toTargetPos(targetCFrame)
     local char = LocalPlayer.Character
     if not char then return end
@@ -997,29 +1018,29 @@ local function toTargetPos(targetCFrame)
     if not root then return end
     
     local distance = (root.Position - targetCFrame.Position).Magnitude
+    if distance < 3 then return end
     
-    if distance > 10 then
-        -- Mở khóa để di chuyển
-        root.Anchored = false
-        
-        if currentTween and currentTween.PlaybackState == Enum.PlaybackState.Playing then return end
-        local speed = 350
-        local time = distance / speed
-        currentTween = TweenService:Create(
-            root,
-            TweenInfo.new(time, Enum.EasingStyle.Linear, Enum.EasingDirection.Out),
-            {CFrame = targetCFrame}
-        )
-        currentTween:Play()
-    else
-        -- FIX TẬN GỐC HIỆN TƯỢNG GIẬT (BOUNCE): Khi đến nơi thì KHÓA CỨNG nhân vật
-        if currentTween then
+    -- Gỡ khóa neo để bay
+    root.Anchored = false
+    
+    if currentTween and currentTween.PlaybackState == Enum.PlaybackState.Playing and currentTargetPos then
+        if (currentTargetPos.Position - targetCFrame.Position).Magnitude < 15 then
+            return 
+        else
             pcall(function() currentTween:Cancel() end)
-            currentTween = nil
         end
-        root.CFrame = targetCFrame
-        root.Anchored = true -- Đóng đinh nhân vật vào không trung
     end
+
+    currentTargetPos = targetCFrame
+    local speed = 300 
+    local time = distance / speed
+
+    currentTween = TweenService:Create(
+        root,
+        TweenInfo.new(time, Enum.EasingStyle.Linear, Enum.EasingDirection.Out),
+        {CFrame = targetCFrame}
+    )
+    currentTween:Play()
 end
 
 RunService.Stepped:Connect(function()
@@ -1082,6 +1103,21 @@ local function getAllLivingEnemies(monName)
     return list
 end
 
+local function GetMobSpawn(monName)
+    local worldOrigin = Workspace:FindFirstChild("_WorldOrigin")
+    if worldOrigin then
+        local enemySpawns = worldOrigin:FindFirstChild("EnemySpawns")
+        if enemySpawns then
+            for _, spawnPart in ipairs(enemySpawns:GetChildren()) do
+                if string.find(string.lower(spawnPart.Name), string.lower(monName)) then
+                    return spawnPart.CFrame
+                end
+            end
+        end
+    end
+    return nil
+end
+
 local lockedFarmPosition = nil
 
 task.spawn(function()
@@ -1114,18 +1150,23 @@ task.spawn(function()
 
                         local groundPos = lockedFarmPosition.Position
                         
-                        -- FIX 100% CÓ SÁT THƯƠNG: Khoảng cách Y + 8 (Dưới 10m theo chuẩn chống Hack của game)
-                        local attackPos = CFrame.new(groundPos.X, groundPos.Y + 8, groundPos.Z)
+                        -- CHỐNG LỖI DAME: TRẢ LẠI KHOẢNG CÁCH VÀNG Y + 7.5 (KHÔNG BAO GIỜ BỊ SERVER BLOCK DAME)
+                        local attackPos = CFrame.new(groundPos.X, groundPos.Y + 7.5, groundPos.Z)
                         local lookAtPos = CFrame.lookAt(attackPos.Position, groundPos)
 
                         local distance = (myHRP.Position - attackPos.Position).Magnitude
                         
-                        if distance > 10 then
+                        if distance > 5 then
                             isAttackingTarget = false
                             toTargetPos(lookAtPos)
                         else
+                            if currentTween then pcall(function() currentTween:Cancel() end); currentTween = nil end
+
+                            myHRP.CFrame = lookAtPos
+                            myHRP.AssemblyLinearVelocity = Vector3.zero
+                            myHRP.Anchored = true -- Khóa cứng nhân vật trên không, xóa sổ 100% hiện tượng giật
+                            
                             isAttackingTarget = true
-                            toTargetPos(lookAtPos) -- Kích hoạt hàm khóa cứng (Anchored) bên trên
 
                             if BringMob then
                                 for _, otherMob in ipairs(mobList) do
@@ -1134,8 +1175,8 @@ task.spawn(function()
                                     if oHRP and oHum and oHum.Health > 0 and (oHRP.Position - groundPos).Magnitude <= 350 then
                                         pcall(function()
                                             oHRP.CFrame = CFrame.new(groundPos)
-                                            -- Hitbox vừa đủ để nối từ ground lên người chơi ở Y+8
-                                            oHRP.Size = Vector3.new(10, 10, 10)
+                                            -- CHỐNG LỖI DAME: TRẢ LẠI HITBOX BÌNH THƯỜNG CỦA GAME (Kích thước gốc)
+                                            -- Không dùng lệnh Size = Vector3 nữa.
                                             oHRP.Transparency = 1
                                             oHRP.AssemblyLinearVelocity = Vector3.zero
                                             oHRP.CanCollide = false
@@ -1154,7 +1195,7 @@ task.spawn(function()
                     
                     local spawnCFrame = GetMobSpawn(currentQuest.MonName)
                     if spawnCFrame then
-                        local safeSpawnPos = CFrame.new(spawnCFrame.Position.X, spawnCFrame.Position.Y + 30, spawnCFrame.Position.Z)
+                        local safeSpawnPos = CFrame.new(spawnCFrame.Position.X, spawnCFrame.Position.Y + 40, spawnCFrame.Position.Z)
                         toTargetPos(safeSpawnPos)
                     else
                         if currentTween then pcall(function() currentTween:Cancel() end); currentTween = nil end
@@ -1165,12 +1206,9 @@ task.spawn(function()
             isAttackingTarget = false
             lockedFarmPosition = nil
             local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-            if hrp then hrp.Anchored = false end -- Trả lại trọng lực
+            if hrp then hrp.Anchored = false end
             
-            if currentTween then
-                pcall(function() currentTween:Cancel() end)
-                currentTween = nil
-            end
+            if currentTween then pcall(function() currentTween:Cancel() end); currentTween = nil end
         end
     end
 end)
