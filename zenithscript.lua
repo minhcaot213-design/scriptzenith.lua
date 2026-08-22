@@ -1,4 +1,4 @@
--- [[ ZENITH BLOX FRUIT - V9 (REDEEM ALL CODES & DEEP CHEST SCANNER FIXED) ]] --
+-- [[ ZENITH BLOX FRUIT - V11 (MODERN GLASSMORPHISM OVERHAUL) ]] --
 
 local Players = game:GetService("Players")
 local Lighting = game:GetService("Lighting")
@@ -18,7 +18,7 @@ local CommF = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("CommF_")
 -- ===================================================
 -- 0. DỌN DẸP INSTANCE CŨ (CLEANUP)
 -- ===================================================
-local UI_NAME = "ZenithBloxFruit_Zyrox_V9"
+local UI_NAME = "ZenithBloxFruit_Zyrox_V11"
 local function getSafeParent()
     local success, coreGui = pcall(function() return game:GetService("CoreGui") end)
     if success and coreGui then return coreGui end
@@ -37,80 +37,94 @@ local translatableElements = {}
 
 local LangDict = {
     VI = {
-        title = "ZYROX VN <font color='#00d2ff'>• ZENITH HUB</font>",
-        tab_farm = "Farm",
-        tab_server = "Server",
-        tab_pvp = "PVP-ESP",
-        tab_raid = "Raid",
-        tab_item = "Farm Item",
+        title = "ZYROX VN <font color='#00d2ff'>• ZENITH</font>",
+        badge = "PRO",
+        tab_farm = "Farm Level",
+        tab_fruit = "Trái Ác Quỷ",
+        tab_pvp = "PVP & ESP",
+        tab_server = "Máy Chủ",
+        tab_raid = "Đi Raid",
+        tab_item = "Farm Vật Phẩm",
         tab_setting = "Cài Đặt",
         
-        auto_farm_level = "⚡ Auto Farm Level (Tự Theo Cấp)",
-        auto_quest = "📜 Tự Động Nhận & Trả Quest",
-        bring_mob = "🧲 Gom Cả Bãi Quái (Cluster Bring)",
+        auto_farm_level = "⚡ Tự Động Farm Level (Auto Quest)",
+        auto_quest = "📜 Nhận & Trả Nhiệm Vụ",
+        bring_mob = "🧲 Gom Toàn Bộ Quái Lại Gần",
         
-        speed_toggle = "Bật Tăng Tốc Độ (WalkSpeed)",
-        speed_slider = "Chỉnh Speed",
-        jump_toggle = "Bật Nhảy Cao (High Jump)",
-        jump_slider = "Chỉnh JumpPower",
+        fruit_buy = "🎲 Mua Ngẫu Nhiên Trái (Gacha)",
+        fruit_collect = "🧲 Tự Động Nhặt Trái Rơi",
+        fruit_store = "📦 Tự Động Cất Vào Rương",
+        fruit_tracker_title = "Trái đang xuất hiện trên bản đồ:",
         
-        player_esp = "Định Vị Người Chơi (Tên/Máu/Khoảng Cách)",
-        fruit_esp = "🍎 Định Vị Trái Ác Quỷ (Devil Fruit)",
-        chest_wood = "📦 Rương Đồng/Gỗ (Tier 1)",
-        chest_gold = "🪙 Rương Bạc/Vàng (Tier 2)",
-        chest_diamond = "💎 Rương Kim Cương (Tier 3)",
+        speed_toggle = "Kích Hoạt Chạy Nhanh",
+        speed_slider = "Tốc Độ Di Chuyển",
+        jump_toggle = "Kích Hoạt Nhảy Cao",
+        jump_slider = "Lực Nhảy",
         
-        redeem_codes = "🎁 Nhập Tất Cả Code Game (Auto Redeem)",
-        rejoin_btn = "Rejoin Server (Vào Lại)",
-        serverhop_btn = "Server Hop (Đổi Server Khác)",
-        auto_raid_start = "Tự Động Bắt Đầu Raid",
-        auto_raid_kill = "Tự Đánh Quái Trong Raid",
-        auto_bones = "Auto Farm Xương (Bones)",
-        auto_chest = "Tự Động Nhặt Rương Gần",
+        player_esp = "ESP Người Chơi (Tên/Máu/Khoảng Cách)",
+        fruit_esp = "ESP Trái Ác Quỷ",
+        chest_wood = "ESP Rương Đồng / Gỗ",
+        chest_gold = "ESP Rương Vàng / Bạc",
+        chest_diamond = "ESP Rương Kim Cương",
         
-        lang_title = "🌐 Ngôn Ngữ / Language",
-        ui_scale = "Kích Thước Giao Diện (UI Scale %)",
-        ui_transparency = "Độ Trong Suốt Panel (%)",
-        fix_lag = "Fix Lag / Boost FPS",
-        close_hub = "Tắt Giao Diện (Close Hub)"
+        redeem_codes = "🎁 Nhập Tất Cả Code Game",
+        rejoin_btn = "Vào Lại Server Này",
+        serverhop_btn = "Chuyển Sang Server Khác",
+        auto_raid_start = "Tự Động Mua Vé & Bắt Đầu Raid",
+        auto_raid_kill = "Tự Diệt Quái Raid",
+        auto_bones = "Tự Farm Xương (Bones)",
+        auto_chest = "Tự Động Gom Rương Gần",
+        
+        lang_title = "Ngôn Ngữ / Language",
+        ui_scale = "Tỷ Lệ Thu Phóng UI (%)",
+        ui_transparency = "Độ Trong Suốt Cửa Sổ (%)",
+        fix_lag = "Tối Ưu Đồ Họa (Tăng FPS)",
+        close_hub = "Đóng Menu Hub"
     },
     EN = {
-        title = "ZYROX VN <font color='#00d2ff'>• ZENITH HUB</font>",
-        tab_farm = "Farm",
+        title = "ZYROX VN <font color='#00d2ff'>• ZENITH</font>",
+        badge = "PRO",
+        tab_farm = "Farm Level",
+        tab_fruit = "Devil Fruit",
+        tab_pvp = "PVP & ESP",
         tab_server = "Server",
-        tab_pvp = "PVP-ESP",
-        tab_raid = "Raid",
-        tab_item = "Farm Item",
+        tab_raid = "Raid Hub",
+        tab_item = "Item Farm",
         tab_setting = "Settings",
         
         auto_farm_level = "⚡ Auto Farm Level (Auto Quest)",
-        auto_quest = "📜 Auto Accept & Return Quest",
-        bring_mob = "🧲 Bring Whole Mob Camp (Cluster)",
+        auto_quest = "📜 Auto Accept/Return Quest",
+        bring_mob = "🧲 Cluster Bring Mobs",
         
-        speed_toggle = "Enable WalkSpeed Boost",
-        speed_slider = "Adjust Speed",
+        fruit_buy = "🎲 Gacha Random Fruit",
+        fruit_collect = "🧲 Auto Collect Dropped Fruits",
+        fruit_store = "📦 Auto Store Into Inventory",
+        fruit_tracker_title = "Live Dropped Fruits on Map:",
+        
+        speed_toggle = "Enable WalkSpeed",
+        speed_slider = "Movement Speed",
         jump_toggle = "Enable High Jump",
-        jump_slider = "Adjust JumpPower",
+        jump_slider = "Jump Height",
         
         player_esp = "Player ESP (Name/HP/Distance)",
-        fruit_esp = "🍎 Devil Fruit ESP",
-        chest_wood = "📦 Bronze/Wood Chest (Tier 1)",
-        chest_gold = "🪙 Silver/Gold Chest (Tier 2)",
-        chest_diamond = "💎 Diamond Chest (Tier 3)",
+        fruit_esp = "Devil Fruit ESP",
+        chest_wood = "Bronze/Wood Chest ESP",
+        chest_gold = "Silver/Gold Chest ESP",
+        chest_diamond = "Diamond Chest ESP",
         
         redeem_codes = "🎁 Redeem All Game Codes",
-        rejoin_btn = "Rejoin Server",
-        serverhop_btn = "Server Hop (Find New)",
+        rejoin_btn = "Rejoin Current Server",
+        serverhop_btn = "Hop to New Server",
         auto_raid_start = "Auto Start Raid",
         auto_raid_kill = "Auto Kill Raid Mobs",
         auto_bones = "Auto Farm Bones",
         auto_chest = "Auto Collect Nearby Chests",
         
-        lang_title = "🌐 Language / Ngôn Ngữ",
-        ui_scale = "UI Scale (%)",
-        ui_transparency = "Panel Transparency (%)",
-        fix_lag = "Fix Lag / Boost FPS",
-        close_hub = "Close Hub Interface"
+        lang_title = "Language / Ngôn Ngữ",
+        ui_scale = "UI Scale Ratio (%)",
+        ui_transparency = "Window Transparency (%)",
+        fix_lag = "Boost FPS / Reduce Lag",
+        close_hub = "Close Hub Menu"
     }
 }
 
@@ -123,7 +137,11 @@ local function setLanguage(lang)
     currentLang = lang
     for _, item in ipairs(translatableElements) do
         if item.Label and item.Label.Parent then
-            item.Label.Text = LangDict[currentLang][item.Key]
+            if item.Update then
+                item.Update()
+            else
+                item.Label.Text = LangDict[currentLang][item.Key]
+            end
         end
     end
 end
@@ -163,7 +181,7 @@ task.spawn(function()
 end)
 
 -- ===================================================
--- 3. HỆ THỐNG LEVEL & NHẬN QUEST TỰ ĐỘNG
+-- 3. HỆ THỐNG PHÂN TÍCH LEVEL & NHẬN QUEST
 -- ===================================================
 local function getAutoQuestByLevel()
     local level = 1
@@ -173,7 +191,6 @@ local function getAutoQuestByLevel()
         end
     end)
 
-    -- SEA 1
     if level >= 1 and level <= 9 then
         return {QuestName = "BanditQuest1", QuestLevel = 1, MonName = "Bandit", ReqLevel = 1}
     elseif level >= 10 and level <= 14 then
@@ -214,8 +231,6 @@ local function getAutoQuestByLevel()
         return {QuestName = "SkyExp2Quest", QuestLevel = 1, MonName = "Royal Squad", ReqLevel = 525}
     elseif level >= 625 and level <= 699 then
         return {QuestName = "FountainQuest", QuestLevel = 1, MonName = "Galley Pirate", ReqLevel = 625}
-        
-    -- SEA 2
     elseif level >= 700 and level <= 774 then
         return {QuestName = "Area1Quest", QuestLevel = 1, MonName = "Raider", ReqLevel = 700}
     elseif level >= 775 and level <= 874 then
@@ -226,8 +241,6 @@ local function getAutoQuestByLevel()
         return {QuestName = "SnowMountainQuest", QuestLevel = 1, MonName = "Snow Trooper", ReqLevel = 1000}
     elseif level >= 1250 and level <= 1499 then
         return {QuestName = "ShipQuest1", QuestLevel = 1, MonName = "Ship Deckhand", ReqLevel = 1250}
-        
-    -- SEA 3
     elseif level >= 1500 and level <= 1574 then
         return {QuestName = "PiratePortQuest", QuestLevel = 1, MonName = "Pirate Millionaire", ReqLevel = 1500}
     elseif level >= 1575 and level <= 1699 then
@@ -246,8 +259,12 @@ local AutoFarmLevel = false
 local AutoQuest = true
 local BringMob = true
 
+local AutoRandomFruit = false
+local AutoCollectFruit = false
+local AutoStoreFruit = false
+
 -- ===================================================
--- 4. SPEED & HIGH JUMP (PVP MODULE)
+-- 4. PVP SPEED & JUMP MODULE
 -- ===================================================
 local speedValue = 16
 local speedEnabled = false
@@ -276,7 +293,7 @@ UserInputService.JumpRequest:Connect(function()
 end)
 
 -- ===================================================
--- 5. HỆ THỐNG ĐỊNH VỊ SÂU (DEEP SCAN CHEST, FRUIT & PLAYER ESP)
+-- 5. ĐỊNH VỊ (CHEST, FRUIT & PLAYER ESP)
 -- ===================================================
 local espPlayerEnabled = false
 local espFruitEnabled = false
@@ -286,7 +303,6 @@ local espChest3Enabled = false
 
 local detectedChests = {}
 
--- Quét toàn bộ Descendants để phát hiện mọi loại Rương trên bản đồ
 local function refreshChestList()
     detectedChests = {}
     for _, obj in ipairs(Workspace:GetDescendants()) do
@@ -424,7 +440,7 @@ task.spawn(function()
                 end
             end
             
-            -- Deep Chest ESP Scanner
+            -- Chest ESP
             for _, item in ipairs(detectedChests) do
                 local rootPart = item.Part
                 local tier = item.Tier
@@ -469,14 +485,25 @@ task.spawn(function()
 end)
 
 -- ===================================================
--- 6. COMBAT ENGINE: FAST ATTACK CHO GIẢ LẬP & GOM CẢ BÃI
+-- 6. COMBAT ENGINE & FARM TWEEN
 -- ===================================================
 local currentTween = nil
 local isAttackingTarget = false
 
-local function performDirectAttack()
+local function performHookedAttack()
     local char = LocalPlayer.Character
     if not char then return end
+
+    pcall(function()
+        local cf = require(LocalPlayer.PlayerScripts:WaitForChild("CombatFramework", 1))
+        if cf and cf.activeController then
+            cf.activeController.hitboxLimiter = 0
+            cf.activeController.timeToNextAttack = 0
+            cf.activeController.attacking = false
+            cf.activeController.increment = 3
+            cf.activeController:attack()
+        end
+    end)
 
     for _, item in ipairs(char:GetChildren()) do
         if item:IsA("Tool") then
@@ -496,7 +523,9 @@ local function performDirectAttack()
 
     pcall(function()
         VirtualUser:CaptureController()
-        VirtualUser:ClickButton1(Vector2.new(cx, cy))
+        VirtualUser:Button1Down(Vector2.new(cx, cy))
+        task.wait()
+        VirtualUser:Button1Up(Vector2.new(cx, cy))
     end)
 
     pcall(function()
@@ -507,8 +536,8 @@ end
 task.spawn(function()
     while true do
         if AutoFarmLevel and isAttackingTarget then
-            performDirectAttack()
-            task.wait(0.04)
+            performHookedAttack()
+            task.wait(0.035)
         else
             task.wait(0.12)
         end
@@ -531,7 +560,7 @@ local function toTargetPos(targetCFrame)
 end
 
 RunService.Stepped:Connect(function()
-    if AutoFarmLevel and LocalPlayer.Character then
+    if (AutoFarmLevel or AutoCollectFruit) and LocalPlayer.Character then
         for _, part in ipairs(LocalPlayer.Character:GetDescendants()) do
             if part:IsA("BasePart") and part.CanCollide then
                 part.CanCollide = false
@@ -599,7 +628,6 @@ local function getAllLivingEnemies(monName)
     return list
 end
 
--- VÒNG LẶP CHÍNH: TỰ ĐỘNG BAY TỚI ĐẢO, GOM CẢ BÃI VÀ ĐÁNH LIÊN TỤC
 task.spawn(function()
     while true do
         task.wait(0.05)
@@ -620,7 +648,7 @@ task.spawn(function()
 
                     if primaryHRP then
                         local clusterPosition = primaryHRP.Position
-                        local targetCFrame = CFrame.new(clusterPosition + Vector3.new(0, 4.5, 0), clusterPosition)
+                        local targetCFrame = CFrame.new(clusterPosition + Vector3.new(0, 4, 0), clusterPosition)
                         local dist = (myHRP.Position - clusterPosition).Magnitude
 
                         if dist > 14 then
@@ -660,7 +688,67 @@ task.spawn(function()
 end)
 
 -- ===================================================
--- 7. GIAO DIỆN PANEL (TRANSLUCENT + MULTILINGUAL)
+-- 7. MODULE FRUIT (RANDOM, COLLECT, STORE)
+-- ===================================================
+task.spawn(function()
+    while true do
+        task.wait(5)
+        if AutoRandomFruit then
+            pcall(function() CommF:InvokeServer("Cousin", "Buy") end)
+        end
+    end
+end)
+
+task.spawn(function()
+    while true do
+        task.wait(1)
+        if AutoCollectFruit and not AutoFarmLevel and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            for _, obj in ipairs(Workspace:GetChildren()) do
+                if (obj:IsA("Tool") and string.find(obj.Name, "Fruit")) or obj:FindFirstChild("Fruit") then
+                    local handle = obj:FindFirstChild("Handle") or obj:FindFirstChildWhichIsA("BasePart")
+                    if handle then
+                        toTargetPos(handle.CFrame)
+                        task.wait(0.5)
+                        if firetouchinterest then
+                            firetouchinterest(LocalPlayer.Character.HumanoidRootPart, handle, 0)
+                            task.wait()
+                            firetouchinterest(LocalPlayer.Character.HumanoidRootPart, handle, 1)
+                        end
+                    end
+                end
+            end
+        end
+    end
+end)
+
+task.spawn(function()
+    while true do
+        task.wait(2)
+        if AutoStoreFruit then
+            pcall(function()
+                local backpack = LocalPlayer:FindFirstChild("Backpack")
+                local char = LocalPlayer.Character
+                if backpack then
+                    for _, item in ipairs(backpack:GetChildren()) do
+                        if string.find(item.Name, "Fruit") or item:FindFirstChild("Fruit") then
+                            CommF:InvokeServer("StoreFruit", item.Name, item)
+                        end
+                    end
+                end
+                if char then
+                    for _, item in ipairs(char:GetChildren()) do
+                        if item:IsA("Tool") and (string.find(item.Name, "Fruit") or item:FindFirstChild("Fruit")) then
+                            CommF:InvokeServer("StoreFruit", item.Name, item)
+                        end
+                    end
+                end
+            end)
+        end
+    end
+end)
+
+-- ===================================================
+-- 8. GIAO DIỆN CYBERPUNK GLASSMORPHISM MỚI (V11)
 -- ===================================================
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = UI_NAME
@@ -668,15 +756,16 @@ ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = parentGui
 
 local FULL_HEIGHT = 310
-local MIN_HEIGHT = 34
+local MIN_HEIGHT = 38
 local isMinimized = false
 
+-- Khung cửa sổ chính
 local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 500, 0, FULL_HEIGHT)
+MainFrame.Size = UDim2.new(0, 520, 0, FULL_HEIGHT)
 MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-MainFrame.BackgroundColor3 = Color3.fromRGB(14, 16, 22)
-MainFrame.BackgroundTransparency = 0.18
+MainFrame.BackgroundColor3 = Color3.fromRGB(11, 13, 19)
+MainFrame.BackgroundTransparency = 0.12
 MainFrame.BorderSizePixel = 0
 MainFrame.Active = true
 MainFrame.ClipsDescendants = true
@@ -687,12 +776,12 @@ UIScale.Scale = 1.0
 UIScale.Parent = MainFrame
 
 local MainCorner = Instance.new("UICorner")
-MainCorner.CornerRadius = UDim.new(0, 8)
+MainCorner.CornerRadius = UDim.new(0, 10)
 MainCorner.Parent = MainFrame
 
 local MainStroke = Instance.new("UIStroke")
-MainStroke.Color = Color3.fromRGB(45, 55, 75)
-MainStroke.Transparency = 0.3
+MainStroke.Color = Color3.fromRGB(30, 36, 50)
+MainStroke.Transparency = 0.2
 MainStroke.Thickness = 1.2
 MainStroke.Parent = MainFrame
 
@@ -726,26 +815,29 @@ end)
 
 -- TopBar
 local TopBar = Instance.new("Frame")
-TopBar.Size = UDim2.new(1, 0, 0, 34)
-TopBar.BackgroundColor3 = Color3.fromRGB(18, 22, 32)
-TopBar.BackgroundTransparency = 0.15
+TopBar.Size = UDim2.new(1, 0, 0, 38)
+TopBar.BackgroundColor3 = Color3.fromRGB(15, 18, 26)
+TopBar.BackgroundTransparency = 0.2
 TopBar.BorderSizePixel = 0
 TopBar.Parent = MainFrame
 
+local TopBarStroke = Instance.new("Frame")
+TopBarStroke.Size = UDim2.new(1, 0, 0, 1)
+TopBarStroke.Position = UDim2.new(0, 0, 1, -1)
+TopBarStroke.BackgroundColor3 = Color3.fromRGB(26, 32, 46)
+TopBarStroke.BorderSizePixel = 0
+TopBarStroke.Parent = TopBar
+
 local LogoIcon = Instance.new("ImageLabel")
-LogoIcon.Size = UDim2.new(0, 24, 0, 24)
-LogoIcon.Position = UDim2.new(0, 8, 0.5, -12)
+LogoIcon.Size = UDim2.new(0, 22, 0, 22)
+LogoIcon.Position = UDim2.new(0, 10, 0.5, -11)
 LogoIcon.BackgroundTransparency = 1
 LogoIcon.Image = "rbxassetid://100412534591942"
 LogoIcon.ScaleType = Enum.ScaleType.Fit
 LogoIcon.Parent = TopBar
 
-local LogoCorner = Instance.new("UICorner")
-LogoCorner.CornerRadius = UDim.new(0, 4)
-LogoCorner.Parent = LogoIcon
-
 local Title = Instance.new("TextLabel")
-Title.Size = UDim2.new(1, -110, 1, 0)
+Title.Size = UDim2.new(0, 140, 1, 0)
 Title.Position = UDim2.new(0, 38, 0, 0)
 Title.BackgroundTransparency = 1
 Title.RichText = true
@@ -756,45 +848,75 @@ Title.TextXAlignment = Enum.TextXAlignment.Left
 Title.Parent = TopBar
 registerText(Title, "title", true)
 
+local Badge = Instance.new("TextLabel")
+Badge.Size = UDim2.new(0, 32, 0, 16)
+Badge.Position = UDim2.new(0, 172, 0.5, -8)
+Badge.BackgroundColor3 = Color3.fromRGB(0, 180, 255)
+Badge.BackgroundTransparency = 0.8
+Badge.TextColor3 = Color3.fromRGB(0, 210, 255)
+Badge.Font = Enum.Font.GothamBold
+Badge.TextSize = 9
+Badge.BorderSizePixel = 0
+Badge.Parent = TopBar
+
+local BadgeCorner = Instance.new("UICorner")
+BadgeCorner.CornerRadius = UDim.new(0, 4)
+BadgeCorner.Parent = Badge
+
+local BadgeStroke = Instance.new("UIStroke")
+BadgeStroke.Color = Color3.fromRGB(0, 180, 255)
+BadgeStroke.Transparency = 0.5
+BadgeStroke.Thickness = 1
+BadgeStroke.Parent = Badge
+registerText(Badge, "badge")
+
 local MinBtn = Instance.new("TextButton")
 MinBtn.Size = UDim2.new(0, 24, 0, 24)
-MinBtn.Position = UDim2.new(1, -56, 0, 5)
-MinBtn.BackgroundColor3 = Color3.fromRGB(28, 33, 46)
+MinBtn.Position = UDim2.new(1, -56, 0.5, -12)
+MinBtn.BackgroundColor3 = Color3.fromRGB(22, 26, 38)
 MinBtn.Text = "−"
-MinBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
+MinBtn.TextColor3 = Color3.fromRGB(160, 170, 190)
 MinBtn.Font = Enum.Font.GothamBold
 MinBtn.TextSize = 13
 MinBtn.BorderSizePixel = 0
 MinBtn.Parent = TopBar
 
 local MinCorner = Instance.new("UICorner")
-MinCorner.CornerRadius = UDim.new(0, 4)
+MinCorner.CornerRadius = UDim.new(0, 5)
 MinCorner.Parent = MinBtn
 
 local CloseBtn = Instance.new("TextButton")
 CloseBtn.Size = UDim2.new(0, 24, 0, 24)
-CloseBtn.Position = UDim2.new(1, -28, 0, 5)
-CloseBtn.BackgroundColor3 = Color3.fromRGB(28, 33, 46)
+CloseBtn.Position = UDim2.new(1, -28, 0.5, -12)
+CloseBtn.BackgroundColor3 = Color3.fromRGB(22, 26, 38)
 CloseBtn.Text = "✕"
-CloseBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
+CloseBtn.TextColor3 = Color3.fromRGB(160, 170, 190)
 CloseBtn.Font = Enum.Font.GothamBold
-CloseBtn.TextSize = 11
+CloseBtn.TextSize = 10
 CloseBtn.BorderSizePixel = 0
 CloseBtn.Parent = TopBar
 
 local CloseCorner = Instance.new("UICorner")
-CloseCorner.CornerRadius = UDim.new(0, 4)
+CloseCorner.CornerRadius = UDim.new(0, 5)
 CloseCorner.Parent = CloseBtn
 
 CloseBtn.MouseButton1Click:Connect(function() ScreenGui:Destroy() end)
 
+-- Sidebar
 local Sidebar = Instance.new("Frame")
-Sidebar.Size = UDim2.new(0, 125, 1, -34)
-Sidebar.Position = UDim2.new(0, 0, 0, 34)
-Sidebar.BackgroundColor3 = Color3.fromRGB(16, 18, 26)
-Sidebar.BackgroundTransparency = 0.25
+Sidebar.Size = UDim2.new(0, 130, 1, -38)
+Sidebar.Position = UDim2.new(0, 0, 0, 38)
+Sidebar.BackgroundColor3 = Color3.fromRGB(13, 15, 22)
+Sidebar.BackgroundTransparency = 0.2
 Sidebar.BorderSizePixel = 0
 Sidebar.Parent = MainFrame
+
+local SidebarRightBorder = Instance.new("Frame")
+SidebarRightBorder.Size = UDim2.new(0, 1, 1, 0)
+SidebarRightBorder.Position = UDim2.new(1, -1, 0, 0)
+SidebarRightBorder.BackgroundColor3 = Color3.fromRGB(26, 32, 46)
+SidebarRightBorder.BorderSizePixel = 0
+SidebarRightBorder.Parent = Sidebar
 
 local TabListLayout = Instance.new("UIListLayout")
 TabListLayout.Padding = UDim.new(0, 3)
@@ -806,20 +928,20 @@ TabPadding.PaddingTop = UDim.new(0, 6)
 TabPadding.Parent = Sidebar
 
 local ContentContainer = Instance.new("Frame")
-ContentContainer.Size = UDim2.new(1, -125, 1, -34)
-ContentContainer.Position = UDim2.new(0, 125, 0, 34)
+ContentContainer.Size = UDim2.new(1, -130, 1, -38)
+ContentContainer.Position = UDim2.new(0, 130, 0, 38)
 ContentContainer.BackgroundTransparency = 1
 ContentContainer.Parent = MainFrame
 
 MinBtn.MouseButton1Click:Connect(function()
     isMinimized = not isMinimized
     if isMinimized then
-        MainFrame:TweenSize(UDim2.new(0, 500, 0, MIN_HEIGHT), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.25, true)
+        MainFrame:TweenSize(UDim2.new(0, 520, 0, MIN_HEIGHT), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.25, true)
         Sidebar.Visible = false
         ContentContainer.Visible = false
         MinBtn.Text = "+"
     else
-        MainFrame:TweenSize(UDim2.new(0, 500, 0, FULL_HEIGHT), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.25, true)
+        MainFrame:TweenSize(UDim2.new(0, 520, 0, FULL_HEIGHT), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.25, true)
         Sidebar.Visible = true
         ContentContainer.Visible = true
         MinBtn.Text = "−"
@@ -833,7 +955,7 @@ local function createPage(name)
     local page = Instance.new("ScrollingFrame")
     page.Size = UDim2.new(1, 0, 1, 0)
     page.BackgroundTransparency = 1
-    page.ScrollBarThickness = 3
+    page.ScrollBarThickness = 2
     page.ScrollBarImageColor3 = Color3.fromRGB(0, 180, 255)
     page.BorderSizePixel = 0
     page.Visible = false
@@ -841,7 +963,7 @@ local function createPage(name)
     page.Parent = ContentContainer
 
     local layout = Instance.new("UIListLayout")
-    layout.Padding = UDim.new(0, 5)
+    layout.Padding = UDim.new(0, 6)
     layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
     layout.Parent = page
 
@@ -855,9 +977,18 @@ local function createPage(name)
 end
 
 local function switchTab(name)
-    for tName, btn in pairs(tabButtons) do
-        btn.BackgroundColor3 = (tName == name) and Color3.fromRGB(0, 150, 255) or Color3.fromRGB(24, 26, 35)
-        btn.TextColor3 = (tName == name) and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(160, 165, 180)
+    for tName, item in pairs(tabButtons) do
+        local btn = item.Button
+        local pill = item.Pill
+        if tName == name then
+            btn.BackgroundColor3 = Color3.fromRGB(24, 30, 44)
+            btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+            pill.Visible = true
+        else
+            btn.BackgroundColor3 = Color3.fromRGB(15, 17, 24)
+            btn.TextColor3 = Color3.fromRGB(140, 148, 165)
+            pill.Visible = false
+        end
     end
     for pName, page in pairs(tabPages) do
         page.Visible = (pName == name)
@@ -866,49 +997,76 @@ end
 
 local function createTabButton(name, icon, transKey)
     local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(0.9, 0, 0, 30)
-    btn.BackgroundColor3 = Color3.fromRGB(24, 26, 35)
+    btn.Size = UDim2.new(0.92, 0, 0, 28)
+    btn.BackgroundColor3 = Color3.fromRGB(15, 17, 24)
     btn.BorderSizePixel = 0
-    btn.TextColor3 = Color3.fromRGB(160, 165, 180)
+    btn.TextColor3 = Color3.fromRGB(140, 148, 165)
     btn.Font = Enum.Font.GothamMedium
     btn.TextSize = 11
+    btn.TextXAlignment = Enum.TextXAlignment.Left
     btn.Parent = Sidebar
 
     local c = Instance.new("UICorner")
     c.CornerRadius = UDim.new(0, 5)
     c.Parent = btn
 
-    table.insert(translatableElements, {
+    local pad = Instance.new("UIPadding")
+    pad.PaddingLeft = UDim.new(0, 10)
+    pad.Parent = btn
+
+    local pill = Instance.new("Frame")
+    pill.Size = UDim2.new(0, 3, 0, 14)
+    pill.Position = UDim2.new(0, -7, 0.5, -7)
+    pill.BackgroundColor3 = Color3.fromRGB(0, 210, 255)
+    pill.BorderSizePixel = 0
+    pill.Visible = false
+    pill.Parent = btn
+
+    local pillCorner = Instance.new("UICorner")
+    pillCorner.CornerRadius = UDim.new(1, 0)
+    pillCorner.Parent = pill
+
+    local entry = {
         Label = btn,
         Key = transKey,
+        Button = btn,
+        Pill = pill,
         Update = function()
-            btn.Text = icon .. " " .. LangDict[currentLang][transKey]
+            btn.Text = icon .. "  " .. LangDict[currentLang][transKey]
         end
-    })
-    btn.Text = icon .. " " .. LangDict[currentLang][transKey]
+    }
+    table.insert(translatableElements, entry)
+    btn.Text = icon .. "  " .. LangDict[currentLang][transKey]
 
-    tabButtons[name] = btn
+    tabButtons[name] = entry
     btn.MouseButton1Click:Connect(function() switchTab(name) end)
 end
 
+-- Component: Toggle Switch kiểu Modern Pill
 local function createToggle(page, transKey, defaultState, callback)
     local state = defaultState or false
+    
     local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(0.92, 0, 0, 34)
-    frame.BackgroundColor3 = Color3.fromRGB(22, 26, 36)
-    frame.BackgroundTransparency = 0.3
+    frame.Size = UDim2.new(0.94, 0, 0, 34)
+    frame.BackgroundColor3 = Color3.fromRGB(16, 20, 28)
+    frame.BackgroundTransparency = 0.2
     frame.BorderSizePixel = 0
     frame.Parent = page
 
     local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 5)
+    corner.CornerRadius = UDim.new(0, 6)
     corner.Parent = frame
+
+    local stroke = Instance.new("UIStroke")
+    stroke.Color = Color3.fromRGB(28, 34, 48)
+    stroke.Thickness = 1
+    stroke.Parent = frame
 
     local label = Instance.new("TextLabel")
     label.Size = UDim2.new(1, -50, 1, 0)
     label.Position = UDim2.new(0, 10, 0, 0)
     label.BackgroundTransparency = 1
-    label.TextColor3 = Color3.fromRGB(230, 230, 230)
+    label.TextColor3 = Color3.fromRGB(220, 225, 235)
     label.Font = Enum.Font.Gotham
     label.TextSize = 11
     label.TextXAlignment = Enum.TextXAlignment.Left
@@ -916,9 +1074,9 @@ local function createToggle(page, transKey, defaultState, callback)
     registerText(label, transKey)
 
     local switch = Instance.new("TextButton")
-    switch.Size = UDim2.new(0, 34, 0, 17)
-    switch.Position = UDim2.new(1, -42, 0.5, -8)
-    switch.BackgroundColor3 = state and Color3.fromRGB(0, 180, 255) or Color3.fromRGB(45, 48, 65)
+    switch.Size = UDim2.new(0, 32, 0, 16)
+    switch.Position = UDim2.new(1, -40, 0.5, -8)
+    switch.BackgroundColor3 = state and Color3.fromRGB(0, 190, 255) or Color3.fromRGB(35, 40, 54)
     switch.Text = ""
     switch.BorderSizePixel = 0
     switch.Parent = frame
@@ -928,8 +1086,8 @@ local function createToggle(page, transKey, defaultState, callback)
     sc.Parent = switch
 
     local circle = Instance.new("Frame")
-    circle.Size = UDim2.new(0, 11, 0, 11)
-    circle.Position = state and UDim2.new(1, -13, 0.5, -5) or UDim2.new(0, 3, 0.5, -5)
+    circle.Size = UDim2.new(0, 12, 0, 12)
+    circle.Position = state and UDim2.new(1, -14, 0.5, -6) or UDim2.new(0, 2, 0.5, -6)
     circle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     circle.BorderSizePixel = 0
     circle.Parent = switch
@@ -940,30 +1098,40 @@ local function createToggle(page, transKey, defaultState, callback)
 
     switch.MouseButton1Click:Connect(function()
         state = not state
-        switch.BackgroundColor3 = state and Color3.fromRGB(0, 180, 255) or Color3.fromRGB(45, 48, 65)
-        circle.Position = state and UDim2.new(1, -13, 0.5, -5) or UDim2.new(0, 3, 0.5, -5)
+        switch.BackgroundColor3 = state and Color3.fromRGB(0, 190, 255) or Color3.fromRGB(35, 40, 54)
+        circle:TweenPosition(
+            state and UDim2.new(1, -14, 0.5, -6) or UDim2.new(0, 2, 0.5, -6),
+            Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.15, true
+        )
         if callback then callback(state) end
     end)
 end
 
+-- Component: Slider tinh giản
 local function createSlider(page, transKey, min, max, default, callback)
     local current = default or min
+    
     local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(0.92, 0, 0, 46)
-    frame.BackgroundColor3 = Color3.fromRGB(22, 26, 36)
-    frame.BackgroundTransparency = 0.3
+    frame.Size = UDim2.new(0.94, 0, 0, 44)
+    frame.BackgroundColor3 = Color3.fromRGB(16, 20, 28)
+    frame.BackgroundTransparency = 0.2
     frame.BorderSizePixel = 0
     frame.Parent = page
 
     local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 5)
+    corner.CornerRadius = UDim.new(0, 6)
     corner.Parent = frame
+
+    local stroke = Instance.new("UIStroke")
+    stroke.Color = Color3.fromRGB(28, 34, 48)
+    stroke.Thickness = 1
+    stroke.Parent = frame
 
     local label = Instance.new("TextLabel")
     label.Size = UDim2.new(1, -70, 0, 20)
     label.Position = UDim2.new(0, 10, 0, 3)
     label.BackgroundTransparency = 1
-    label.TextColor3 = Color3.fromRGB(230, 230, 230)
+    label.TextColor3 = Color3.fromRGB(220, 225, 235)
     label.Font = Enum.Font.Gotham
     label.TextSize = 11
     label.TextXAlignment = Enum.TextXAlignment.Left
@@ -975,7 +1143,7 @@ local function createSlider(page, transKey, min, max, default, callback)
     valueLabel.Position = UDim2.new(1, -65, 0, 3)
     valueLabel.BackgroundTransparency = 1
     valueLabel.Text = tostring(current)
-    valueLabel.TextColor3 = Color3.fromRGB(0, 180, 255)
+    valueLabel.TextColor3 = Color3.fromRGB(0, 210, 255)
     valueLabel.Font = Enum.Font.GothamBold
     valueLabel.TextSize = 11
     valueLabel.TextXAlignment = Enum.TextXAlignment.Right
@@ -983,8 +1151,8 @@ local function createSlider(page, transKey, min, max, default, callback)
 
     local track = Instance.new("TextButton")
     track.Size = UDim2.new(0.94, 0, 0, 4)
-    track.Position = UDim2.new(0.03, 0, 0, 30)
-    track.BackgroundColor3 = Color3.fromRGB(45, 48, 65)
+    track.Position = UDim2.new(0.03, 0, 0, 28)
+    track.BackgroundColor3 = Color3.fromRGB(35, 42, 58)
     track.AutoButtonColor = false
     track.BorderSizePixel = 0
     track.Text = ""
@@ -996,7 +1164,7 @@ local function createSlider(page, transKey, min, max, default, callback)
 
     local fill = Instance.new("Frame")
     fill.Size = UDim2.new((current - min) / (max - min), 0, 1, 0)
-    fill.BackgroundColor3 = Color3.fromRGB(0, 180, 255)
+    fill.BackgroundColor3 = Color3.fromRGB(0, 190, 255)
     fill.BorderSizePixel = 0
     fill.Parent = track
 
@@ -1034,21 +1202,27 @@ local function createSlider(page, transKey, min, max, default, callback)
     end)
 end
 
+-- Component: Action Button
 local function createButton(page, transKey, callback)
     local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(0.92, 0, 0, 32)
-    btn.BackgroundColor3 = Color3.fromRGB(26, 30, 42)
-    btn.BackgroundTransparency = 0.3
+    btn.Size = UDim2.new(0.94, 0, 0, 30)
+    btn.BackgroundColor3 = Color3.fromRGB(20, 26, 38)
     btn.BorderSizePixel = 0
-    btn.TextColor3 = Color3.fromRGB(0, 180, 255)
+    btn.TextColor3 = Color3.fromRGB(0, 210, 255)
     btn.Font = Enum.Font.GothamMedium
     btn.TextSize = 11
     btn.Parent = page
     registerText(btn, transKey)
 
     local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 5)
+    corner.CornerRadius = UDim.new(0, 6)
     corner.Parent = btn
+
+    local stroke = Instance.new("UIStroke")
+    stroke.Color = Color3.fromRGB(0, 180, 255)
+    stroke.Transparency = 0.8
+    stroke.Thickness = 1
+    stroke.Parent = btn
 
     btn.MouseButton1Click:Connect(function()
         if callback then callback() end
@@ -1056,12 +1230,13 @@ local function createButton(page, transKey, callback)
 end
 
 -- ===================================================
--- 8. TẠO 6 DANH MỤC (TABS SETUP)
+-- 9. TẠO CÁC DANH MỤC (TABS SETUP)
 -- ===================================================
 local cats = {
     {"Farm", "🌾", "tab_farm"},
-    {"Server", "🌐", "tab_server"},
+    {"Fruit", "🍎", "tab_fruit"},
     {"PVP-ESP", "⚔️", "tab_pvp"},
+    {"Server", "🌐", "tab_server"},
     {"RAID", "⚡", "tab_raid"},
     {"FARM ITEM", "🗡️", "tab_item"},
     {"SETTING", "⚙️", "tab_setting"}
@@ -1071,12 +1246,13 @@ for _, c in ipairs(cats) do
     createPage(c[1])
 end
 
--- [TAB 1: FARM] (AUTO LEVEL FARM)
+-- [TAB 1: FARM LEVEL]
 local farmPage = tabPages["Farm"]
 
+-- Info Card: Thiết kế dạng Status Widget sang trọng
 local infoCard = Instance.new("Frame")
-infoCard.Size = UDim2.new(0.92, 0, 0, 48)
-infoCard.BackgroundColor3 = Color3.fromRGB(20, 24, 34)
+infoCard.Size = UDim2.new(0.94, 0, 0, 42)
+infoCard.BackgroundColor3 = Color3.fromRGB(15, 19, 28)
 infoCard.BackgroundTransparency = 0.2
 infoCard.BorderSizePixel = 0
 infoCard.Parent = farmPage
@@ -1086,18 +1262,29 @@ icCorner.CornerRadius = UDim.new(0, 6)
 icCorner.Parent = infoCard
 
 local icStroke = Instance.new("UIStroke")
-icStroke.Color = Color3.fromRGB(0, 180, 255)
-icStroke.Transparency = 0.7
+icStroke.Color = Color3.fromRGB(32, 40, 58)
+icStroke.Thickness = 1
 icStroke.Parent = infoCard
 
+local icBar = Instance.new("Frame")
+icBar.Size = UDim2.new(0, 3, 1, -10)
+icBar.Position = UDim2.new(0, 5, 0, 5)
+icBar.BackgroundColor3 = Color3.fromRGB(0, 210, 255)
+icBar.BorderSizePixel = 0
+icBar.Parent = infoCard
+
+local icBarCorner = Instance.new("UICorner")
+icBarCorner.CornerRadius = UDim.new(1, 0)
+icBarCorner.Parent = icBar
+
 local infoLabel = Instance.new("TextLabel")
-infoLabel.Size = UDim2.new(1, -16, 1, 0)
-infoLabel.Position = UDim2.new(0, 8, 0, 0)
+infoLabel.Size = UDim2.new(1, -22, 1, 0)
+infoLabel.Position = UDim2.new(0, 14, 0, 0)
 infoLabel.BackgroundTransparency = 1
 infoLabel.RichText = true
-infoLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+infoLabel.TextColor3 = Color3.fromRGB(230, 235, 245)
 infoLabel.Font = Enum.Font.GothamMedium
-infoLabel.TextSize = 11
+infoLabel.TextSize = 10
 infoLabel.TextXAlignment = Enum.TextXAlignment.Left
 infoLabel.Parent = infoCard
 
@@ -1108,28 +1295,34 @@ task.spawn(function()
         local pLevel = 1
         pcall(function() pLevel = LocalPlayer.Data.Level.Value end)
         if curQuest then
-            infoLabel.Text = string.format("Level: <font color='#00d2ff'>%d</font> | Auto Target:\nQuái: <font color='#ffb703'>%s</font> (Lv. %d)", pLevel, curQuest.MonName, curQuest.ReqLevel)
+            infoLabel.Text = string.format("Level: <font color='#00d2ff'><b>%d</b></font>  |  Mục Tiêu:\nQuái: <font color='#ffb703'><b>%s</b></font> (Yêu Cầu Lv.%d)", pLevel, curQuest.MonName, curQuest.ReqLevel)
         end
     end
 end)
 
-local weaponFrame = Instance.new("Frame")
-weaponFrame.Size = UDim2.new(0.92, 0, 0, 30)
-weaponFrame.BackgroundColor3 = Color3.fromRGB(22, 26, 36)
-weaponFrame.BackgroundTransparency = 0.3
-weaponFrame.BorderSizePixel = 0
-weaponFrame.Parent = farmPage
+-- Segmented Bar: Thanh chọn vũ khí liền khối
+local weaponSegment = Instance.new("Frame")
+weaponSegment.Size = UDim2.new(0.94, 0, 0, 28)
+weaponSegment.BackgroundColor3 = Color3.fromRGB(15, 18, 25)
+weaponSegment.BackgroundTransparency = 0.2
+weaponSegment.BorderSizePixel = 0
+weaponSegment.Parent = farmPage
 
-local wCorner = Instance.new("UICorner")
-wCorner.CornerRadius = UDim.new(0, 5)
-wCorner.Parent = weaponFrame
+local wsCorner = Instance.new("UICorner")
+wsCorner.CornerRadius = UDim.new(0, 6)
+wsCorner.Parent = weaponSegment
 
-local wLayout = Instance.new("UIListLayout")
-wLayout.FillDirection = Enum.FillDirection.Horizontal
-wLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-wLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-wLayout.Padding = UDim.new(0, 4)
-wLayout.Parent = weaponFrame
+local wsStroke = Instance.new("UIStroke")
+wsStroke.Color = Color3.fromRGB(28, 34, 48)
+wsStroke.Thickness = 1
+wsStroke.Parent = weaponSegment
+
+local wsLayout = Instance.new("UIListLayout")
+wsLayout.FillDirection = Enum.FillDirection.Horizontal
+wsLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+wsLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+wsLayout.Padding = UDim.new(0, 3)
+wsLayout.Parent = weaponSegment
 
 local weaponBtns = {}
 local weaponList = {
@@ -1141,14 +1334,14 @@ local weaponList = {
 
 for _, wData in ipairs(weaponList) do
     local b = Instance.new("TextButton")
-    b.Size = UDim2.new(0.23, 0, 0.75, 0)
-    b.BackgroundColor3 = (selectedWeaponType == wData.name) and Color3.fromRGB(0, 180, 255) or Color3.fromRGB(32, 35, 48)
+    b.Size = UDim2.new(0.235, 0, 0.78, 0)
+    b.BackgroundColor3 = (selectedWeaponType == wData.name) and Color3.fromRGB(0, 160, 240) or Color3.fromRGB(20, 24, 34)
     b.Text = wData.label
-    b.TextColor3 = Color3.fromRGB(255, 255, 255)
+    b.TextColor3 = (selectedWeaponType == wData.name) and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(140, 150, 170)
     b.Font = Enum.Font.GothamMedium
     b.TextSize = 10
     b.BorderSizePixel = 0
-    b.Parent = weaponFrame
+    b.Parent = weaponSegment
 
     local c = Instance.new("UICorner")
     c.CornerRadius = UDim.new(0, 4)
@@ -1158,7 +1351,8 @@ for _, wData in ipairs(weaponList) do
     b.MouseButton1Click:Connect(function()
         selectedWeaponType = wData.name
         for name, btn in pairs(weaponBtns) do
-            btn.BackgroundColor3 = (name == wData.name) and Color3.fromRGB(0, 180, 255) or Color3.fromRGB(32, 35, 48)
+            btn.BackgroundColor3 = (name == wData.name) and Color3.fromRGB(0, 160, 240) or Color3.fromRGB(20, 24, 34)
+            btn.TextColor3 = (name == wData.name) and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(140, 150, 170)
         end
     end)
 end
@@ -1167,7 +1361,85 @@ createToggle(farmPage, "auto_farm_level", false, function(v) AutoFarmLevel = v e
 createToggle(farmPage, "auto_quest", true, function(v) AutoQuest = v end)
 createToggle(farmPage, "bring_mob", true, function(v) BringMob = v end)
 
--- [TAB 2: PVP-ESP]
+-- [TAB 2: FRUIT]
+local fruitPage = tabPages["Fruit"]
+
+createToggle(fruitPage, "fruit_buy", false, function(v) AutoRandomFruit = v end)
+createToggle(fruitPage, "fruit_collect", false, function(v) AutoCollectFruit = v end)
+createToggle(fruitPage, "fruit_store", false, function(v) AutoStoreFruit = v end)
+
+local trackerTitle = Instance.new("TextLabel")
+trackerTitle.Size = UDim2.new(0.94, 0, 0, 18)
+trackerTitle.BackgroundTransparency = 1
+trackerTitle.TextColor3 = Color3.fromRGB(0, 210, 255)
+trackerTitle.Font = Enum.Font.GothamBold
+trackerTitle.TextSize = 10
+trackerTitle.TextXAlignment = Enum.TextXAlignment.Left
+trackerTitle.Parent = fruitPage
+registerText(trackerTitle, "fruit_tracker_title")
+
+local fruitListDisplay = Instance.new("ScrollingFrame")
+fruitListDisplay.Size = UDim2.new(0.94, 0, 0, 70)
+fruitListDisplay.BackgroundColor3 = Color3.fromRGB(15, 18, 26)
+fruitListDisplay.BackgroundTransparency = 0.2
+fruitListDisplay.BorderSizePixel = 0
+fruitListDisplay.ScrollBarThickness = 2
+fruitListDisplay.ScrollBarImageColor3 = Color3.fromRGB(0, 180, 255)
+fruitListDisplay.AutomaticCanvasSize = Enum.AutomaticSize.Y
+fruitListDisplay.Parent = fruitPage
+
+local flCorner = Instance.new("UICorner")
+flCorner.CornerRadius = UDim.new(0, 6)
+flCorner.Parent = fruitListDisplay
+
+local flStroke = Instance.new("UIStroke")
+flStroke.Color = Color3.fromRGB(28, 34, 48)
+flStroke.Thickness = 1
+flStroke.Parent = fruitListDisplay
+
+local flLayout = Instance.new("UIListLayout")
+flLayout.Padding = UDim.new(0, 2)
+flLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+flLayout.Parent = fruitListDisplay
+
+task.spawn(function()
+    while true do
+        task.wait(1.5)
+        for _, ch in ipairs(fruitListDisplay:GetChildren()) do
+            if ch:IsA("TextLabel") then ch:Destroy() end
+        end
+
+        local foundFruits = 0
+        for _, obj in ipairs(Workspace:GetChildren()) do
+            if (obj:IsA("Tool") and string.find(obj.Name, "Fruit")) or obj:FindFirstChild("Fruit") then
+                foundFruits = foundFruits + 1
+                local item = Instance.new("TextLabel")
+                item.Size = UDim2.new(0.95, 0, 0, 18)
+                item.BackgroundTransparency = 1
+                item.Text = "🍎 " .. obj.Name
+                item.TextColor3 = Color3.fromRGB(255, 120, 200)
+                item.Font = Enum.Font.GothamMedium
+                item.TextSize = 10
+                item.TextXAlignment = Enum.TextXAlignment.Left
+                item.Parent = fruitListDisplay
+            end
+        end
+
+        if foundFruits == 0 then
+            local none = Instance.new("TextLabel")
+            none.Size = UDim2.new(0.95, 0, 0, 18)
+            none.BackgroundTransparency = 1
+            none.Text = "• Không có trái nào rơi trên sàn"
+            none.TextColor3 = Color3.fromRGB(120, 130, 145)
+            none.Font = Enum.Font.Gotham
+            none.TextSize = 10
+            none.TextXAlignment = Enum.TextXAlignment.Left
+            none.Parent = fruitListDisplay
+        end
+    end
+end)
+
+-- [TAB 3: PVP & ESP]
 local pvpPage = tabPages["PVP-ESP"]
 
 createToggle(pvpPage, "speed_toggle", false, function(v) speedEnabled = v end)
@@ -1181,10 +1453,9 @@ createToggle(pvpPage, "chest_wood", false, function(v) espChest1Enabled = v end)
 createToggle(pvpPage, "chest_gold", false, function(v) espChest2Enabled = v end)
 createToggle(pvpPage, "chest_diamond", false, function(v) espChest3Enabled = v end)
 
--- [TAB 3: SERVER]
+-- [TAB 4: SERVER]
 local serverPage = tabPages["Server"]
 
--- TÍNH NĂNG NHẬP TOÀN BỘ CODE GAME
 local gameCodes = {
     "ADMINHACKED", "ADMINDARES", "SECRET_ADMIN", "NOOB2PRO", "StrawHatMaine",
     "Sub2Fer999", "Enyu_is_Pro", "Magicbus", "JCWK", "Starcodeheo",
@@ -1197,9 +1468,7 @@ local gameCodes = {
 createButton(serverPage, "redeem_codes", function()
     task.spawn(function()
         for _, code in ipairs(gameCodes) do
-            pcall(function()
-                CommF:InvokeServer("RedeemCustomCode", code)
-            end)
+            pcall(function() CommF:InvokeServer("RedeemCustomCode", code) end)
             task.wait(0.1)
         end
     end)
@@ -1225,35 +1494,40 @@ createButton(serverPage, "serverhop_btn", function()
     end
 end)
 
--- [TAB 4: RAID]
+-- [TAB 5: RAID]
 local raidPage = tabPages["RAID"]
 createToggle(raidPage, "auto_raid_start", false, function(v) end)
 createToggle(raidPage, "auto_raid_kill", false, function(v) end)
 
--- [TAB 5: FARM ITEM]
+-- [TAB 6: FARM ITEM]
 local farmItemPage = tabPages["FARM ITEM"]
 createToggle(farmItemPage, "auto_bones", false, function(v) end)
 createToggle(farmItemPage, "auto_chest", false, function(v) end)
 
--- [TAB 6: SETTING]
+-- [TAB 7: SETTING]
 local settingPage = tabPages["SETTING"]
 
 local langFrame = Instance.new("Frame")
-langFrame.Size = UDim2.new(0.92, 0, 0, 46)
-langFrame.BackgroundColor3 = Color3.fromRGB(22, 26, 36)
-langFrame.BackgroundTransparency = 0.3
+langFrame.Size = UDim2.new(0.94, 0, 0, 36)
+langFrame.BackgroundColor3 = Color3.fromRGB(16, 20, 28)
+langFrame.BackgroundTransparency = 0.2
 langFrame.BorderSizePixel = 0
 langFrame.Parent = settingPage
 
 local langCorner = Instance.new("UICorner")
-langCorner.CornerRadius = UDim.new(0, 5)
+langCorner.CornerRadius = UDim.new(0, 6)
 langCorner.Parent = langFrame
+
+local langStroke = Instance.new("UIStroke")
+langStroke.Color = Color3.fromRGB(28, 34, 48)
+langStroke.Thickness = 1
+langStroke.Parent = langFrame
 
 local langLabel = Instance.new("TextLabel")
 langLabel.Size = UDim2.new(0.48, 0, 1, 0)
 langLabel.Position = UDim2.new(0, 10, 0, 0)
 langLabel.BackgroundTransparency = 1
-langLabel.TextColor3 = Color3.fromRGB(230, 230, 230)
+langLabel.TextColor3 = Color3.fromRGB(220, 225, 235)
 langLabel.Font = Enum.Font.Gotham
 langLabel.TextSize = 11
 langLabel.TextXAlignment = Enum.TextXAlignment.Left
@@ -1263,7 +1537,7 @@ registerText(langLabel, "lang_title")
 local vnBtn = Instance.new("TextButton")
 vnBtn.Size = UDim2.new(0.22, 0, 0.7, 0)
 vnBtn.Position = UDim2.new(0.52, 0, 0.15, 0)
-vnBtn.BackgroundColor3 = (currentLang == "VI") and Color3.fromRGB(0, 180, 255) or Color3.fromRGB(35, 40, 55)
+vnBtn.BackgroundColor3 = (currentLang == "VI") and Color3.fromRGB(0, 180, 255) or Color3.fromRGB(24, 28, 40)
 vnBtn.Text = "🇻🇳 VN"
 vnBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 vnBtn.Font = Enum.Font.GothamBold
@@ -1278,7 +1552,7 @@ vnC.Parent = vnBtn
 local enBtn = Instance.new("TextButton")
 enBtn.Size = UDim2.new(0.22, 0, 0.7, 0)
 enBtn.Position = UDim2.new(0.76, 0, 0.15, 0)
-enBtn.BackgroundColor3 = (currentLang == "EN") and Color3.fromRGB(0, 180, 255) or Color3.fromRGB(35, 40, 55)
+enBtn.BackgroundColor3 = (currentLang == "EN") and Color3.fromRGB(0, 180, 255) or Color3.fromRGB(24, 28, 40)
 enBtn.Text = "🇬🇧 EN"
 enBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 enBtn.Font = Enum.Font.GothamBold
@@ -1292,29 +1566,23 @@ enC.Parent = enBtn
 
 vnBtn.MouseButton1Click:Connect(function()
     vnBtn.BackgroundColor3 = Color3.fromRGB(0, 180, 255)
-    enBtn.BackgroundColor3 = Color3.fromRGB(35, 40, 55)
+    enBtn.BackgroundColor3 = Color3.fromRGB(24, 28, 40)
     setLanguage("VI")
-    for _, item in ipairs(translatableElements) do
-        if item.Update then item.Update() end
-    end
 end)
 
 enBtn.MouseButton1Click:Connect(function()
     enBtn.BackgroundColor3 = Color3.fromRGB(0, 180, 255)
-    vnBtn.BackgroundColor3 = Color3.fromRGB(35, 40, 55)
+    vnBtn.BackgroundColor3 = Color3.fromRGB(24, 28, 40)
     setLanguage("EN")
-    for _, item in ipairs(translatableElements) do
-        if item.Update then item.Update() end
-    end
 end)
 
 createSlider(settingPage, "ui_scale", 60, 140, 100, function(val)
     UIScale.Scale = val / 100
 end)
 
-createSlider(settingPage, "ui_transparency", 0, 80, 18, function(val)
+createSlider(settingPage, "ui_transparency", 0, 80, 12, function(val)
     MainFrame.BackgroundTransparency = val / 100
-    Sidebar.BackgroundTransparency = math.clamp((val + 10) / 100, 0, 1)
+    Sidebar.BackgroundTransparency = math.clamp((val + 8) / 100, 0, 1)
 end)
 
 createButton(settingPage, "fix_lag", function()
