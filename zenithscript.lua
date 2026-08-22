@@ -1,4 +1,4 @@
--- [[ ZENITH BLOX FRUIT - V18.4 (GPS ISLAND MAP + GOD MODE + FULL UI) ]] --
+-- [[ ZENITH BLOX FRUIT - V18.5 (FIXED ERROR BUG + GOD MODE) ]] --
 
 task.wait(0.5)
 
@@ -63,7 +63,7 @@ local AutoCollectFruit = false
 local AutoStoreFruit = false
 
 -- =========================================================
--- BẢN ĐỒ TỌA ĐỘ GPS CỨNG (BAY THẲNG ĐẾN ĐẢO KHÔNG CẦN QUÁI)
+-- BẢN ĐỒ TỌA ĐỘ GPS CỨNG
 -- =========================================================
 local IslandPositions = {
     ["Bandit"] = Vector3.new(1057, 16, 1378),
@@ -99,7 +99,7 @@ pcall(function() for _, gui in ipairs(targetUIFolder:GetChildren()) do if gui.Na
 pcall(function() for _, gui in ipairs(LocalPlayer:WaitForChild("PlayerGui"):GetChildren()) do if gui.Name == UI_NAME then gui:Destroy() end end end)
 
 -- =========================================================
--- MAIN GUI (GIAO DIỆN CHUẨN XÁC)
+-- MAIN GUI
 -- =========================================================
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = UI_NAME; ScreenGui.ResetOnSpawn = false
@@ -140,7 +140,7 @@ local TopStroke = Instance.new("UIStroke", TopBar); TopStroke.Color = Color3.fro
 
 local Title = Instance.new("TextLabel", TopBar)
 Title.Size = UDim2.new(0, 240, 1, 0); Title.Position = UDim2.new(0, 15, 0, 0); Title.BackgroundTransparency = 1; Title.RichText = true; Title.TextColor3 = Color3.fromRGB(255, 255, 255); Title.Font = Enum.Font.GothamBold; Title.TextSize = 12; Title.TextXAlignment = Enum.TextXAlignment.Left
-Title.Text = "ZYROX VN <font color='#00d2ff'>• V18.4 (GPS MAP)</font>"
+Title.Text = "ZYROX VN <font color='#00d2ff'>• V18.5 (FINAL FIX)</font>"
 
 local StatsFrame = Instance.new("Frame", TopBar)
 StatsFrame.Size = UDim2.new(0, 120, 0, 24); StatsFrame.Position = UDim2.new(1, -190, 0.5, -12); StatsFrame.BackgroundColor3 = Color3.fromRGB(22, 26, 38); StatsFrame.BorderSizePixel = 0; Instance.new("UICorner", StatsFrame).CornerRadius = UDim.new(0, 6)
@@ -464,7 +464,7 @@ local function getAutoQuestByLevel()
     elseif level <= 74 then return {QuestName = "DesertQuest", QuestLevel = 1, MonName = "Desert Bandit", ReqLevel = 60}
     elseif level <= 89 then return {QuestName = "DesertQuest", QuestLevel = 2, MonName = "Desert Officer", ReqLevel = 75}
     elseif level <= 99 then return {QuestName = "SnowQuest", QuestLevel = 1, MonName = "Snow Bandit", ReqLevel = 90}
-    elseif level <= 119 then return {QuestName = "SnowQuest", Dump = 2, QuestLevel = 2, MonName = "Snowman", ReqLevel = 100}
+    elseif level <= 119 then return {QuestName = "SnowQuest", QuestLevel = 2, MonName = "Snowman", ReqLevel = 100}
     elseif level <= 149 then return {QuestName = "MarineQuest2", QuestLevel = 1, MonName = "Chief Petty Officer", ReqLevel = 120}
     elseif level <= 174 then return {QuestName = "SkyQuest", QuestLevel = 1, MonName = "Sky Bandit", ReqLevel = 150}
     elseif level <= 189 then return {QuestName = "SkyQuest", QuestLevel = 2, MonName = "Dark Master", ReqLevel = 175}
@@ -527,7 +527,6 @@ task.spawn(function()
                     end
                     targetPos = CFrame.new(lockedFarmPosition.Position.X, lockedFarmPosition.Position.Y + 30, lockedFarmPosition.Position.Z)
                 elseif IslandPositions[mobName] then
-                    -- NẾU QUÁI CHƯA LOAD RA, BAY THẲNG ĐẾN TỌA ĐỘ GPS CỐ ĐỊNH CỦA ĐẢO ĐÓ
                     targetPos = CFrame.new(IslandPositions[mobName] + Vector3.new(0, 30, 0))
                 end
 
