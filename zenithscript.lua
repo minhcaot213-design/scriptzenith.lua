@@ -1,5 +1,6 @@
--- [[ ZENITH BLOX FRUIT - V12.1 (PRO FAST ATTACK & BRIGHT UI FIX) ]] --
+-- [[ ZENITH BLOX FRUIT - V12.2 (FIX LỖI KHÔNG HIỆN MENU + FAST ATTACK) ]] --
 
+task.wait(1) -- Đợi 1 giây để Executor và Game load hoàn toàn tránh lỗi tịt GUI
 if not game:IsLoaded() then game.Loaded:Wait() end
 
 local Players = game:GetService("Players")
@@ -17,14 +18,15 @@ local CommF = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("CommF_")
 local Camera = Workspace.CurrentCamera
 
 -- ===================================================
--- 0. DỌN DẸP INSTANCE CŨ (CLEANUP & SAFE GUI)
+-- 0. DỌN DẸP INSTANCE CŨ (ÉP HIỂN THỊ GUI 100%)
 -- ===================================================
 local UI_NAME = "ZenithBloxFruit_Zyrox_V12"
+
+-- Fix triệt để lỗi không hiện Panel trên Mobile Executors
 local function getSafeParent()
-    if gethui then return gethui() end
-    local success, coreGui = pcall(function() return game:GetService("CoreGui") end)
-    if success and coreGui then return coreGui end
-    return LocalPlayer:WaitForChild("PlayerGui")
+    local success, core = pcall(function() return game:GetService("CoreGui") end)
+    if success and core then return core end
+    return LocalPlayer:WaitForChild("PlayerGui", 10)
 end
 
 local parentGui = getSafeParent()
@@ -127,11 +129,7 @@ local function setLanguage(lang)
     currentLang = lang
     for _, item in ipairs(translatableElements) do
         if item.Label and item.Label.Parent then
-            if item.Update then
-                item.Update()
-            else
-                item.Label.Text = LangDict[currentLang][item.Key]
-            end
+            if item.Update then item.Update() else item.Label.Text = LangDict[currentLang][item.Key] end
         end
     end
 end
@@ -173,11 +171,7 @@ end)
 -- ===================================================
 local function getAutoQuestByLevel()
     local level = 1
-    pcall(function()
-        if LocalPlayer:FindFirstChild("Data") and LocalPlayer.Data:FindFirstChild("Level") then
-            level = LocalPlayer.Data.Level.Value
-        end
-    end)
+    pcall(function() if LocalPlayer:FindFirstChild("Data") and LocalPlayer.Data:FindFirstChild("Level") then level = LocalPlayer.Data.Level.Value end end)
     if level >= 1 and level <= 9 then return {QuestName = "BanditQuest1", QuestLevel = 1, MonName = "Bandit", ReqLevel = 1}
     elseif level >= 10 and level <= 14 then return {QuestName = "JungleQuest", QuestLevel = 1, MonName = "Monkey", ReqLevel = 10}
     elseif level >= 15 and level <= 29 then return {QuestName = "JungleQuest", QuestLevel = 2, MonName = "Gorilla", ReqLevel = 15}
@@ -243,8 +237,7 @@ local function refreshChestList()
     detectedChests = {}
     for _, obj in ipairs(Workspace:GetDescendants()) do
         if obj:IsA("BasePart") then
-            local name = string.lower(obj.Name)
-            local pName = obj.Parent and string.lower(obj.Parent.Name) or ""
+            local name, pName = string.lower(obj.Name), obj.Parent and string.lower(obj.Parent.Name) or ""
             if string.find(name, "chest") or string.find(pName, "chest") then
                 local tier = 1
                 if string.find(name, "3") or string.find(pName, "3") or string.find(name, "diamond") then tier = 3
@@ -259,21 +252,16 @@ task.spawn(function() while true do refreshChestList() task.wait(3) end end)
 local function updatePlayerESP()
     for _, p in ipairs(Players:GetPlayers()) do
         if p ~= LocalPlayer and p.Character then
-            local char = p.Character
-            local head = char:FindFirstChild("Head")
-            local hum = char:FindFirstChildOfClass("Humanoid")
+            local char, head, hum = p.Character, p.Character:FindFirstChild("Head"), p.Character:FindFirstChildOfClass("Humanoid")
             local myHRP = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
             if espPlayerEnabled and head and hum and myHRP and hum.Health > 0 then
                 local dist = math.floor((head.Position - myHRP.Position).Magnitude)
                 local bbGui = head:FindFirstChild("Zenith_PlayerBillboard")
                 if not bbGui then
                     bbGui = Instance.new("BillboardGui", head)
-                    bbGui.Name = "Zenith_PlayerBillboard"
-                    bbGui.Size, bbGui.StudsOffset, bbGui.AlwaysOnTop = UDim2.new(0, 200, 0, 45), Vector3.new(0, 2.8, 0), true
+                    bbGui.Name, bbGui.Size, bbGui.StudsOffset, bbGui.AlwaysOnTop = "Zenith_PlayerBillboard", UDim2.new(0, 200, 0, 45), Vector3.new(0, 2.8, 0), true
                     local txt = Instance.new("TextLabel", bbGui)
-                    txt.Name = "Info"
-                    txt.Size, txt.BackgroundTransparency = UDim2.new(1, 0, 1, 0), 1
-                    txt.Font, txt.TextSize, txt.TextColor3 = Enum.Font.GothamBold, 11, Color3.fromRGB(255, 60, 90)
+                    txt.Name, txt.Size, txt.BackgroundTransparency, txt.Font, txt.TextSize, txt.TextColor3 = "Info", UDim2.new(1, 0, 1, 0), 1, Enum.Font.GothamBold, 11, Color3.fromRGB(255, 60, 90)
                 end
                 bbGui.Info.Text = string.format("%s\n[%dm] • HP: %d/%d (%d%%)", p.DisplayName, dist, math.floor(hum.Health), math.floor(hum.MaxHealth), math.floor((hum.Health / hum.MaxHealth) * 100))
             else
@@ -298,11 +286,9 @@ task.spawn(function()
                         local b = handle:FindFirstChild("Zenith_FruitESP")
                         if not b then
                             b = Instance.new("BillboardGui", handle)
-                            b.Name = "Zenith_FruitESP"
-                            b.Size, b.StudsOffset, b.AlwaysOnTop = UDim2.new(0, 180, 0, 30), Vector3.new(0, 2, 0), true
+                            b.Name, b.Size, b.StudsOffset, b.AlwaysOnTop = "Zenith_FruitESP", UDim2.new(0, 180, 0, 30), Vector3.new(0, 2, 0), true
                             local t = Instance.new("TextLabel", b)
-                            t.Name, t.Size, t.BackgroundTransparency = "Label", UDim2.new(1, 0, 1, 0), 1
-                            t.Font, t.TextSize, t.TextColor3 = Enum.Font.GothamBold, 12, Color3.fromRGB(255, 70, 220)
+                            t.Name, t.Size, t.BackgroundTransparency, t.Font, t.TextSize, t.TextColor3 = "Label", UDim2.new(1, 0, 1, 0), 1, Enum.Font.GothamBold, 12, Color3.fromRGB(255, 70, 220)
                         end
                         b.Label.Text = string.format("🍎 %s\n[%dm]", obj.Name, math.floor((handle.Position - myHRP.Position).Magnitude))
                     else
@@ -320,8 +306,7 @@ task.spawn(function()
                     local b = rootPart:FindFirstChild("Zenith_ChestESP")
                     if not b then
                         b = Instance.new("BillboardGui", rootPart)
-                        b.Name = "Zenith_ChestESP"
-                        b.Size, b.StudsOffset, b.AlwaysOnTop = UDim2.new(0, 160, 0, 25), Vector3.new(0, 2, 0), true
+                        b.Name, b.Size, b.StudsOffset, b.AlwaysOnTop = "Zenith_ChestESP", UDim2.new(0, 160, 0, 25), Vector3.new(0, 2, 0), true
                         local t = Instance.new("TextLabel", b)
                         t.Name, t.Size, t.BackgroundTransparency, t.Font, t.TextSize = "Label", UDim2.new(1, 0, 1, 0), 1, Enum.Font.GothamBold, 11
                     end
@@ -336,7 +321,7 @@ task.spawn(function()
 end)
 
 -- ===================================================
--- 6. PERFECT FAST ATTACK HACK ENGINE (NO CLICK / STAND STILL)
+-- 6. PERFECT FAST ATTACK HACK ENGINE (KHÔNG CLICK CHUỘT)
 -- ===================================================
 local currentTween = nil
 local isAttackingTarget = false
@@ -344,11 +329,10 @@ local isAttackingTarget = false
 local function executeFastAttack()
     local char = LocalPlayer.Character
     if not char then return end
-
     local tool = char:FindFirstChildOfClass("Tool")
     if not tool then return end
     
-    -- Hack thẳng CombatFramework để ra đòn ngay lập tức, không cần click chuột
+    -- Xoá delay và gửi Packet trực tiếp lên server
     pcall(function()
         local CombatFramework = require(LocalPlayer.PlayerScripts.CombatFramework)
         local activeController = CombatFramework.activeController
@@ -360,8 +344,6 @@ local function executeFastAttack()
             activeController.increment = 3
             activeController.blocking = false
             activeController.hasCombatState = false
-
-            -- Gửi lệnh chém lên Server (No Click)
             activeController:attack()
         end
     end)
@@ -372,15 +354,12 @@ local function executeFastAttack()
         if humanoid then
             for _, anim in ipairs(humanoid:GetPlayingAnimationTracks()) do
                 local n = anim.Name
-                if n == "Attack" or n == "Slash" or n == "Punch" or n == "Combat" or n == "M1" then
-                    anim:Stop()
-                end
+                if n == "Attack" or n == "Slash" or n == "Punch" or n == "Combat" or n == "M1" then anim:Stop() end
             end
         end
     end)
 end
 
--- Vòng lặp Fast Attack (Chớp nhoáng 0.08s - Chuẩn hack)
 task.spawn(function()
     while true do
         if AutoFarmLevel and isAttackingTarget then
@@ -396,9 +375,8 @@ local function toTargetPos(targetCFrame)
     local char = LocalPlayer.Character
     if not char or not char:FindFirstChild("HumanoidRootPart") then return end
     local root = char.HumanoidRootPart
-    local distance = (root.Position - targetCFrame.Position).Magnitude
     local speed = 300 
-    local time = distance / speed
+    local time = (root.Position - targetCFrame.Position).Magnitude / speed
     if currentTween then currentTween:Cancel() end
     currentTween = TweenService:Create(root, TweenInfo.new(time, Enum.EasingStyle.Linear), {CFrame = targetCFrame})
     currentTween:Play()
@@ -415,18 +393,15 @@ end)
 local function equipChosenWeapon()
     local char = LocalPlayer.Character
     if not char then return nil end
-    local backpack = LocalPlayer:FindFirstChild("Backpack")
-    local humanoid = char:FindFirstChildOfClass("Humanoid")
+    local backpack, humanoid = LocalPlayer:FindFirstChild("Backpack"), char:FindFirstChildOfClass("Humanoid")
     if not humanoid then return nil end
-    
     for _, item in ipairs(char:GetChildren()) do
         if item:IsA("Tool") and (item.ToolTip == selectedWeaponType or (selectedWeaponType == "Melee" and (item.ToolTip == "Melee" or item.ToolTip == "Combat" or item.Name == "Combat" or item.Name == "Võ Tân Binh"))) then return item end
     end
     if backpack then
         for _, tool in ipairs(backpack:GetChildren()) do
             if tool:IsA("Tool") and (tool.ToolTip == selectedWeaponType or (selectedWeaponType == "Melee" and (tool.ToolTip == "Melee" or tool.ToolTip == "Combat" or tool.Name == "Combat" or tool.Name == "Võ Tân Binh"))) then
-                humanoid:EquipTool(tool)
-                return tool
+                humanoid:EquipTool(tool) return tool
             end
         end
     end
@@ -434,22 +409,16 @@ local function equipChosenWeapon()
 end
 
 local function checkHasQuest()
-    local playerGui = LocalPlayer:FindFirstChild("PlayerGui")
-    if playerGui and playerGui:FindFirstChild("Main") then
-        local questFrame = playerGui.Main:FindFirstChild("Quest")
-        return (questFrame and questFrame.Visible)
-    end
-    return false
+    local pGui = LocalPlayer:FindFirstChild("PlayerGui")
+    return pGui and pGui:FindFirstChild("Main") and pGui.Main:FindFirstChild("Quest") and pGui.Main.Quest.Visible or false
 end
 
 local function getAllLivingEnemies(monName)
-    local list = {}
-    local enemies = Workspace:FindFirstChild("Enemies")
+    local list, enemies = {}, Workspace:FindFirstChild("Enemies")
     if not enemies then return list end
     for _, mob in ipairs(enemies:GetChildren()) do
         if string.find(mob.Name, monName) then
-            local hum = mob:FindFirstChildOfClass("Humanoid")
-            local hrp = mob:FindFirstChild("HumanoidRootPart")
+            local hum, hrp = mob:FindFirstChildOfClass("Humanoid"), mob:FindFirstChild("HumanoidRootPart")
             if hum and hrp and hum.Health > 0 then table.insert(list, mob) end
         end
     end
@@ -462,68 +431,43 @@ task.spawn(function()
         if AutoFarmLevel and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
             local currentQuest = getAutoQuestByLevel()
             if currentQuest then
-                if AutoQuest and not checkHasQuest() then
-                    CommF:InvokeServer("StartQuest", currentQuest.QuestName, currentQuest.QuestLevel)
-                    task.wait(0.3)
-                end
+                if AutoQuest and not checkHasQuest() then CommF:InvokeServer("StartQuest", currentQuest.QuestName, currentQuest.QuestLevel) task.wait(0.3) end
                 local mobList = getAllLivingEnemies(currentQuest.MonName)
                 if #mobList > 0 then
                     equipChosenWeapon()
-                    local primaryMob = mobList[1]
-                    local primaryHRP = primaryMob:FindFirstChild("HumanoidRootPart")
+                    local primaryHRP = mobList[1]:FindFirstChild("HumanoidRootPart")
                     local myHRP = LocalPlayer.Character.HumanoidRootPart
-
                     if primaryHRP then
                         local clusterPosition = primaryHRP.Position
                         local targetCFrame = CFrame.new(clusterPosition + Vector3.new(0, 1.5, 3.5), clusterPosition)
-                        local dist = (myHRP.Position - clusterPosition).Magnitude
-
-                        if dist > 15 then
+                        if (myHRP.Position - clusterPosition).Magnitude > 15 then
                             isAttackingTarget = false
                             toTargetPos(targetCFrame)
                         else
                             if currentTween then currentTween:Cancel() end
-                            if (myHRP.Position - targetCFrame.Position).Magnitude > 2.5 then
-                                myHRP.CFrame = targetCFrame
-                            end
+                            if (myHRP.Position - targetCFrame.Position).Magnitude > 2.5 then myHRP.CFrame = targetCFrame end
                             myHRP.AssemblyLinearVelocity = Vector3.zero
                             isAttackingTarget = true
-
                             if BringMob then
                                 for _, otherMob in ipairs(mobList) do
-                                    local oHRP = otherMob:FindFirstChild("HumanoidRootPart")
-                                    local oHum = otherMob:FindFirstChildOfClass("Humanoid")
-                                    if oHRP and oHum and oHum.Health > 0 then
-                                        if (oHRP.Position - clusterPosition).Magnitude <= 320 then
-                                            oHRP.CFrame = CFrame.new(clusterPosition)
-                                            oHRP.AssemblyLinearVelocity = Vector3.zero
-                                            oHRP.CanCollide = false
-                                        end
+                                    local oHRP, oHum = otherMob:FindFirstChild("HumanoidRootPart"), otherMob:FindFirstChildOfClass("Humanoid")
+                                    if oHRP and oHum and oHum.Health > 0 and (oHRP.Position - clusterPosition).Magnitude <= 320 then
+                                        oHRP.CFrame, oHRP.AssemblyLinearVelocity, oHRP.CanCollide = CFrame.new(clusterPosition), Vector3.zero, false
                                     end
                                 end
                             end
                         end
                     end
-                else
-                    isAttackingTarget = false
-                end
+                else isAttackingTarget = false end
             end
-        else
-            isAttackingTarget = false
-            if currentTween then currentTween:Cancel() end
-        end
+        else isAttackingTarget = false if currentTween then currentTween:Cancel() end end
     end
 end)
 
 -- ===================================================
 -- 7. MODULE FRUIT (RANDOM, COLLECT, STORE)
 -- ===================================================
-task.spawn(function()
-    while true do
-        task.wait(5)
-        if AutoRandomFruit then pcall(function() CommF:InvokeServer("Cousin", "Buy") end) end
-    end
-end)
+task.spawn(function() while true do task.wait(5) if AutoRandomFruit then pcall(function() CommF:InvokeServer("Cousin", "Buy") end) end end end)
 task.spawn(function()
     while true do
         task.wait(1)
@@ -532,13 +476,8 @@ task.spawn(function()
                 if (obj:IsA("Tool") and string.find(obj.Name, "Fruit")) or obj:FindFirstChild("Fruit") then
                     local handle = obj:FindFirstChild("Handle") or obj:FindFirstChildWhichIsA("BasePart")
                     if handle then
-                        toTargetPos(handle.CFrame)
-                        task.wait(0.5)
-                        if firetouchinterest then
-                            firetouchinterest(LocalPlayer.Character.HumanoidRootPart, handle, 0)
-                            task.wait()
-                            firetouchinterest(LocalPlayer.Character.HumanoidRootPart, handle, 1)
-                        end
+                        toTargetPos(handle.CFrame) task.wait(0.5)
+                        if firetouchinterest then firetouchinterest(LocalPlayer.Character.HumanoidRootPart, handle, 0) task.wait() firetouchinterest(LocalPlayer.Character.HumanoidRootPart, handle, 1) end
                     end
                 end
             end
@@ -550,52 +489,33 @@ task.spawn(function()
         task.wait(2)
         if AutoStoreFruit then
             pcall(function()
-                local backpack = LocalPlayer:FindFirstChild("Backpack")
-                local char = LocalPlayer.Character
-                if backpack then
-                    for _, item in ipairs(backpack:GetChildren()) do
-                        if string.find(item.Name, "Fruit") or item:FindFirstChild("Fruit") then CommF:InvokeServer("StoreFruit", item.Name, item) end
-                    end
-                end
-                if char then
-                    for _, item in ipairs(char:GetChildren()) do
-                        if item:IsA("Tool") and (string.find(item.Name, "Fruit") or item:FindFirstChild("Fruit")) then CommF:InvokeServer("StoreFruit", item.Name, item) end
-                    end
-                end
+                local backpack, char = LocalPlayer:FindFirstChild("Backpack"), LocalPlayer.Character
+                if backpack then for _, item in ipairs(backpack:GetChildren()) do if string.find(item.Name, "Fruit") or item:FindFirstChild("Fruit") then CommF:InvokeServer("StoreFruit", item.Name, item) end end end
+                if char then for _, item in ipairs(char:GetChildren()) do if item:IsA("Tool") and (string.find(item.Name, "Fruit") or item:FindFirstChild("Fruit")) then CommF:InvokeServer("StoreFruit", item.Name, item) end end end
             end)
         end
     end
 end)
 
 -- ===================================================
--- 8. GIAO DIỆN CYBERPUNK BRIGHT TABS FIX
+-- 8. GIAO DIỆN CYBERPUNK BRIGHT TABS
 -- ===================================================
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = UI_NAME
-ScreenGui.ResetOnSpawn = false
-ScreenGui.Parent = parentGui
+ScreenGui.Name, ScreenGui.ResetOnSpawn, ScreenGui.Parent = UI_NAME, false, parentGui
 
-local FULL_HEIGHT, MIN_HEIGHT = 310, 38
-local isMinimized = false
-
+local FULL_HEIGHT, MIN_HEIGHT, isMinimized = 310, 38, false
 local MainFrame = Instance.new("Frame", ScreenGui)
-MainFrame.Size, MainFrame.AnchorPoint = UDim2.new(0, 520, 0, FULL_HEIGHT), Vector2.new(0.5, 0.5)
-MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-MainFrame.BackgroundColor3, MainFrame.BackgroundTransparency = Color3.fromRGB(11, 13, 19), 0.12
-MainFrame.BorderSizePixel, MainFrame.Active, MainFrame.ClipsDescendants = 0, true, true
-
+MainFrame.Size, MainFrame.AnchorPoint, MainFrame.Position = UDim2.new(0, 520, 0, FULL_HEIGHT), Vector2.new(0.5, 0.5), UDim2.new(0.5, 0, 0.5, 0)
+MainFrame.BackgroundColor3, MainFrame.BackgroundTransparency, MainFrame.BorderSizePixel, MainFrame.Active, MainFrame.ClipsDescendants = Color3.fromRGB(11, 13, 19), 0.12, 0, true, true
 local UIScale = Instance.new("UIScale", MainFrame)
 UIScale.Scale = 1.0
 Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 10)
 local MainStroke = Instance.new("UIStroke", MainFrame)
 MainStroke.Color, MainStroke.Transparency, MainStroke.Thickness = Color3.fromRGB(30, 36, 50), 0.2, 1.2
 
--- Kéo thả cửa sổ
 local isDraggingWindow, dragStartPos, frameStartPos = false, nil, nil
 MainFrame.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        isDraggingWindow, dragStartPos, frameStartPos = true, input.Position, MainFrame.Position
-    end
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then isDraggingWindow, dragStartPos, frameStartPos = true, input.Position, MainFrame.Position end
 end)
 UserInputService.InputEnded:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then isDraggingWindow = false end
@@ -607,7 +527,6 @@ UserInputService.InputChanged:Connect(function(input)
     end
 end)
 
--- TopBar
 local TopBar = Instance.new("Frame", MainFrame)
 TopBar.Size, TopBar.BackgroundColor3, TopBar.BackgroundTransparency, TopBar.BorderSizePixel = UDim2.new(1, 0, 0, 38), Color3.fromRGB(15, 18, 26), 0.2, 0
 local TopBarStroke = Instance.new("Frame", TopBar)
@@ -631,7 +550,6 @@ CloseBtn.Size, CloseBtn.Position, CloseBtn.BackgroundColor3, CloseBtn.Text, Clos
 Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(0, 5)
 CloseBtn.MouseButton1Click:Connect(function() ScreenGui:Destroy() end)
 
--- Sidebar
 local Sidebar = Instance.new("Frame", MainFrame)
 Sidebar.Size, Sidebar.Position, Sidebar.BackgroundColor3, Sidebar.BackgroundTransparency, Sidebar.BorderSizePixel, Sidebar.ZIndex = UDim2.new(0, 140, 1, -38), UDim2.new(0, 0, 0, 38), Color3.fromRGB(13, 15, 22), 0.15, 0, 2
 local SidebarRightBorder = Instance.new("Frame", MainFrame)
@@ -640,7 +558,6 @@ local TabListLayout = Instance.new("UIListLayout", Sidebar)
 TabListLayout.Padding, TabListLayout.HorizontalAlignment = UDim.new(0, 3), Enum.HorizontalAlignment.Center
 Instance.new("UIPadding", Sidebar).PaddingTop = UDim.new(0, 6)
 
--- Content Container
 local ContentContainer = Instance.new("Frame", MainFrame)
 ContentContainer.Size, ContentContainer.Position, ContentContainer.BackgroundTransparency, ContentContainer.ZIndex = UDim2.new(1, -140, 1, -38), UDim2.new(0, 140, 0, 38), 1, 1
 
@@ -655,9 +572,7 @@ MinBtn.MouseButton1Click:Connect(function()
     end
 end)
 
-local tabButtons = {}
-local tabPages = {}
-
+local tabButtons, tabPages = {}, {}
 local function createPage(name)
     local page = Instance.new("ScrollingFrame", ContentContainer)
     page.Size, page.BackgroundTransparency, page.ScrollBarThickness, page.ScrollBarImageColor3, page.BorderSizePixel, page.Visible, page.AutomaticCanvasSize = UDim2.new(1, 0, 1, 0), 1, 2, Color3.fromRGB(0, 180, 255), 0, false, Enum.AutomaticSize.Y
@@ -665,22 +580,15 @@ local function createPage(name)
     layout.Padding, layout.HorizontalAlignment = UDim.new(0, 6), Enum.HorizontalAlignment.Center
     local pad = Instance.new("UIPadding", page)
     pad.PaddingTop, pad.PaddingBottom = UDim.new(0, 8), UDim.new(0, 8)
-    tabPages[name] = page
-    return page
+    tabPages[name] = page return page
 end
 
 local function switchTab(name)
     for tName, item in pairs(tabButtons) do
         if tName == name then
-            -- Nổi Bật Tab Đang Chọn (Màu Xanh Đậm Thay Vì Đen Tối)
-            item.Button.BackgroundColor3 = Color3.fromRGB(45, 120, 255)
-            item.Button.TextColor3 = Color3.fromRGB(255, 255, 255)
-            item.Pill.Visible = true
+            item.Button.BackgroundColor3, item.Button.TextColor3, item.Pill.Visible = Color3.fromRGB(45, 120, 255), Color3.fromRGB(255, 255, 255), true
         else
-            -- Sáng Lên Chút Cho Tab Chưa Chọn
-            item.Button.BackgroundColor3 = Color3.fromRGB(28, 35, 48)
-            item.Button.TextColor3 = Color3.fromRGB(180, 190, 210)
-            item.Pill.Visible = false
+            item.Button.BackgroundColor3, item.Button.TextColor3, item.Pill.Visible = Color3.fromRGB(28, 35, 48), Color3.fromRGB(180, 190, 210), false
         end
     end
     for pName, page in pairs(tabPages) do page.Visible = (pName == name) end
@@ -688,23 +596,15 @@ end
 
 local function createTabButton(name, icon, transKey)
     local btn = Instance.new("TextButton", Sidebar)
-    btn.Size = UDim2.new(0.92, 0, 0, 28)
-    btn.BackgroundColor3 = Color3.fromRGB(28, 35, 48) -- Sáng Hơn
-    btn.BorderSizePixel = 0
-    btn.TextColor3 = Color3.fromRGB(180, 190, 210)
-    btn.Font, btn.TextSize, btn.TextXAlignment = Enum.Font.GothamMedium, 11, Enum.TextXAlignment.Left
+    btn.Size, btn.BackgroundColor3, btn.BorderSizePixel, btn.TextColor3, btn.Font, btn.TextSize, btn.TextXAlignment = UDim2.new(0.92, 0, 0, 28), Color3.fromRGB(28, 35, 48), 0, Color3.fromRGB(180, 190, 210), Enum.Font.GothamMedium, 11, Enum.TextXAlignment.Left
     Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 5)
     Instance.new("UIPadding", btn).PaddingLeft = UDim.new(0, 10)
-
     local pill = Instance.new("Frame", btn)
     pill.Size, pill.Position, pill.BackgroundColor3, pill.BorderSizePixel, pill.Visible = UDim2.new(0, 3, 0, 14), UDim2.new(0, -7, 0.5, -7), Color3.fromRGB(255, 255, 255), 0, false
     Instance.new("UICorner", pill).CornerRadius = UDim.new(1, 0)
-
     local entry = {Label = btn, Key = transKey, Button = btn, Pill = pill, Update = function() btn.Text = icon .. "  " .. LangDict[currentLang][transKey] end}
-    table.insert(translatableElements, entry)
-    btn.Text = icon .. "  " .. LangDict[currentLang][transKey]
-    tabButtons[name] = entry
-    btn.MouseButton1Click:Connect(function() switchTab(name) end)
+    table.insert(translatableElements, entry) btn.Text = icon .. "  " .. LangDict[currentLang][transKey]
+    tabButtons[name] = entry btn.MouseButton1Click:Connect(function() switchTab(name) end)
 end
 
 local function createToggle(page, transKey, defaultState, callback)
@@ -713,21 +613,17 @@ local function createToggle(page, transKey, defaultState, callback)
     frame.Size, frame.BackgroundColor3, frame.BackgroundTransparency, frame.BorderSizePixel = UDim2.new(0.94, 0, 0, 34), Color3.fromRGB(16, 20, 28), 0.2, 0
     Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 6)
     Instance.new("UIStroke", frame).Color = Color3.fromRGB(28, 34, 48)
-    
     local label = Instance.new("TextLabel", frame)
     label.Size, label.Position, label.BackgroundTransparency, label.TextColor3, label.Font, label.TextSize, label.TextXAlignment = UDim2.new(1, -50, 1, 0), UDim2.new(0, 10, 0, 0), 1, Color3.fromRGB(220, 225, 235), Enum.Font.Gotham, 11, Enum.TextXAlignment.Left
     registerText(label, transKey)
-
     local switch = Instance.new("TextButton", frame)
     switch.Size, switch.Position, switch.BackgroundColor3, switch.Text = UDim2.new(0, 32, 0, 16), UDim2.new(1, -40, 0.5, -8), state and Color3.fromRGB(0, 190, 255) or Color3.fromRGB(35, 40, 54), ""
     Instance.new("UICorner", switch).CornerRadius = UDim.new(1, 0)
     local circle = Instance.new("Frame", switch)
     circle.Size, circle.Position, circle.BackgroundColor3 = UDim2.new(0, 12, 0, 12), state and UDim2.new(1, -14, 0.5, -6) or UDim2.new(0, 2, 0.5, -6), Color3.fromRGB(255, 255, 255)
     Instance.new("UICorner", circle).CornerRadius = UDim.new(1, 0)
-
     switch.MouseButton1Click:Connect(function()
-        state = not state
-        switch.BackgroundColor3 = state and Color3.fromRGB(0, 190, 255) or Color3.fromRGB(35, 40, 54)
+        state = not state switch.BackgroundColor3 = state and Color3.fromRGB(0, 190, 255) or Color3.fromRGB(35, 40, 54)
         circle:TweenPosition(state and UDim2.new(1, -14, 0.5, -6) or UDim2.new(0, 2, 0.5, -6), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.15, true)
         if callback then callback(state) end
     end)
@@ -739,7 +635,6 @@ local function createSlider(page, transKey, min, max, default, callback)
     frame.Size, frame.BackgroundColor3, frame.BackgroundTransparency, frame.BorderSizePixel = UDim2.new(0.94, 0, 0, 44), Color3.fromRGB(16, 20, 28), 0.2, 0
     Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 6)
     Instance.new("UIStroke", frame).Color = Color3.fromRGB(28, 34, 48)
-
     local label = Instance.new("TextLabel", frame)
     label.Size, label.Position, label.BackgroundTransparency, label.TextColor3, label.Font, label.TextSize, label.TextXAlignment = UDim2.new(1, -70, 0, 20), UDim2.new(0, 10, 0, 3), 1, Color3.fromRGB(220, 225, 235), Enum.Font.Gotham, 11, Enum.TextXAlignment.Left
     registerText(label, transKey)
@@ -751,24 +646,14 @@ local function createSlider(page, transKey, min, max, default, callback)
     local fill = Instance.new("Frame", track)
     fill.Size, fill.BackgroundColor3 = UDim2.new((current - min) / (max - min), 0, 1, 0), Color3.fromRGB(0, 190, 255)
     Instance.new("UICorner", fill).CornerRadius = UDim.new(1, 0)
-
     local isDraggingSlider = false
     local function update(percent)
-        percent = math.clamp(percent, 0, 1)
-        fill.Size = UDim2.new(percent, 0, 1, 0)
-        current = math.floor(min + (max - min) * percent)
-        valueLabel.Text = tostring(current)
+        fill.Size = UDim2.new(math.clamp(percent, 0, 1), 0, 1, 0) current = math.floor(min + (max - min) * math.clamp(percent, 0, 1)) valueLabel.Text = tostring(current)
         if callback then callback(current) end
     end
-    track.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then isDraggingSlider, update((input.Position.X - track.AbsolutePosition.X) / track.AbsoluteSize.X) = true end
-    end)
-    UserInputService.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then isDraggingSlider = false end
-    end)
-    UserInputService.InputChanged:Connect(function(input)
-        if isDraggingSlider and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then update((UserInputService:GetMouseLocation().X - track.AbsolutePosition.X) / track.AbsoluteSize.X) end
-    end)
+    track.InputBegan:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then isDraggingSlider = true update((input.Position.X - track.AbsolutePosition.X) / track.AbsoluteSize.X) end end)
+    UserInputService.InputEnded:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then isDraggingSlider = false end end)
+    UserInputService.InputChanged:Connect(function(input) if isDraggingSlider and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then update((UserInputService:GetMouseLocation().X - track.AbsolutePosition.X) / track.AbsoluteSize.X) end end)
 end
 
 local function createButton(page, transKey, callback)
@@ -777,13 +662,9 @@ local function createButton(page, transKey, callback)
     Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
     local stroke = Instance.new("UIStroke", btn)
     stroke.Color, stroke.Transparency = Color3.fromRGB(0, 180, 255), 0.8
-    registerText(btn, transKey)
-    btn.MouseButton1Click:Connect(function() if callback then callback() end end)
+    registerText(btn, transKey) btn.MouseButton1Click:Connect(function() if callback then callback() end end)
 end
 
--- ===================================================
--- 9. TẠO CÁC DANH MỤC
--- ===================================================
 local cats = {{"Farm", "🌾", "tab_farm"}, {"Fruit", "🍎", "tab_fruit"}, {"PVP-ESP", "⚔️", "tab_pvp"}, {"Server", "🌐", "tab_server"}, {"RAID", "⚡", "tab_raid"}, {"FARM ITEM", "🗡️", "tab_item"}, {"SETTING", "⚙️", "tab_setting"}}
 for _, c in ipairs(cats) do createTabButton(c[1], c[2], c[3]) createPage(c[1]) end
 
@@ -803,8 +684,7 @@ task.spawn(function()
     while true do
         task.wait(1)
         local curQuest = getAutoQuestByLevel()
-        local pLevel = 1
-        pcall(function() pLevel = LocalPlayer.Data.Level.Value end)
+        local pLevel = 1 pcall(function() pLevel = LocalPlayer.Data.Level.Value end)
         if curQuest then infoLabel.Text = string.format("Level: <font color='#00d2ff'><b>%d</b></font>  |  Mục Tiêu:\nQuái: <font color='#ffb703'><b>%s</b></font> (Yêu Cầu Lv.%d)", pLevel, curQuest.MonName, curQuest.ReqLevel) end
     end
 end)
@@ -826,8 +706,7 @@ for _, wData in ipairs(weaponList) do
     b.MouseButton1Click:Connect(function()
         selectedWeaponType = wData.name
         for name, btn in pairs(weaponBtns) do
-            btn.BackgroundColor3 = (name == wData.name) and Color3.fromRGB(0, 160, 240) or Color3.fromRGB(28, 35, 48)
-            btn.TextColor3 = (name == wData.name) and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(140, 150, 170)
+            btn.BackgroundColor3, btn.TextColor3 = (name == wData.name) and Color3.fromRGB(0, 160, 240) or Color3.fromRGB(28, 35, 48), (name == wData.name) and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(140, 150, 170)
         end
     end)
 end
@@ -869,37 +748,30 @@ task.spawn(function()
     end
 end)
 
--- [TAB 3: PVP-ESP]
-local pvpPage = tabPages["PVP-ESP"]
-createToggle(pvpPage, "speed_toggle", false, function(v) speedEnabled = v end)
-createSlider(pvpPage, "speed_slider", 16, 300, 16, function(val) speedValue = val end)
-createToggle(pvpPage, "jump_toggle", false, function(v) jumpEnabled = v end)
-createSlider(pvpPage, "jump_slider", 50, 400, 50, function(val) jumpValue = val end)
-createToggle(pvpPage, "player_esp", false, function(v) espPlayerEnabled = v end)
-createToggle(pvpPage, "fruit_esp", false, function(v) espFruitEnabled = v end)
-createToggle(pvpPage, "chest_wood", false, function(v) espChest1Enabled = v end)
-createToggle(pvpPage, "chest_gold", false, function(v) espChest2Enabled = v end)
-createToggle(pvpPage, "chest_diamond", false, function(v) espChest3Enabled = v end)
+-- [TAB 3: PVP-ESP, SERVER, RAID, ITEM, SETTINGS]
+createToggle(tabPages["PVP-ESP"], "speed_toggle", false, function(v) speedEnabled = v end)
+createSlider(tabPages["PVP-ESP"], "speed_slider", 16, 300, 16, function(val) speedValue = val end)
+createToggle(tabPages["PVP-ESP"], "jump_toggle", false, function(v) jumpEnabled = v end)
+createSlider(tabPages["PVP-ESP"], "jump_slider", 50, 400, 50, function(val) jumpValue = val end)
+createToggle(tabPages["PVP-ESP"], "player_esp", false, function(v) espPlayerEnabled = v end)
+createToggle(tabPages["PVP-ESP"], "fruit_esp", false, function(v) espFruitEnabled = v end)
+createToggle(tabPages["PVP-ESP"], "chest_wood", false, function(v) espChest1Enabled = v end)
+createToggle(tabPages["PVP-ESP"], "chest_gold", false, function(v) espChest2Enabled = v end)
+createToggle(tabPages["PVP-ESP"], "chest_diamond", false, function(v) espChest3Enabled = v end)
 
--- [TAB 4: SERVER]
-local serverPage = tabPages["Server"]
 local gameCodes = {"ADMINHACKED", "ADMINDARES", "SECRET_ADMIN", "NOOB2PRO", "StrawHatMaine", "Sub2Fer999", "Enyu_is_Pro", "Magicbus", "JCWK", "Starcodeheo", "Bluxxy", "THEGREATACE", "SUB2GAMERROBOT_EXP1", "Sub2OfficialNoobie", "FUDD10", "BIGNEWS", "KITT_RESET", "SUB2NOOBMASTER123", "Sub2UncleKizaru", "Sub2Daigrock", "Axiore", "TantaiGaming", "FUDD10_V2", "CHANDLER", "GAMER_ROBOT_1M", "TY_FOR_WATCHING", "UPD16", "3BVISITS", "2BILLION"}
-createButton(serverPage, "redeem_codes", function() task.spawn(function() for _, c in ipairs(gameCodes) do pcall(function() CommF:InvokeServer("RedeemCustomCode", c) end) task.wait(0.1) end end) end)
-createButton(serverPage, "rejoin_btn", function() TeleportService:Teleport(game.PlaceId, LocalPlayer) end)
-createButton(serverPage, "serverhop_btn", function()
+createButton(tabPages["Server"], "redeem_codes", function() task.spawn(function() for _, c in ipairs(gameCodes) do pcall(function() CommF:InvokeServer("RedeemCustomCode", c) end) task.wait(0.1) end end) end)
+createButton(tabPages["Server"], "rejoin_btn", function() TeleportService:Teleport(game.PlaceId, LocalPlayer) end)
+createButton(tabPages["Server"], "serverhop_btn", function()
     local success, response = pcall(function() return HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100")) end)
-    if success and response and response.data then
-        for _, s in ipairs(response.data) do if s.playing < s.maxPlayers and s.id ~= game.JobId then TeleportService:TeleportToPlaceInstance(game.PlaceId, s.id, LocalPlayer) break end end
-    end
+    if success and response and response.data then for _, s in ipairs(response.data) do if s.playing < s.maxPlayers and s.id ~= game.JobId then TeleportService:TeleportToPlaceInstance(game.PlaceId, s.id, LocalPlayer) break end end end
 end)
 
--- [TAB 5: RAID & TAB 6: ITEM]
 createToggle(tabPages["RAID"], "auto_raid_start", false, function(v) end)
 createToggle(tabPages["RAID"], "auto_raid_kill", false, function(v) end)
 createToggle(tabPages["FARM ITEM"], "auto_bones", false, function(v) end)
 createToggle(tabPages["FARM ITEM"], "auto_chest", false, function(v) end)
 
--- [TAB 7: SETTING]
 local settingPage = tabPages["SETTING"]
 local langFrame = Instance.new("Frame", settingPage)
 langFrame.Size, langFrame.BackgroundColor3, langFrame.BackgroundTransparency = UDim2.new(0.94, 0, 0, 36), Color3.fromRGB(16, 20, 28), 0.2
@@ -908,15 +780,12 @@ Instance.new("UIStroke", langFrame).Color = Color3.fromRGB(28, 34, 48)
 local langLabel = Instance.new("TextLabel", langFrame)
 langLabel.Size, langLabel.Position, langLabel.BackgroundTransparency, langLabel.TextColor3, langLabel.Font, langLabel.TextSize, langLabel.TextXAlignment = UDim2.new(0.48, 0, 1, 0), UDim2.new(0, 10, 0, 0), 1, Color3.fromRGB(220, 225, 235), Enum.Font.Gotham, 11, Enum.TextXAlignment.Left
 registerText(langLabel, "lang_title")
-
 local vnBtn = Instance.new("TextButton", langFrame)
 vnBtn.Size, vnBtn.Position, vnBtn.BackgroundColor3, vnBtn.Text, vnBtn.TextColor3, vnBtn.Font, vnBtn.TextSize = UDim2.new(0.22, 0, 0.7, 0), UDim2.new(0.52, 0, 0.15, 0), (currentLang == "VI") and Color3.fromRGB(0, 180, 255) or Color3.fromRGB(28, 35, 48), "🇻🇳 VN", Color3.fromRGB(255, 255, 255), Enum.Font.GothamBold, 10
 Instance.new("UICorner", vnBtn).CornerRadius = UDim.new(0, 4)
-
 local enBtn = Instance.new("TextButton", langFrame)
 enBtn.Size, enBtn.Position, enBtn.BackgroundColor3, enBtn.Text, enBtn.TextColor3, enBtn.Font, enBtn.TextSize = UDim2.new(0.22, 0, 0.7, 0), UDim2.new(0.76, 0, 0.15, 0), (currentLang == "EN") and Color3.fromRGB(0, 180, 255) or Color3.fromRGB(28, 35, 48), "🇬🇧 EN", Color3.fromRGB(255, 255, 255), Enum.Font.GothamBold, 10
 Instance.new("UICorner", enBtn).CornerRadius = UDim.new(0, 4)
-
 vnBtn.MouseButton1Click:Connect(function() vnBtn.BackgroundColor3, enBtn.BackgroundColor3 = Color3.fromRGB(0, 180, 255), Color3.fromRGB(28, 35, 48) setLanguage("VI") end)
 enBtn.MouseButton1Click:Connect(function() enBtn.BackgroundColor3, vnBtn.BackgroundColor3 = Color3.fromRGB(0, 180, 255), Color3.fromRGB(28, 35, 48) setLanguage("EN") end)
 
