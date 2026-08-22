@@ -1,4 +1,4 @@
--- [[ ZENITH BLOX FRUIT - V12.8 (FIX BAY MƯỢT + TREO QUÁI TRÊN KHÔNG + 100% ẨN CHUỘT) ]] --
+-- [[ ZENITH BLOX FRUIT - V12.9 (FIX ĐÁNH TRÊN GIẢ LẬP + QUAY VỀ FARM CHUẨN) ]] --
 
 task.wait(1)
 if not game:IsLoaded() then game.Loaded:Wait() end
@@ -12,6 +12,8 @@ local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local TeleportService = game:GetService("TeleportService")
 local HttpService = game:GetService("HttpService")
+local VirtualUser = game:GetService("VirtualUser")
+local VirtualInputManager = game:GetService("VirtualInputManager")
 
 local LocalPlayer = Players.LocalPlayer
 local CommF = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("CommF_")
@@ -42,31 +44,23 @@ for _, gui in ipairs(targetUIFolder:GetChildren()) do if gui.Name == UI_NAME the
 for _, gui in ipairs(LocalPlayer:WaitForChild("PlayerGui"):GetChildren()) do if gui.Name == UI_NAME then gui:Destroy() end end
 
 -- ===================================================
--- 2. HỆ THỐNG NGÔN NGỮ ĐẦY ĐỦ
+-- 2. HỆ THỐNG NGÔN NGỮ
 -- ===================================================
 local currentLang = "VI"
 local translatableElements = {}
 local LangDict = {
     VI = {
         title = "ZYROX VN <font color='#00d2ff'>• ZENITH</font>",
-        badge = "PRO", tab_farm = "Farm Level", tab_fruit = "Trái Ác Quỷ", tab_pvp = "PVP & ESP",
-        tab_server = "Máy Chủ", tab_raid = "Đi Raid", tab_item = "Farm Item", tab_setting = "Cài Đặt",
-        auto_farm_level = "⚡ Tự Động Farm Level", auto_quest = "📜 Tự Nhận Nhiệm Vụ", bring_mob = "🧲 Gom Quái & Treo Trên Không",
+        badge = "PRO", tab_farm = "Farm Level", tab_fruit = "Trái Ác Quỷ", tab_setting = "Cài Đặt",
+        auto_farm_level = "⚡ Tự Động Farm Level", auto_quest = "📜 Tự Nhận Nhiệm Vụ", bring_mob = "🧲 Gom Quái Lại Gần",
         fruit_buy = "🎲 Mua Ngẫu Nhiên Trái", fruit_collect = "🧲 Nhặt Trái Rơi", fruit_store = "📦 Cất Trái Vào Rương", fruit_tracker_title = "Trái trên bản đồ:",
-        speed_toggle = "Chạy Nhanh", speed_slider = "Tốc Độ", jump_toggle = "Nhảy Cao", jump_slider = "Lực Nhảy",
-        player_esp = "ESP Người Chơi", fruit_esp = "ESP Trái Ác Quỷ", chest_wood = "ESP Rương Gỗ", chest_gold = "ESP Rương Vàng", chest_diamond = "ESP Rương Kim Cương",
-        redeem_codes = "🎁 Nhập Code Game", rejoin_btn = "Vào Lại Server", serverhop_btn = "Chuyển Server",
         lang_title = "Ngôn Ngữ / Language", ui_scale = "Thu Phóng UI (%)", ui_transparency = "Trong Suốt Cửa Sổ (%)", fix_lag = "Tối Ưu Đồ Họa (Tăng FPS)", close_hub = "Đóng Menu"
     },
     EN = {
         title = "ZYROX VN <font color='#00d2ff'>• ZENITH</font>",
-        badge = "PRO", tab_farm = "Farm Level", tab_fruit = "Devil Fruit", tab_pvp = "PVP & ESP",
-        tab_server = "Server", tab_raid = "Raid Hub", tab_item = "Item Farm", tab_setting = "Settings",
+        badge = "PRO", tab_farm = "Farm Level", tab_fruit = "Devil Fruit", tab_setting = "Settings",
         auto_farm_level = "⚡ Auto Farm Level", auto_quest = "📜 Auto Quest", bring_mob = "🧲 Bring Mobs",
         fruit_buy = "🎲 Random Fruit", fruit_collect = "🧲 Collect Fruits", fruit_store = "📦 Store Into Inventory", fruit_tracker_title = "Dropped Fruits:",
-        speed_toggle = "WalkSpeed", speed_slider = "Speed", jump_toggle = "High Jump", jump_slider = "Height",
-        player_esp = "Player ESP", fruit_esp = "Fruit ESP", chest_wood = "Wood Chest ESP", chest_gold = "Gold Chest ESP", chest_diamond = "Diamond Chest ESP",
-        redeem_codes = "🎁 Redeem Codes", rejoin_btn = "Rejoin Server", serverhop_btn = "Server Hop",
         lang_title = "Language", ui_scale = "UI Scale (%)", ui_transparency = "Transparency (%)", fix_lag = "Boost FPS", close_hub = "Close Hub"
     }
 }
@@ -84,7 +78,7 @@ local function setLanguage(lang)
 end
 
 -- ===================================================
--- 3. XÂY DỰNG GIAO DIỆN (UI)
+-- 3. XÂY DỰNG GIAO DIỆN (UI BUILDER)
 -- ===================================================
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name, ScreenGui.ResetOnSpawn = UI_NAME, false
@@ -205,7 +199,7 @@ end
 local cats = {{"Farm", "🌾", "tab_farm"}, {"Fruit", "🍎", "tab_fruit"}, {"SETTING", "⚙️", "tab_setting"}}
 for _, c in ipairs(cats) do createTabButton(c[1], c[2], c[3]) createPage(c[1]) end
 
--- TẠO CÁC NÚT FARM TẠI ĐÂY
+-- NÚT FARM
 local farmPage = tabPages["Farm"]
 local infoLabel = Instance.new("TextLabel", farmPage)
 infoLabel.Size, infoLabel.BackgroundTransparency, infoLabel.RichText, infoLabel.TextColor3, infoLabel.Font, infoLabel.TextSize = UDim2.new(0.94, 0, 0, 30), 1, true, Color3.fromRGB(230, 235, 245), Enum.Font.GothamMedium, 11
@@ -232,73 +226,38 @@ createToggle(farmPage, "auto_farm_level", false, function(v) AutoFarmLevel = v e
 createToggle(farmPage, "auto_quest", true, function(v) AutoQuest = v end)
 createToggle(farmPage, "bring_mob", true, function(v) BringMob = v end)
 
-local settingPage = tabPages["SETTING"]
-createToggle(settingPage, "fix_lag", false, function(v)
-    Lighting.GlobalShadows = not v
-    for _, obj in ipairs(Workspace:GetDescendants()) do if obj:IsA("BasePart") and v then obj.Material = Enum.Material.SmoothPlastic end end
-end)
 switchTab("Farm")
 
 -- ===================================================
--- 4. HACK FAST ATTACK (100% ẨN, CHỌC UPVALUES)
+-- 4. HỆ THỐNG CLICK CỔ ĐIỂN TỐI ƯU CHO MOBILE/GIẢ LẬP
+-- Không dùng hàm giấu, gọi thẳng chuột ảo vào trung tâm
 -- ===================================================
 local currentTween, isAttackingTarget = nil, false
 
-local function executeHiddenFastAttack()
+local function executeLDPlayerAttack()
     local char = LocalPlayer.Character
     if not char then return end
     
     local tool = char:FindFirstChildOfClass("Tool")
-    if tool then tool:Activate() end
+    if tool then 
+        -- Phương thức an toàn nhất: Ép vũ khí tự hoạt động
+        tool:Activate() 
+    end
     
+    -- Tương tác với màn hình giả lập bằng VirtualUser 
+    -- (Bắn lệnh click ẩn vào tọa độ x:500, y:500 mà không cướp chuột cứng)
     pcall(function()
-        -- Lấy CombatFramework
-        local CbFw = require(LocalPlayer.PlayerScripts.CombatFramework)
-        local controller = nil
-        
-        -- Lấy ActiveController ẩn ngầm
-        if type(CbFw) == "table" then
-            local get_upvs = getupvalues or debug.getupvalues
-            if get_upvs then
-                for _, v in pairs(get_upvs(CbFw)) do
-                    if type(v) == "table" and v.activeController then
-                        controller = v.activeController
-                        break
-                    end
-                end
-            end
-            if not controller then controller = CbFw.activeController end
-        end
-
-        if controller then
-            controller.hitboxLimiter = 0
-            controller.timeToNextAttack = 0
-            controller.timeToNextBlock = 0
-            controller.increment = 3
-            controller.attacking = false
-            controller.blocking = false
-            controller.hasCombatState = false
-            controller:attack() -- Xả sát thương
-        end
-    end)
-    
-    -- Xóa hoạt ảnh vung tay để không bị lag màn hình
-    pcall(function()
-        local humanoid = char:FindFirstChildOfClass("Humanoid")
-        if humanoid then
-            for _, anim in ipairs(humanoid:GetPlayingAnimationTracks()) do
-                local n = anim.Name
-                if n == "Attack" or n == "Slash" or n == "Punch" or n == "Combat" or n == "M1" then anim:Stop() end
-            end
-        end
+        VirtualUser:CaptureController()
+        VirtualUser:ClickButton1(Vector2.new(500, 500))
     end)
 end
 
+-- Vòng lặp chém. Delay 0.15s là đẹp nhất để game trên điện thoại nhận kịp.
 task.spawn(function()
     while true do
         if AutoFarmLevel and isAttackingTarget then
-            executeHiddenFastAttack()
-            task.wait(0.1) -- Giữ ổn định tránh văng server
+            executeLDPlayerAttack()
+            task.wait(0.15)
         else
             task.wait(0.1)
         end
@@ -306,9 +265,8 @@ task.spawn(function()
 end)
 
 -- ===================================================
--- 5. LOGIC DI CHUYỂN MƯỢT (FIX LỖI KHÔNG BAY)
+-- 5. LOGIC DI CHUYỂN & GOM QUÁI MẶT ĐẤT
 -- ===================================================
-local isTweening = false
 local function toTargetPos(targetCFrame)
     local char = LocalPlayer.Character
     if not char or not char:FindFirstChild("HumanoidRootPart") then return end
@@ -317,7 +275,7 @@ local function toTargetPos(targetCFrame)
     local time = (root.Position - targetCFrame.Position).Magnitude / speed
 
     if currentTween and currentTween.PlaybackState == Enum.PlaybackState.Playing then
-        return -- Chặn việc tạo Tween liên tục làm giật nhân vật
+        return
     end
     
     currentTween = TweenService:Create(root, TweenInfo.new(time, Enum.EasingStyle.Linear), {CFrame = targetCFrame})
@@ -386,16 +344,22 @@ local function getAllLivingEnemies(monName)
     return list
 end
 
--- ===================================================
--- 6. VÒNG LẶP FARM (CHỐNG CHẾT: KÉO QUÁI LÊN TRỜI)
--- ===================================================
 task.spawn(function()
+    task.wait(2)
+    pcall(function()
+        task.spawn(function()
+            while true do
+                task.wait(1)
+                if AutoFarmLevel then pcall(function() local curQuest = getAutoQuestByLevel() infoLabel.Text = string.format("Level: <font color='#00d2ff'><b>%d</b></font> | Mục Tiêu: <font color='#ffb703'><b>%s</b></font>", LocalPlayer.Data.Level.Value, curQuest.MonName) end) end
+            end
+        end)
+    end)
+    
     while true do
         task.wait(0.05)
         if AutoFarmLevel and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and CommF then
             local currentQuest = getAutoQuestByLevel()
             if currentQuest then
-                pcall(function() infoLabel.Text = string.format("Level: <font color='#00d2ff'><b>%d</b></font> | Mục Tiêu: <font color='#ffb703'><b>%s</b></font>", LocalPlayer.Data.Level.Value, currentQuest.MonName) end)
                 
                 if AutoQuest and not checkHasQuest() then 
                     CommF:InvokeServer("StartQuest", currentQuest.QuestName, currentQuest.QuestLevel) 
@@ -411,8 +375,9 @@ task.spawn(function()
                     
                     if primaryHRP then
                         local mobPos = primaryHRP.Position
-                        -- BAY TÍT LÊN TRÊN KHÔNG 30 STUD ĐỂ TRÁNH SÁT THƯƠNG
-                        local targetCFrame = CFrame.new(mobPos + Vector3.new(0, 30, 0), mobPos) 
+                        
+                        -- CHỈ ĐỨNG NGAY ĐẰNG SAU QUÁI (KHÔNG BAY LÊN TRỜI NỮA)
+                        local targetCFrame = CFrame.new(mobPos + Vector3.new(0, 1.5, 3), mobPos) 
                         
                         if (myHRP.Position - targetCFrame.Position).Magnitude > 5 then
                             isAttackingTarget = false 
@@ -423,18 +388,14 @@ task.spawn(function()
                             myHRP.AssemblyLinearVelocity = Vector3.zero
                             isAttackingTarget = true
                             
-                            -- HÚT QUÁI LÊN TRỜI CHỖ MÌNH ĐỨNG VÀ KHÓA CHÚNG LẠI
+                            -- HÚT QUÁI BÌNH THƯỜNG TRÊN MẶT ĐẤT
                             if BringMob then
                                 for _, otherMob in ipairs(mobList) do
                                     local oHRP, oHum = otherMob:FindFirstChild("HumanoidRootPart"), otherMob:FindFirstChildOfClass("Humanoid")
-                                    if oHRP and oHum and oHum.Health > 0 and (oHRP.Position - mobPos).Magnitude <= 350 then
-                                        -- Kéo ra sát mặt
+                                    if oHRP and oHum and oHum.Health > 0 and (oHRP.Position - mobPos).Magnitude <= 300 then
                                         oHRP.CFrame = myHRP.CFrame * CFrame.new(0, 0, -4)
                                         oHRP.AssemblyLinearVelocity = Vector3.zero
                                         oHRP.CanCollide = false
-                                        -- Làm choáng quái vật (Nó sẽ không đánh được)
-                                        oHum.Sit = true 
-                                        oHum:ChangeState(Enum.HumanoidStateType.Physics)
                                     end
                                 end
                             end
