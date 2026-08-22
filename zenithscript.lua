@@ -1,4 +1,4 @@
--- [[ ZENITH BLOX FRUIT - V18.5 (FIXED ERROR BUG + GOD MODE) ]] --
+-- [[ ZENITH BLOX FRUIT - V18.6 (FINAL FIXED BODYVELOCITY + UI) ]] --
 
 task.wait(0.5)
 
@@ -63,26 +63,6 @@ local AutoCollectFruit = false
 local AutoStoreFruit = false
 
 -- =========================================================
--- BẢN ĐỒ TỌA ĐỘ GPS CỨNG
--- =========================================================
-local IslandPositions = {
-    ["Bandit"] = Vector3.new(1057, 16, 1378),
-    ["Monkey"] = Vector3.new(-1598, 36, 153),
-    ["Gorilla"] = Vector3.new(-1598, 36, 153),
-    ["Pirate"] = Vector3.new(-1141, 4, 3828),
-    ["Brute"] = Vector3.new(-1141, 4, 3828),
-    ["Desert Bandit"] = Vector3.new(895, 6, 4390),
-    ["Desert Officer"] = Vector3.new(895, 6, 4390),
-    ["Snow Bandit"] = Vector3.new(1386, 87, -1298),
-    ["Snowman"] = Vector3.new(1386, 87, -1298),
-    ["Chief Petty Officer"] = Vector3.new(-4884, 21, 4301),
-    ["Sky Bandit"] = Vector3.new(-4842, 717, -2623),
-    ["Dark Master"] = Vector3.new(-4842, 717, -2623),
-    ["Prisoner"] = Vector3.new(4875, 5, 735),
-    ["Peanut Scout"] = Vector3.new(-2051, 37, -10254)
-}
-
--- =========================================================
 -- DỌN DẸP GIAO DIỆN CŨ
 -- =========================================================
 local UI_NAME = "ZenithBloxFruit_Zyrox_V18"
@@ -140,7 +120,7 @@ local TopStroke = Instance.new("UIStroke", TopBar); TopStroke.Color = Color3.fro
 
 local Title = Instance.new("TextLabel", TopBar)
 Title.Size = UDim2.new(0, 240, 1, 0); Title.Position = UDim2.new(0, 15, 0, 0); Title.BackgroundTransparency = 1; Title.RichText = true; Title.TextColor3 = Color3.fromRGB(255, 255, 255); Title.Font = Enum.Font.GothamBold; Title.TextSize = 12; Title.TextXAlignment = Enum.TextXAlignment.Left
-Title.Text = "ZYROX VN <font color='#00d2ff'>• V18.5 (FINAL FIX)</font>"
+Title.Text = "ZYROX VN <font color='#00d2ff'>• V18.6 (UNLOCKED)</font>"
 
 local StatsFrame = Instance.new("Frame", TopBar)
 StatsFrame.Size = UDim2.new(0, 120, 0, 24); StatsFrame.Position = UDim2.new(1, -190, 0.5, -12); StatsFrame.BackgroundColor3 = Color3.fromRGB(22, 26, 38); StatsFrame.BorderSizePixel = 0; Instance.new("UICorner", StatsFrame).CornerRadius = UDim.new(0, 6)
@@ -177,12 +157,6 @@ local function styleToggleFrame(frame)
     frame.BackgroundColor3 = Color3.fromRGB(16, 20, 29); frame.BorderSizePixel = 0
     local corner = frame:FindFirstChildOfClass("UICorner"); if corner then corner.CornerRadius = UDim.new(0, 4) end
     local stroke = Instance.new("UIStroke"); stroke.Name = "ZenithBorder"; stroke.Parent = frame; stroke.Color = Color3.fromRGB(31, 39, 54); stroke.Thickness = 1
-end
-
-local function styleButton(btn)
-    btn.BackgroundColor3 = Color3.fromRGB(19, 25, 36); btn.BorderSizePixel = 0
-    local corner = btn:FindFirstChildOfClass("UICorner"); if corner then corner.CornerRadius = UDim.new(0, 4) end
-    local stroke = Instance.new("UIStroke"); if stroke then stroke.Color = Color3.fromRGB(0, 170, 230); stroke.Thickness = 1; stroke.Transparency = 0.2 end
 end
 
 local tabButtons = {}
@@ -401,6 +375,7 @@ task.spawn(function()
     end
 end)
 
+-- FIX CHỐNG KẸT: BodyVelocity CHỈ KHÓA TRỤC Y (CHO PHÉP TRỤC X VÀ Z DI CHUYỂN TỰ DO ĐỂ TWEEN BAY)
 RunService.Stepped:Connect(function()
     if AutoFarmLevel and LocalPlayer.Character then
         for _, part in ipairs(LocalPlayer.Character:GetDescendants()) do
@@ -411,7 +386,7 @@ RunService.Stepped:Connect(function()
             local bv = hrp:FindFirstChild("GodMode_BV")
             if not bv then
                 bv = Instance.new("BodyVelocity")
-                bv.Name = "GodMode_BV"; bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge); bv.Velocity = Vector3.new(0, 0, 0); bv.Parent = hrp
+                bv.Name = "GodMode_BV"; bv.MaxForce = Vector3.new(0, math.huge, 0); bv.Velocity = Vector3.new(0, 0, 0); bv.Parent = hrp
             end
         end
     else
@@ -526,7 +501,7 @@ task.spawn(function()
                         lockedFarmPosition = primaryHRP.CFrame
                     end
                     targetPos = CFrame.new(lockedFarmPosition.Position.X, lockedFarmPosition.Position.Y + 30, lockedFarmPosition.Position.Z)
-                elseif IslandPositions[mobName] then
+                elseif IslandPositions and IslandPositions[mobName] then
                     targetPos = CFrame.new(IslandPositions[mobName] + Vector3.new(0, 30, 0))
                 end
 
