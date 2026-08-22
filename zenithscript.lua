@@ -1,4 +1,4 @@
--- [[ ZENITH BLOX FRUIT - V12.24 (FIX: AFK STAND STILL + FLY HIGH + ATTACK SPEED SLIDER) ]] --
+-- [[ ZENITH BLOX FRUIT - V12.24 (FIX: GOM QUÁI + NHẬN QUEST + ĐỨNG IM) ]] --
 
 task.wait(0.5)
 if not game:IsLoaded() then game.Loaded:Wait() end
@@ -34,10 +34,10 @@ local speedValue, speedEnabled = 16, false
 local jumpValue, jumpEnabled = 50, false
 local AutoRandomFruit, AutoCollectFruit, AutoStoreFruit = false, false, false
 
--- ⚡ THÔNG SỐ FARM (CÓ THANH KÉO)
-local flightHeight = 28          -- Chiều cao bay (mặc định 28)
-local attackCooldown = 0.04      -- Tốc độ đánh (mặc định 0.04s)
-local attackCount = 6            -- Số đòn mỗi chu kỳ
+-- ⚡ THÔNG SỐ FARM
+local flightHeight = 28
+local attackCooldown = 0.04
+local attackCount = 6
 
 -- NGÔN NGỮ
 local currentLang = "VI"
@@ -73,7 +73,7 @@ local Lang = {
 }
 
 -- ===================================================
--- 1. UI (CỨNG - FULL CHỨC NĂNG)
+-- 1. UI
 -- ===================================================
 local UI_NAME = "ZenithBloxFruit_Zyrox_V12"
 
@@ -95,7 +95,6 @@ ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 pcall(function() ScreenGui.Parent = targetUIFolder end)
 if not ScreenGui.Parent then ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui") end
 
--- NÚT THU NHỎ (Z)
 local FloatingButton = Instance.new("TextButton", ScreenGui)
 FloatingButton.Size = UDim2.new(0, 48, 0, 48)
 FloatingButton.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -111,7 +110,6 @@ Instance.new("UICorner", FloatingButton).CornerRadius = UDim.new(0, 12)
 Instance.new("UIStroke", FloatingButton).Color = Color3.fromRGB(0, 210, 255)
 Instance.new("UIStroke", FloatingButton).Thickness = 1.5
 
--- MAIN FRAME
 local FULL_HEIGHT = 440
 local MIN_HEIGHT = 38
 local MainFrame = Instance.new("Frame", ScreenGui)
@@ -128,7 +126,6 @@ Instance.new("UIStroke", MainFrame).Thickness = 1.2
 
 local UIScale = Instance.new("UIScale", MainFrame)
 
--- KÉO THẢ
 local isDraggingWindow, dragStart, frameStart = false, nil, nil
 MainFrame.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -147,7 +144,6 @@ UserInputService.InputChanged:Connect(function(input)
     end
 end)
 
--- TOPBAR
 local TopBar = Instance.new("Frame", MainFrame)
 TopBar.Size = UDim2.new(1, 0, 0, 38)
 TopBar.BackgroundColor3 = Color3.fromRGB(15, 18, 26)
@@ -227,7 +223,6 @@ FloatingButton.MouseButton1Click:Connect(function()
     FloatingButton.Visible = false
 end)
 
--- SIDEBAR
 local Sidebar = Instance.new("Frame", MainFrame)
 Sidebar.Size = UDim2.new(0, 140, 1, -38)
 Sidebar.Position = UDim2.new(0, 0, 0, 38)
@@ -238,14 +233,12 @@ TabListLayout.Padding = UDim.new(0, 3)
 TabListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 Instance.new("UIPadding", Sidebar).PaddingTop = UDim.new(0, 6)
 
--- CONTENT CONTAINER
 local ContentContainer = Instance.new("Frame", MainFrame)
 ContentContainer.Size = UDim2.new(1, -140, 1, -38)
 ContentContainer.Position = UDim2.new(0, 140, 0, 38)
 ContentContainer.BackgroundTransparency = 1
 ContentContainer.ClipsDescendants = true
 
--- THU NHỎ
 local isMinimized = false
 MinBtn.MouseButton1Click:Connect(function()
     isMinimized = not isMinimized
@@ -262,7 +255,6 @@ MinBtn.MouseButton1Click:Connect(function()
     end
 end)
 
--- TẠO TAB
 local tabButtons = {}
 local tabPages = {}
 local allTextLabels = {}
@@ -322,7 +314,6 @@ local function createTabButton(name, icon, key)
     end)
 end
 
--- TẠO CÁC TAB
 local tabConfigs = {
     {key = "Farm", icon = "🌾", langKey = "tab_farm"},
     {key = "Fruit", icon = "🍎", langKey = "tab_fruit"},
@@ -337,7 +328,6 @@ for _, cfg in ipairs(tabConfigs) do
     createPage(cfg.key)
 end
 
--- MẶC ĐỊNH TAB FARM
 for tName, item in pairs(tabButtons) do
     if tName == "Farm" then
         item.Button.BackgroundColor3 = Color3.fromRGB(45, 120, 255)
@@ -447,7 +437,15 @@ local function createSlider(page, labelKey, min, max, default, callback, isFloat
             current = math.floor(min + (max - min) * math.clamp(percent, 0, 1))
             valueLabel.Text = tostring(current)
         end
-        if callback then callback(current) end
+        if callback then 
+            callback(current)
+            -- In log mỗi lần thay đổi +0.1
+            if isFloat then
+                print("⚡ Tốc độ đánh đã thay đổi: " .. string.format("%.2f", current) .. "s (+0.1)")
+            else
+                print("📊 Giá trị đã thay đổi: " .. tostring(current) .. " (+0.1)")
+            end
+        end
     end
     
     track.InputBegan:Connect(function(input)
@@ -483,7 +481,6 @@ local function createButton(page, labelKey, callback)
     btn.MouseButton1Click:Connect(function() if callback then callback() end end)
 end
 
--- HÀM ĐỔI NGÔN NGỮ
 local function setLanguage(lang)
     currentLang = lang
     Title.Text = Lang[currentLang].title
@@ -502,7 +499,6 @@ end
 -- 3. GẮN CHỨC NĂNG VÀO TỪNG TAB
 -- ===================================================
 
--- TAB 1: FARM
 local farmPage = tabPages["Farm"]
 local infoLabel = Instance.new("TextLabel", farmPage)
 infoLabel.Size = UDim2.new(0.94, 0, 0, 30)
@@ -513,7 +509,6 @@ infoLabel.TextColor3 = Color3.fromRGB(0, 255, 150)
 infoLabel.Font = Enum.Font.GothamBold
 infoLabel.TextSize = 12
 
--- Weapon selector
 local weaponSegment = Instance.new("Frame", farmPage)
 weaponSegment.Size = UDim2.new(0.94, 0, 0, 28)
 weaponSegment.BackgroundColor3 = Color3.fromRGB(15, 18, 25)
@@ -553,25 +548,21 @@ createToggle(farmPage, "auto_farm", false, function(v) AutoFarmLevel = v end)
 createToggle(farmPage, "auto_quest", true, function(v) AutoQuest = v end)
 createToggle(farmPage, "bring_mob", true, function(v) BringMob = v end)
 
--- ⚡ THANH KÉO CHIỀU CAO BAY
 createSlider(farmPage, "flight_height", 10, 50, 28, function(val)
     flightHeight = val
-    print("✈️ Đã thay đổi chiều cao bay: " .. val .. " (thay đổi +0.1)")
+    print("🏔️ Chiều cao bay đã thay đổi: " .. val .. " (+0.1)")
 end, false)
 
--- ⚡ THANH KÉO TỐC ĐỘ ĐÁNH
 createSlider(farmPage, "attack_speed", 0.01, 0.2, 0.04, function(val)
     attackCooldown = val
-    print("⚡ Đã thay đổi tốc độ đánh: " .. string.format("%.2f", val) .. "s (thay đổi +0.01)")
+    print("⚡ Tốc độ đánh đã thay đổi: " .. string.format("%.2f", val) .. "s (+0.1)")
 end, true)
 
--- TAB 2: FRUIT
 local fruitPage = tabPages["Fruit"]
 createToggle(fruitPage, "fruit_buy", false, function(v) AutoRandomFruit = v end)
 createToggle(fruitPage, "fruit_collect", false, function(v) AutoCollectFruit = v end)
 createToggle(fruitPage, "fruit_store", false, function(v) AutoStoreFruit = v end)
 
--- TAB 3: PVP-ESP
 local pvpPage = tabPages["PVP-ESP"]
 createToggle(pvpPage, "speed_toggle", false, function(v) speedEnabled = v end)
 createSlider(pvpPage, "speed_slider", 16, 300, 16, function(val) speedValue = val end, false)
@@ -583,7 +574,6 @@ createToggle(pvpPage, "chest_wood", false, function(v) espChest1Enabled = v end)
 createToggle(pvpPage, "chest_gold", false, function(v) espChest2Enabled = v end)
 createToggle(pvpPage, "chest_diamond", false, function(v) espChest3Enabled = v end)
 
--- TAB 4: SERVER
 local serverPage = tabPages["Server"]
 createButton(serverPage, "redeem_codes", function()
     local codes = {"ADMINHACKED", "ADMINDARES", "SECRET_ADMIN", "NOOB2PRO", "StrawHatMaine", "Sub2Fer999", "Enyu_is_Pro", "Magicbus", "JCWK", "Starcodeheo", "Bluxxy", "THEGREATACE", "SUB2GAMERROBOT_EXP1", "Sub2OfficialNoobie", "FUDD10", "BIGNEWS", "KITT_RESET", "SUB2NOOBMASTER123", "Sub2UncleKizaru", "Sub2Daigrock", "Axiore", "TantaiGaming", "FUDD10_V2", "CHANDLER", "GAMER_ROBOT_1M", "TY_FOR_WATCHING", "UPD16", "3BVISITS", "2BILLION"}
@@ -611,15 +601,12 @@ createButton(serverPage, "serverhop_btn", function()
     end
 end)
 
--- TAB 5: RAID
 local raidPage = tabPages["RAID"]
 createToggle(raidPage, "auto_raid", false, function(v) end)
 
--- TAB 6: FARM ITEM
 local itemPage = tabPages["FARM ITEM"]
 createToggle(itemPage, "auto_bones", false, function(v) end)
 
--- TAB 7: SETTING
 local settingPage = tabPages["SETTING"]
 createToggle(settingPage, "fix_lag", false, function(v)
     Lighting.GlobalShadows = not v
@@ -633,7 +620,6 @@ createSlider(settingPage, "ui_transparency", 0, 80, 12, function(val)
     Sidebar.BackgroundTransparency = math.clamp((val + 8) / 100, 0, 1)
 end, false)
 
--- NÚT ĐỔI NGÔN NGỮ
 local langBtn = Instance.new("TextButton", settingPage)
 langBtn.Size = UDim2.new(0.94, 0, 0, 34)
 langBtn.BackgroundColor3 = Color3.fromRGB(20, 26, 38)
@@ -656,7 +642,7 @@ end)
 createButton(settingPage, "close_hub", function() ScreenGui:Destroy() end)
 
 -- ===================================================
--- 4. ESP (FIX GIẬT)
+-- 4. ESP
 -- ===================================================
 local espBillboards = {}
 
@@ -788,7 +774,7 @@ UserInputService.JumpRequest:Connect(function()
 end)
 
 -- ===================================================
--- 6. FRUIT AUTO BUY / COLLECT / STORE
+-- 6. FRUIT AUTO
 -- ===================================================
 task.spawn(function()
     while true do
@@ -845,7 +831,7 @@ task.spawn(function()
 end)
 
 -- ===================================================
--- 7. WATER PLATFORM
+-- 7. WATER
 -- ===================================================
 task.spawn(function()
     local waterPlatform = Instance.new("Part")
@@ -875,9 +861,8 @@ task.spawn(function()
 end)
 
 -- ===================================================
--- 8. AUTO FARM + FLY (AFK ĐỨNG IM GÂY DAME)
+-- 8. AUTO FARM (FIX GOM QUÁI + NHẬN QUEST)
 -- ===================================================
-local isFarming = false
 
 local function equipChosenWeapon()
     pcall(function()
@@ -934,16 +919,18 @@ local function getAllLivingEnemies(monName)
     return list
 end
 
-local function pullMobsToStand(mobList, standPos)
+-- Gom quái về đúng vị trí của nhân vật (cùng Y)
+local function pullMobsToPlayer(mobList, playerPos)
     local pullRadius = 120
     for _, mob in ipairs(mobList) do
         local hrp = mob:FindFirstChild("HumanoidRootPart")
         local hum = mob:FindFirstChildOfClass("Humanoid")
         if hrp and hum and hum.Health > 0 then
-            local dist = (hrp.Position - standPos).Magnitude
-            if dist > 5 and dist < pullRadius then
+            local dist = (hrp.Position - playerPos).Magnitude
+            if dist > 6 and dist < pullRadius then
+                -- Kéo về đúng vị trí của player (cùng Y)
                 local offset = Vector3.new(math.random(-2, 2), 0, math.random(-2, 2))
-                hrp.CFrame = CFrame.new(standPos + offset)
+                hrp.CFrame = CFrame.new(playerPos + offset)
                 hrp.AssemblyLinearVelocity = Vector3.zero
                 hrp.AssemblyAngularVelocity = Vector3.zero
                 hrp.CanCollide = false
@@ -959,7 +946,7 @@ local function pullMobsToStand(mobList, standPos)
                 end
                 for _, part in ipairs(mob:GetDescendants()) do
                     if part:IsA("BasePart") and part ~= hrp then
-                        part.CFrame = CFrame.new(standPos + offset + Vector3.new(0, math.random(-1, 1), 0))
+                        part.CFrame = CFrame.new(playerPos + offset + Vector3.new(0, math.random(-1, 1), 0))
                         part.AssemblyLinearVelocity = Vector3.zero
                         part.CanCollide = false
                     end
@@ -1004,6 +991,18 @@ local function fastAttackAFK()
     end)
 end
 
+-- CHECK QUEST THẬT
+local function checkHasQuest()
+    local data = LocalPlayer:FindFirstChild("Data")
+    if data then
+        local quest = data:FindFirstChild("Quest")
+        if quest and quest.Value ~= "" then
+            return true
+        end
+    end
+    return false
+end
+
 local function getAutoQuestByLevel()
     local level = LocalPlayer.Data and LocalPlayer.Data.Level and LocalPlayer.Data.Level.Value or 1
     local quests = {
@@ -1021,18 +1020,7 @@ local function getAutoQuestByLevel()
     return quests[#quests]
 end
 
-local function checkHasQuest()
-    return true
-end
-
-local function stopTween()
-    if currentTween then
-        pcall(function() currentTween:Cancel() end)
-        currentTween = nil
-    end
-end
-
--- Luồng 1: Duy trì độ cao + đứng im
+-- Duy trì độ cao
 task.spawn(function()
     while true do
         task.wait(0.05)
@@ -1045,7 +1033,6 @@ task.spawn(function()
         local root = char:FindFirstChild("HumanoidRootPart")
         if not root then continue end
         
-        -- Đứng im, chỉ giữ độ cao
         local y = root.Position.Y
         local targetY = flightHeight
         
@@ -1057,7 +1044,9 @@ task.spawn(function()
             root.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
         end
         
-        -- Disable collision
+        -- Đứng im, không di chuyển ngang
+        root.AssemblyLinearVelocity = Vector3.new(0, root.AssemblyLinearVelocity.Y, 0)
+        
         for _, part in ipairs(char:GetDescendants()) do
             if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
                 part.CanCollide = false
@@ -1066,12 +1055,11 @@ task.spawn(function()
     end
 end)
 
--- Luồng 2: Farm (tìm quái, kéo quái, đánh)
+-- Farm
 task.spawn(function()
     while true do
         task.wait(0.1)
         if not AutoFarmLevel then
-            isFarming = false
             task.wait(0.5)
             continue
         end
@@ -1088,20 +1076,22 @@ task.spawn(function()
             continue
         end
         
+        -- NHẬN QUEST
         if AutoQuest and not checkHasQuest() then
-            pcall(function() CommF:InvokeServer("StartQuest", questData.QuestName, questData.QuestLevel) end)
-            task.wait(0.3)
+            pcall(function()
+                CommF:InvokeServer("StartQuest", questData.QuestName, questData.QuestLevel)
+                print("✅ Đã nhận quest: " .. questData.QuestName)
+            end)
+            task.wait(0.5)
         end
         
         local mobs = getAllLivingEnemies(questData.MonName)
         if #mobs == 0 then
             infoLabel.Text = string.format("🔍 Đang tìm %s...", questData.MonName)
-            isFarming = false
             task.wait(0.3)
             continue
         end
         
-        -- Sắp xếp theo khoảng cách
         table.sort(mobs, function(a, b)
             local aPos = a:FindFirstChild("HumanoidRootPart")
             local bPos = b:FindFirstChild("HumanoidRootPart")
@@ -1116,16 +1106,14 @@ task.spawn(function()
         local level = LocalPlayer.Data.Level.Value
         infoLabel.Text = string.format("⚔️ %s | Lv.%d | Quái: %d", questData.MonName, level, #mobs)
         
-        -- Equip vũ khí
         equipChosenWeapon()
         
-        -- Kéo quái về vị trí đứng (dưới chân)
+        -- GOM QUÁI VỀ ĐÚNG VỊ TRÍ PLAYER (cùng Y)
         if BringMob then
-            pullMobsToStand(mobs, root.Position + Vector3.new(0, -flightHeight + 1, 0))
+            pullMobsToPlayer(mobs, root.Position)
         end
         
-        -- Đánh liên tục
-        isFarming = true
+        -- Đánh
         for i = 1, 10 do
             if not AutoFarmLevel then break end
             fastAttackAFK()
@@ -1140,6 +1128,5 @@ task.spawn(function()
     end
 end)
 
-print("✅ ZENITH V12.24 - AFK STAND STILL + FLY HIGH + ATTACK SPEED SLIDER")
-print("📌 Chiều cao bay mặc định: 28 (kéo thanh để chỉnh)")
-print("📌 Tốc độ đánh mặc định: 0.04s (kéo thanh để chỉnh nhanh/chậm)")
+print("✅ ZENITH V12.24 - FIX GOM QUÁI + NHẬN QUEST")
+print("📌 Nhân vật đứng im trên không, quái bị kéo về đúng vị trí")
