@@ -1,4 +1,4 @@
--- [[ ZENITH BLOX FRUIT - V12.5 (FULL TÍNH NĂNG + SHOTGUN FAST ATTACK CHO GIẢ LẬP) ]] --
+-- [[ ZENITH BLOX FRUIT - V12.6 (BACKGROUND FAST ATTACK / 100% ẨN CHUỘT) ]] --
 
 task.wait(1)
 if not game:IsLoaded() then game.Loaded:Wait() end
@@ -12,8 +12,6 @@ local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local TeleportService = game:GetService("TeleportService")
 local HttpService = game:GetService("HttpService")
-local VirtualUser = game:GetService("VirtualUser")
-local VirtualInputManager = game:GetService("VirtualInputManager")
 
 local LocalPlayer = Players.LocalPlayer
 local CommF = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("CommF_")
@@ -499,7 +497,7 @@ task.spawn(function()
 end)
 
 -- ===================================================
--- 6. HỆ THỐNG SHOTGUN FAST ATTACK (TRỊ LDPLAYER)
+-- 6. BACKGROUND FAST ATTACK (ẨN CHUỘT 100%)
 -- ===================================================
 local currentTween, isAttackingTarget = nil, false
 
@@ -509,28 +507,26 @@ local function executeFastAttack()
     
     local tool = char:FindFirstChildOfClass("Tool")
     if tool then
-        -- Cách 1: Activate Tool trực tiếp
+        -- Kích hoạt Tool (Ẩn, không chiếm chuột)
         tool:Activate()
     end
     
-    -- Cách 2: Bắn Click bằng executor methods (Nếu Hỗ Trợ)
-    pcall(function() if mouse1click then mouse1click() end end)
-    pcall(function() if mouse1press then mouse1press() task.wait() mouse1release() end end)
-
-    -- Cách 3: Dùng VirtualUser giả lập Click
+    -- Hack CombatFramework gửi packet ngầm
     pcall(function()
-        VirtualUser:CaptureController()
-        VirtualUser:ClickButton1(Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2))
+        local CombatFramework = require(LocalPlayer.PlayerScripts.CombatFramework)
+        local activeController = CombatFramework.activeController
+        if activeController then
+            activeController.hitboxLimiter = 0
+            activeController.timeToNextAttack = 0
+            activeController.attacking = false
+            activeController.increment = 3
+            activeController.blocking = false
+            activeController.hasCombatState = false
+            activeController:attack()
+        end
     end)
     
-    -- Cách 4: Dùng VIM bắn chuột cực mạnh
-    pcall(function()
-        VirtualInputManager:SendMouseButtonEvent(Camera.ViewportSize.X/2, Camera.ViewportSize.Y/2, 0, true, game, 1)
-        task.wait(0.01)
-        VirtualInputManager:SendMouseButtonEvent(Camera.ViewportSize.X/2, Camera.ViewportSize.Y/2, 0, false, game, 1)
-    end)
-
-    -- Đóng băng Hoạt ảnh (Để khỏi giật màn hình)
+    -- Đóng băng Hoạt ảnh để nhân vật lơ lửng ngầu lòi
     pcall(function()
         local humanoid = char:FindFirstChildOfClass("Humanoid")
         if humanoid then
@@ -546,7 +542,7 @@ task.spawn(function()
     while true do
         if AutoFarmLevel and isAttackingTarget then
             executeFastAttack()
-            task.wait(0.12) -- Chỉnh delay nhẹ 1 chút để VIM hoạt động mượt không lỗi packet
+            task.wait(0.12)
         else
             task.wait(0.1)
         end
