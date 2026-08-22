@@ -1,4 +1,4 @@
--- [[ ZENITH BLOX FRUIT - V12.ULTIMATE (FULL TÍNH NĂNG + SETTING ĐẦY ĐỦ + AURA AFK) ]] --
+-- [[ ZENITH BLOX FRUIT - V12.23 (ĐỘC LẬP LUỒNG: TỰ ĐỘNG ĐÁNH + FULL TÍNH NĂNG + SETTING ĐẦY ĐỦ) ]] --
 
 task.wait(0.5)
 if not game:IsLoaded() then game.Loaded:Wait() end
@@ -57,11 +57,11 @@ local currentLang = "VI"
 local translatableElements = {}
 local LangDict = {
     VI = {
-        title = "ZYROX VN <font color='#00d2ff'>• V12 ULTIMATE</font>",
+        title = "ZYROX VN <font color='#00d2ff'>• V12.23</font>",
         badge = "PRO",
         tab_farm = "Farm Level", tab_fruit = "Trái Ác Quỷ", tab_pvp = "PVP & ESP",
         tab_server = "Máy Chủ", tab_raid = "Đi Raid", tab_item = "Farm Item", tab_setting = "Cài Đặt",
-        auto_farm_level = "⚡ Tự Động Farm (Aura AFK)", auto_quest = "📜 Tự Nhận Nhiệm Vụ", bring_mob = "🧲 Gom Quái An Toàn",
+        auto_farm_level = "⚡ Tự Động Farm (Độc Lập)", auto_quest = "📜 Tự Nhận Nhiệm Vụ", bring_mob = "🧲 Gom Quái An Toàn",
         fruit_buy = "🎲 Mua Ngẫu Nhiên Trái", fruit_collect = "🧲 Nhặt Trái Rơi", fruit_store = "📦 Cất Trái Vào Rương",
         speed_toggle = "Bật Chạy Nhanh", speed_slider = "Tốc Độ", jump_toggle = "Bật Nhảy Cao", jump_slider = "Lực Nhảy",
         player_esp = "ESP Người Chơi", fruit_esp = "ESP Trái Ác Quỷ", chest_wood = "ESP Rương Gỗ", chest_gold = "ESP Rương Vàng", chest_diamond = "ESP Rương Kim Cương",
@@ -70,11 +70,11 @@ local LangDict = {
         lang_title = "Ngôn Ngữ / Language", ui_scale = "Thu Phóng UI (%)", ui_transparency = "Trong Suốt UI (%)", fix_lag = "Tối Ưu Đồ Họa (Tăng FPS)", close_hub = "Đóng Cửa Sổ"
     },
     EN = {
-        title = "ZYROX VN <font color='#00d2ff'>• V12 ULTIMATE</font>",
+        title = "ZYROX VN <font color='#00d2ff'>• V12.23</font>",
         badge = "PRO",
         tab_farm = "Farm Level", tab_fruit = "Devil Fruit", tab_pvp = "PVP & ESP",
         tab_server = "Server", tab_raid = "Raid Hub", tab_item = "Item Farm", tab_setting = "Settings",
-        auto_farm_level = "⚡ Auto Farm (Aura AFK)", auto_quest = "📜 Auto Quest", bring_mob = "🧲 Safe Bring Mobs",
+        auto_farm_level = "⚡ Auto Farm (Independent)", auto_quest = "📜 Auto Quest", bring_mob = "🧲 Safe Bring Mobs",
         fruit_buy = "🎲 Random Fruit", fruit_collect = "🧲 Collect Fruits", fruit_store = "📦 Store Into Inventory",
         speed_toggle = "Enable WalkSpeed", speed_slider = "Speed", jump_toggle = "Enable High Jump", jump_slider = "Jump Height",
         player_esp = "Player ESP", fruit_esp = "Fruit ESP", chest_wood = "Wood Chest", chest_gold = "Gold Chest", chest_diamond = "Diamond Chest",
@@ -356,7 +356,7 @@ createToggle(tabPages["RAID"], "auto_raid_start", false, function(v) end)
 -- TAB 6: ITEM
 createToggle(tabPages["FARM ITEM"], "auto_bones", false, function(v) end)
 
--- TAB 7: SETTING
+-- TAB 7: SETTING (ĐÃ CÓ ĐẦY ĐỦ NÚT ĐÓNG & FIX LAG)
 local settingPage = tabPages["SETTING"]
 createToggle(settingPage, "fix_lag", false, function(v)
     Lighting.GlobalShadows = not v
@@ -367,7 +367,7 @@ createButton(settingPage, "close_hub", function() ScreenGui:Destroy() end)
 switchTab("Farm")
 
 -- ===================================================
--- 4. HỆ THỐNG FULL LOGIC ESP, FRUIT & WATER
+-- 4. HỆ THỐNG FULL LOGIC ESP & FRUIT
 -- ===================================================
 RunService.Heartbeat:Connect(function()
     if speedEnabled and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
@@ -383,7 +383,6 @@ UserInputService.JumpRequest:Connect(function()
     end
 end)
 
--- ESP Players
 task.spawn(function()
     while true do
         task.wait(0.2)
@@ -409,7 +408,6 @@ task.spawn(function()
     end
 end)
 
--- ESP Fruit & Chest
 local detectedChests = {}
 task.spawn(function()
     while true do
@@ -534,6 +532,7 @@ end)
 
 -- ===================================================
 -- 5. HỆ THỐNG AURA AFK (ĐỨNG IM GÂY DAME TRÊN KHÔNG 6 MÉT)
+-- ĐỘC LẬP HOÀN TOÀN KHÔNG BỊ TREO THREAD
 -- ===================================================
 local isAttackingTarget = false
 
@@ -561,6 +560,10 @@ task.spawn(function()
     while true do
         if AutoFarmLevel and isAttackingTarget then
             pcall(function()
+                local char = LocalPlayer.Character
+                local tool = char and char:FindFirstChildOfClass("Tool")
+                if tool then tool:Activate() end
+
                 local CbFw = require(LocalPlayer.PlayerScripts.CombatFramework)
                 local controller = CbFw.activeController
                 if not controller and debug.getupvalues then
@@ -587,19 +590,16 @@ end)
 
 
 -- ===================================================
--- 6. LOGIC DI CHUYỂN & GOM QUÁI (AURA FARM CHUẨN XÁC)
+-- 6. LOGIC DI CHUYỂN & GOM QUÁI ĐỘC LẬP
 -- ===================================================
 local currentTween = nil
 local function toTargetPos(targetCFrame)
     local char = LocalPlayer.Character
     if not char or not char:FindFirstChild("HumanoidRootPart") then return end
     local root = char.HumanoidRootPart
-    
     if currentTween and currentTween.PlaybackState == Enum.PlaybackState.Playing then return end
-    
     local distance = (root.Position - targetCFrame.Position).Magnitude
     if distance < 3 then return end
-    
     local speed = 350 
     local time = distance / speed
     currentTween = TweenService:Create(root, TweenInfo.new(time, Enum.EasingStyle.Linear), {CFrame = targetCFrame})
