@@ -1,4 +1,4 @@
--- [[ ZENITH BLOX FRUIT - V18.3 (GPS FLY + GOD MODE + FULL UI) ]] --
+-- [[ ZENITH BLOX FRUIT - V18.4 (GPS ISLAND MAP + GOD MODE + FULL UI) ]] --
 
 task.wait(0.5)
 
@@ -63,6 +63,26 @@ local AutoCollectFruit = false
 local AutoStoreFruit = false
 
 -- =========================================================
+-- BẢN ĐỒ TỌA ĐỘ GPS CỨNG (BAY THẲNG ĐẾN ĐẢO KHÔNG CẦN QUÁI)
+-- =========================================================
+local IslandPositions = {
+    ["Bandit"] = Vector3.new(1057, 16, 1378),
+    ["Monkey"] = Vector3.new(-1598, 36, 153),
+    ["Gorilla"] = Vector3.new(-1598, 36, 153),
+    ["Pirate"] = Vector3.new(-1141, 4, 3828),
+    ["Brute"] = Vector3.new(-1141, 4, 3828),
+    ["Desert Bandit"] = Vector3.new(895, 6, 4390),
+    ["Desert Officer"] = Vector3.new(895, 6, 4390),
+    ["Snow Bandit"] = Vector3.new(1386, 87, -1298),
+    ["Snowman"] = Vector3.new(1386, 87, -1298),
+    ["Chief Petty Officer"] = Vector3.new(-4884, 21, 4301),
+    ["Sky Bandit"] = Vector3.new(-4842, 717, -2623),
+    ["Dark Master"] = Vector3.new(-4842, 717, -2623),
+    ["Prisoner"] = Vector3.new(4875, 5, 735),
+    ["Peanut Scout"] = Vector3.new(-2051, 37, -10254)
+}
+
+-- =========================================================
 -- DỌN DẸP GIAO DIỆN CŨ
 -- =========================================================
 local UI_NAME = "ZenithBloxFruit_Zyrox_V18"
@@ -120,7 +140,7 @@ local TopStroke = Instance.new("UIStroke", TopBar); TopStroke.Color = Color3.fro
 
 local Title = Instance.new("TextLabel", TopBar)
 Title.Size = UDim2.new(0, 240, 1, 0); Title.Position = UDim2.new(0, 15, 0, 0); Title.BackgroundTransparency = 1; Title.RichText = true; Title.TextColor3 = Color3.fromRGB(255, 255, 255); Title.Font = Enum.Font.GothamBold; Title.TextSize = 12; Title.TextXAlignment = Enum.TextXAlignment.Left
-Title.Text = "ZYROX VN <font color='#00d2ff'>• V18.3 (GPS FIX)</font>"
+Title.Text = "ZYROX VN <font color='#00d2ff'>• V18.4 (GPS MAP)</font>"
 
 local StatsFrame = Instance.new("Frame", TopBar)
 StatsFrame.Size = UDim2.new(0, 120, 0, 24); StatsFrame.Position = UDim2.new(1, -190, 0.5, -12); StatsFrame.BackgroundColor3 = Color3.fromRGB(22, 26, 38); StatsFrame.BorderSizePixel = 0; Instance.new("UICorner", StatsFrame).CornerRadius = UDim.new(0, 6)
@@ -401,7 +421,7 @@ RunService.Stepped:Connect(function()
 end)
 
 -- =========================================================
--- HỆ THỐNG BAY GPS CHUẨN XÁC (KHÔNG BAO GIỜ KẸT)
+-- HỆ THỐNG BAY TWEEN (MƯỢT 100%)
 -- =========================================================
 local currentTween = nil
 local function toTargetPos(targetCFrame)
@@ -430,6 +450,9 @@ local function toTargetPos(targetCFrame)
     end
 end
 
+-- =========================================================
+-- LOGIC NHIỆM VỤ & FARM VỚI BẢN ĐỒ GPS CỨNG
+-- =========================================================
 local function getAutoQuestByLevel()
     local level = 1
     pcall(function() level = LocalPlayer.Data.Level.Value end)
@@ -441,7 +464,7 @@ local function getAutoQuestByLevel()
     elseif level <= 74 then return {QuestName = "DesertQuest", QuestLevel = 1, MonName = "Desert Bandit", ReqLevel = 60}
     elseif level <= 89 then return {QuestName = "DesertQuest", QuestLevel = 2, MonName = "Desert Officer", ReqLevel = 75}
     elseif level <= 99 then return {QuestName = "SnowQuest", QuestLevel = 1, MonName = "Snow Bandit", ReqLevel = 90}
-    elseif level <= 119 then return {QuestName = "SnowQuest", QuestLevel = 2, MonName = "Snowman", ReqLevel = 100}
+    elseif level <= 119 then return {QuestName = "SnowQuest", Dump = 2, QuestLevel = 2, MonName = "Snowman", ReqLevel = 100}
     elseif level <= 149 then return {QuestName = "MarineQuest2", QuestLevel = 1, MonName = "Chief Petty Officer", ReqLevel = 120}
     elseif level <= 174 then return {QuestName = "SkyQuest", QuestLevel = 1, MonName = "Sky Bandit", ReqLevel = 150}
     elseif level <= 189 then return {QuestName = "SkyQuest", QuestLevel = 2, MonName = "Dark Master", ReqLevel = 175}
@@ -476,18 +499,6 @@ local function getClosestMob(monName)
     return closestMob
 end
 
-local function GetMobSpawn(monName)
-    local paths = {Workspace:FindFirstChild("EnemySpawns"), Workspace:FindFirstChild("_WorldOrigin") and Workspace._WorldOrigin:FindFirstChild("EnemySpawns")}
-    for _, path in ipairs(paths) do
-        if path then
-            for _, spawnPart in ipairs(path:GetChildren()) do
-                if spawnPart.Name == monName or string.find(string.lower(spawnPart.Name), string.lower(monName)) then return spawnPart.CFrame end
-            end
-        end
-    end
-    return nil
-end
-
 local lockedFarmPosition = nil
 
 task.spawn(function()
@@ -507,50 +518,47 @@ task.spawn(function()
                 end
 
                 local targetMob = getClosestMob(mobName)
-                if targetMob then
-                    local primaryHRP = targetMob:FindFirstChild("HumanoidRootPart")
-                    if primaryHRP then
-                        if not lockedFarmPosition or (lockedFarmPosition.Position - primaryHRP.Position).Magnitude > 300 then
-                            lockedFarmPosition = primaryHRP.CFrame
-                        end
+                local targetPos = nil
 
-                        local groundPos = lockedFarmPosition.Position
-                        local safePlayerPos = CFrame.new(groundPos.X, groundPos.Y + 30, groundPos.Z)
-                        local dist = (LocalPlayer.Character.HumanoidRootPart.Position - safePlayerPos.Position).Magnitude
-                        
-                        if dist > 10 then
-                            toTargetPos(safePlayerPos)
-                        else
-                            if currentTween then currentTween:Cancel(); currentTween = nil end
-                            LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.lookAt(safePlayerPos.Position, safePlayerPos.Position - Vector3.new(0, 10, 0))
+                if targetMob and targetMob:FindFirstChild("HumanoidRootPart") then
+                    local primaryHRP = targetMob.HumanoidRootPart
+                    if not lockedFarmPosition or (lockedFarmPosition.Position - primaryHRP.Position).Magnitude > 300 then
+                        lockedFarmPosition = primaryHRP.CFrame
+                    end
+                    targetPos = CFrame.new(lockedFarmPosition.Position.X, lockedFarmPosition.Position.Y + 30, lockedFarmPosition.Position.Z)
+                elseif IslandPositions[mobName] then
+                    -- NẾU QUÁI CHƯA LOAD RA, BAY THẲNG ĐẾN TỌA ĐỘ GPS CỐ ĐỊNH CỦA ĐẢO ĐÓ
+                    targetPos = CFrame.new(IslandPositions[mobName] + Vector3.new(0, 30, 0))
+                end
 
-                            if BringMob then
-                                for _, mob in ipairs(Workspace.Enemies:GetChildren()) do
-                                    if mob.Name == mobName then
-                                        local oHRP = mob:FindFirstChild("HumanoidRootPart")
-                                        local oHum = mob:FindFirstChildOfClass("Humanoid")
-                                        if oHRP and oHum and oHum.Health > 0 and (oHRP.Position - groundPos).Magnitude <= 350 then
-                                            pcall(function()
-                                                oHRP.CFrame = safePlayerPos * CFrame.new(0, -6, -4)
-                                                oHRP.Size = Vector3.new(15, 15, 15)
-                                                oHRP.Transparency = 1
-                                                oHRP.CanCollide = false
-                                                oHRP.AssemblyLinearVelocity = Vector3.zero
-                                                oHum.WalkSpeed = 0; oHum.JumpPower = 0; oHum.Sit = true; oHum.PlatformStand = true
-                                            end)
-                                        end
+                if targetPos then
+                    local myHRP = LocalPlayer.Character.HumanoidRootPart
+                    local dist = (myHRP.Position - targetPos.Position).Magnitude
+                    
+                    if dist > 10 then
+                        toTargetPos(targetPos)
+                    else
+                        if currentTween then currentTween:Cancel(); currentTween = nil end
+                        myHRP.CFrame = CFrame.lookAt(targetPos.Position, targetPos.Position - Vector3.new(0, 10, 0))
+
+                        if BringMob then
+                            for _, mob in ipairs(Workspace.Enemies:GetChildren()) do
+                                if mob.Name == mobName then
+                                    local oHRP = mob:FindFirstChild("HumanoidRootPart")
+                                    local oHum = mob:FindFirstChildOfClass("Humanoid")
+                                    if oHRP and oHum and oHum.Health > 0 then
+                                        pcall(function()
+                                            oHRP.CFrame = targetPos * CFrame.new(0, -6, -4)
+                                            oHRP.Size = Vector3.new(15, 15, 15)
+                                            oHRP.Transparency = 1
+                                            oHRP.CanCollide = false
+                                            oHRP.AssemblyLinearVelocity = Vector3.zero
+                                            oHum.WalkSpeed = 0; oHum.JumpPower = 0; oHum.Sit = true; oHum.PlatformStand = true
+                                        end)
                                     end
                                 end
                             end
                         end
-                    end
-                else
-                    lockedFarmPosition = nil
-                    local spawnCFrame = GetMobSpawn(mobName)
-                    if spawnCFrame then
-                        toTargetPos(spawnCFrame + Vector3.new(0, 30, 0))
-                    else
-                        if currentTween then currentTween:Cancel(); currentTween = nil end
                     end
                 end
             end
