@@ -1,4 +1,4 @@
--- [[ ZENITH BLOX FRUIT - V12.24 (FIX ESP + AUTO FARM CHUẨN) ]] --
+-- [[ ZENITH BLOX FRUIT - V12.24 (SIMPLE UI + FIX AUTO FARM) ]] --
 
 task.wait(0.5)
 if not game:IsLoaded() then game.Loaded:Wait() end
@@ -27,31 +27,24 @@ end)
 -- ===================================================
 -- BIẾN TOÀN CỤC
 -- ===================================================
-local selectedWeaponType = "Melee"
+local selectedWeapon = "Melee"
 local AutoFarm = false
 local AutoQuest = true
-local BringMob = false  -- TẮT GOM QUÁI để tránh giật
 local flightHeight = 28
 local attackSpeed = 0.04
-
--- ESP
 local espPlayer = false
 local espFruit = false
 local espChest = false
-
--- Speed / Jump
 local speedEnabled = false
 local speedValue = 16
 local jumpEnabled = false
 local jumpValue = 50
-
--- Fruit
 local autoBuyFruit = false
 local autoCollectFruit = false
 local autoStoreFruit = false
 
 -- ===================================================
--- 1. UI ĐƠN GIẢN (KHÔNG CẦN NHIỀU TAB)
+-- 1. UI ĐƠN GIẢN (KHÔNG LỖI FONT)
 -- ===================================================
 local UI_NAME = "ZenithBloxFruit_Zyrox_V12"
 
@@ -73,34 +66,17 @@ ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 pcall(function() ScreenGui.Parent = targetUIFolder end)
 if not ScreenGui.Parent then ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui") end
 
--- NÚT Z
-local FloatingButton = Instance.new("TextButton", ScreenGui)
-FloatingButton.Size = UDim2.new(0, 48, 0, 48)
-FloatingButton.AnchorPoint = Vector2.new(0.5, 0.5)
-FloatingButton.Position = UDim2.new(0.1, 0, 0.5, 0)
-FloatingButton.BackgroundColor3 = Color3.fromRGB(13, 16, 22)
-FloatingButton.Visible = false
-FloatingButton.Text = "Z"
-FloatingButton.TextColor3 = Color3.fromRGB(0, 210, 255)
-FloatingButton.Font = Enum.Font.GothamBlack
-FloatingButton.TextSize = 24
-FloatingButton.ZIndex = 999
-Instance.new("UICorner", FloatingButton).CornerRadius = UDim.new(0, 12)
-Instance.new("UIStroke", FloatingButton).Color = Color3.fromRGB(0, 210, 255)
-Instance.new("UIStroke", FloatingButton).Thickness = 1.5
-
 -- MAIN FRAME
 local MainFrame = Instance.new("Frame", ScreenGui)
-MainFrame.Size = UDim2.new(0, 420, 0, 380)
+MainFrame.Size = UDim2.new(0, 380, 0, 420)
 MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-MainFrame.BackgroundColor3 = Color3.fromRGB(11, 13, 19)
+MainFrame.BackgroundColor3 = Color3.fromRGB(13, 15, 22)
 MainFrame.BorderSizePixel = 0
 MainFrame.ClipsDescendants = true
-MainFrame.Visible = true
-Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 10)
+Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 8)
 Instance.new("UIStroke", MainFrame).Color = Color3.fromRGB(30, 36, 50)
-Instance.new("UIStroke", MainFrame).Thickness = 1.2
+Instance.new("UIStroke", MainFrame).Thickness = 1
 
 local UIScale = Instance.new("UIScale", MainFrame)
 
@@ -125,119 +101,131 @@ end)
 
 -- TOPBAR
 local TopBar = Instance.new("Frame", MainFrame)
-TopBar.Size = UDim2.new(1, 0, 0, 38)
-TopBar.BackgroundColor3 = Color3.fromRGB(15, 18, 26)
+TopBar.Size = UDim2.new(1, 0, 0, 32)
+TopBar.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
 
 local Title = Instance.new("TextLabel", TopBar)
-Title.Size = UDim2.new(0, 200, 1, 0)
+Title.Size = UDim2.new(1, -60, 1, 0)
 Title.Position = UDim2.new(0, 10, 0, 0)
 Title.BackgroundTransparency = 1
-Title.RichText = true
-Title.Text = "ZYROX VN <font color='#00d2ff'>• V12.24</font>"
+Title.Text = "ZYROX VN - V12.24"
 Title.TextColor3 = Color3.fromRGB(255, 255, 255)
 Title.Font = Enum.Font.GothamBold
-Title.TextSize = 12
+Title.TextSize = 13
 Title.TextXAlignment = Enum.TextXAlignment.Left
 
 local CloseBtn = Instance.new("TextButton", TopBar)
-CloseBtn.Size = UDim2.new(0, 24, 0, 24)
-CloseBtn.Position = UDim2.new(1, -28, 0.5, -12)
-CloseBtn.BackgroundColor3 = Color3.fromRGB(255, 60, 90)
-CloseBtn.Text = "✕"
+CloseBtn.Size = UDim2.new(0, 28, 0, 28)
+CloseBtn.Position = UDim2.new(1, -32, 0.5, -14)
+CloseBtn.BackgroundColor3 = Color3.fromRGB(255, 50, 80)
+CloseBtn.Text = "X"
 CloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 CloseBtn.Font = Enum.Font.GothamBold
-CloseBtn.TextSize = 10
-Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(0, 5)
+CloseBtn.TextSize = 12
+Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(0, 6)
 CloseBtn.MouseButton1Click:Connect(function()
     MainFrame.Visible = false
-    FloatingButton.Visible = true
 end)
 
-FloatingButton.MouseButton1Click:Connect(function()
+-- NÚT FLOATING (Z)
+local FloatingBtn = Instance.new("TextButton", ScreenGui)
+FloatingBtn.Size = UDim2.new(0, 44, 0, 44)
+FloatingBtn.AnchorPoint = Vector2.new(0.5, 0.5)
+FloatingBtn.Position = UDim2.new(0.05, 0, 0.5, 0)
+FloatingBtn.BackgroundColor3 = Color3.fromRGB(13, 15, 22)
+FloatingBtn.Visible = false
+FloatingBtn.Text = "Z"
+FloatingBtn.TextColor3 = Color3.fromRGB(0, 200, 255)
+FloatingBtn.Font = Enum.Font.GothamBlack
+FloatingBtn.TextSize = 24
+Instance.new("UICorner", FloatingBtn).CornerRadius = UDim.new(0, 12)
+Instance.new("UIStroke", FloatingBtn).Color = Color3.fromRGB(0, 200, 255)
+FloatingBtn.MouseButton1Click:Connect(function()
     MainFrame.Visible = true
-    FloatingButton.Visible = false
+    FloatingBtn.Visible = false
 end)
 
--- CONTENT
+-- CONTENT SCROLL
 local Content = Instance.new("ScrollingFrame", MainFrame)
-Content.Size = UDim2.new(1, 0, 1, -38)
-Content.Position = UDim2.new(0, 0, 0, 38)
+Content.Size = UDim2.new(1, 0, 1, -32)
+Content.Position = UDim2.new(0, 0, 0, 32)
 Content.BackgroundTransparency = 1
-Content.ScrollBarThickness = 2
+Content.ScrollBarThickness = 3
 Content.CanvasSize = UDim2.new(0, 0, 0, 0)
 Content.AutomaticCanvasSize = Enum.AutomaticSize.Y
 
 local Layout = Instance.new("UIListLayout", Content)
-Layout.Padding = UDim.new(0, 6)
+Layout.Padding = UDim.new(0, 5)
 Layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 
--- HÀM TẠO TOGGLE
-local function createToggle(labelText, defaultState, callback)
-    local state = defaultState or false
+-- ===================================================
+-- HÀM TẠO UI
+-- ===================================================
+local function addToggle(text, default, callback)
+    local state = default or false
     local frame = Instance.new("Frame", Content)
-    frame.Size = UDim2.new(0.94, 0, 0, 30)
-    frame.BackgroundColor3 = Color3.fromRGB(16, 20, 28)
-    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 5)
+    frame.Size = UDim2.new(0.94, 0, 0, 28)
+    frame.BackgroundColor3 = Color3.fromRGB(18, 22, 32)
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 4)
     
     local label = Instance.new("TextLabel", frame)
     label.Size = UDim2.new(1, -50, 1, 0)
     label.Position = UDim2.new(0, 8, 0, 0)
     label.BackgroundTransparency = 1
-    label.Text = labelText
+    label.Text = text
     label.TextColor3 = Color3.fromRGB(220, 225, 235)
     label.Font = Enum.Font.Gotham
-    label.TextSize = 10
+    label.TextSize = 11
     label.TextXAlignment = Enum.TextXAlignment.Left
     label.TextYAlignment = Enum.TextYAlignment.Center
     
-    local switch = Instance.new("TextButton", frame)
-    switch.Size = UDim2.new(0, 30, 0, 15)
-    switch.Position = UDim2.new(1, -38, 0.5, -7.5)
-    switch.BackgroundColor3 = state and Color3.fromRGB(0, 190, 255) or Color3.fromRGB(35, 40, 54)
-    switch.Text = ""
-    Instance.new("UICorner", switch).CornerRadius = UDim.new(1, 0)
+    local sw = Instance.new("TextButton", frame)
+    sw.Size = UDim2.new(0, 28, 0, 14)
+    sw.Position = UDim2.new(1, -36, 0.5, -7)
+    sw.BackgroundColor3 = state and Color3.fromRGB(0, 190, 255) or Color3.fromRGB(35, 40, 54)
+    sw.Text = ""
+    Instance.new("UICorner", sw).CornerRadius = UDim.new(1, 0)
     
-    local circle = Instance.new("Frame", switch)
-    circle.Size = UDim2.new(0, 11, 0, 11)
-    circle.Position = state and UDim2.new(1, -13, 0.5, -5.5) or UDim2.new(0, 2, 0.5, -5.5)
+    local circle = Instance.new("Frame", sw)
+    circle.Size = UDim2.new(0, 10, 0, 10)
+    circle.Position = state and UDim2.new(1, -12, 0.5, -5) or UDim2.new(0, 2, 0.5, -5)
     circle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     Instance.new("UICorner", circle).CornerRadius = UDim.new(1, 0)
     
-    switch.MouseButton1Click:Connect(function()
+    sw.MouseButton1Click:Connect(function()
         state = not state
-        switch.BackgroundColor3 = state and Color3.fromRGB(0, 190, 255) or Color3.fromRGB(35, 40, 54)
-        circle:TweenPosition(state and UDim2.new(1, -13, 0.5, -5.5) or UDim2.new(0, 2, 0.5, -5.5), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.12, true)
+        sw.BackgroundColor3 = state and Color3.fromRGB(0, 190, 255) or Color3.fromRGB(35, 40, 54)
+        circle:TweenPosition(state and UDim2.new(1, -12, 0.5, -5) or UDim2.new(0, 2, 0.5, -5), Enum.EasingDirection.Out, Enum.EasingStyle.Quad, 0.12, true)
         if callback then callback(state) end
     end)
 end
 
--- HÀM TẠO SLIDER
-local function createSlider(labelText, min, max, default, callback, isFloat)
+local function addSlider(text, min, max, default, callback, isFloat)
     local current = default or min
     local frame = Instance.new("Frame", Content)
-    frame.Size = UDim2.new(0.94, 0, 0, 38)
-    frame.BackgroundColor3 = Color3.fromRGB(16, 20, 28)
-    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 5)
+    frame.Size = UDim2.new(0.94, 0, 0, 36)
+    frame.BackgroundColor3 = Color3.fromRGB(18, 22, 32)
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 4)
     
     local label = Instance.new("TextLabel", frame)
-    label.Size = UDim2.new(1, -70, 0, 18)
+    label.Size = UDim2.new(1, -70, 0, 16)
     label.Position = UDim2.new(0, 8, 0, 2)
     label.BackgroundTransparency = 1
-    label.Text = labelText
+    label.Text = text
     label.TextColor3 = Color3.fromRGB(220, 225, 235)
     label.Font = Enum.Font.Gotham
-    label.TextSize = 10
+    label.TextSize = 11
     label.TextXAlignment = Enum.TextXAlignment.Left
     
-    local valueLabel = Instance.new("TextLabel", frame)
-    valueLabel.Size = UDim2.new(0, 50, 0, 18)
-    valueLabel.Position = UDim2.new(1, -58, 0, 2)
-    valueLabel.BackgroundTransparency = 1
-    valueLabel.Text = isFloat and string.format("%.2f", current) or tostring(current)
-    valueLabel.TextColor3 = Color3.fromRGB(0, 210, 255)
-    valueLabel.Font = Enum.Font.GothamBold
-    valueLabel.TextSize = 10
-    valueLabel.TextXAlignment = Enum.TextXAlignment.Right
+    local valLabel = Instance.new("TextLabel", frame)
+    valLabel.Size = UDim2.new(0, 50, 0, 16)
+    valLabel.Position = UDim2.new(1, -58, 0, 2)
+    valLabel.BackgroundTransparency = 1
+    valLabel.Text = isFloat and string.format("%.2f", current) or tostring(current)
+    valLabel.TextColor3 = Color3.fromRGB(0, 200, 255)
+    valLabel.Font = Enum.Font.GothamBold
+    valLabel.TextSize = 11
+    valLabel.TextXAlignment = Enum.TextXAlignment.Right
     
     local track = Instance.new("TextButton", frame)
     track.Size = UDim2.new(0.94, 0, 0, 3)
@@ -252,47 +240,44 @@ local function createSlider(labelText, min, max, default, callback, isFloat)
     fill.BackgroundColor3 = Color3.fromRGB(0, 190, 255)
     Instance.new("UICorner", fill).CornerRadius = UDim.new(1, 0)
     
-    local isDraggingSlider = false
+    local dragging = false
     local function update(percent)
         fill.Size = UDim2.new(math.clamp(percent, 0, 1), 0, 1, 0)
         if isFloat then
             current = min + (max - min) * math.clamp(percent, 0, 1)
-            valueLabel.Text = string.format("%.2f", current)
+            valLabel.Text = string.format("%.2f", current)
         else
             current = math.floor(min + (max - min) * math.clamp(percent, 0, 1))
-            valueLabel.Text = tostring(current)
+            valLabel.Text = tostring(current)
         end
         if callback then callback(current) end
     end
     
     track.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            isDraggingSlider = true
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
             update((input.Position.X - track.AbsolutePosition.X) / track.AbsoluteSize.X)
         end
     end)
     UserInputService.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            isDraggingSlider = false
-        end
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end
     end)
     UserInputService.InputChanged:Connect(function(input)
-        if isDraggingSlider and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
             update((UserInputService:GetMouseLocation().X - track.AbsolutePosition.X) / track.AbsoluteSize.X)
         end
     end)
 end
 
--- HÀM TẠO BUTTON
-local function createButton(labelText, callback)
+local function addButton(text, callback)
     local btn = Instance.new("TextButton", Content)
     btn.Size = UDim2.new(0.94, 0, 0, 28)
-    btn.BackgroundColor3 = Color3.fromRGB(20, 26, 38)
-    btn.Text = labelText
-    btn.TextColor3 = Color3.fromRGB(0, 210, 255)
+    btn.BackgroundColor3 = Color3.fromRGB(18, 22, 32)
+    btn.Text = text
+    btn.TextColor3 = Color3.fromRGB(0, 200, 255)
     btn.Font = Enum.Font.GothamMedium
-    btn.TextSize = 10
-    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 5)
+    btn.TextSize = 11
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 4)
     Instance.new("UIStroke", btn).Color = Color3.fromRGB(0, 180, 255)
     btn.MouseButton1Click:Connect(function() if callback then callback() end end)
 end
@@ -303,77 +288,71 @@ end
 local infoLabel = Instance.new("TextLabel", Content)
 infoLabel.Size = UDim2.new(0.94, 0, 0, 28)
 infoLabel.BackgroundTransparency = 1
-infoLabel.RichText = true
 infoLabel.Text = "⚡ Sẵn sàng"
 infoLabel.TextColor3 = Color3.fromRGB(0, 255, 150)
 infoLabel.Font = Enum.Font.GothamBold
-infoLabel.TextSize = 11
+infoLabel.TextSize = 12
 
--- Weapon selector
-local weaponFrame = Instance.new("Frame", Content)
-weaponFrame.Size = UDim2.new(0.94, 0, 0, 26)
-weaponFrame.BackgroundColor3 = Color3.fromRGB(15, 18, 25)
-Instance.new("UICorner", weaponFrame).CornerRadius = UDim.new(0, 5)
-local wLayout = Instance.new("UIListLayout", weaponFrame)
+-- Weapon select
+local wFrame = Instance.new("Frame", Content)
+wFrame.Size = UDim2.new(0.94, 0, 0, 26)
+wFrame.BackgroundColor3 = Color3.fromRGB(18, 22, 32)
+Instance.new("UICorner", wFrame).CornerRadius = UDim.new(0, 4)
+local wLayout = Instance.new("UIListLayout", wFrame)
 wLayout.FillDirection = Enum.FillDirection.Horizontal
 wLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 wLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-wLayout.Padding = UDim.new(0, 3)
+wLayout.Padding = UDim.new(0, 4)
 
-local weaponBtns = {}
-local weapons = {"Melee", "Sword", "Blox Fruit"}
-local icons = {"🥊", "⚔️", "🍎"}
-for i, name in ipairs(weapons) do
-    local b = Instance.new("TextButton", weaponFrame)
+local wBtns = {}
+local wList = {"Melee", "Sword", "Fruit"}
+local wIcons = {"🥊", "⚔️", "🍎"}
+for i, name in ipairs(wList) do
+    local b = Instance.new("TextButton", wFrame)
     b.Size = UDim2.new(0.3, 0, 0.8, 0)
-    b.BackgroundColor3 = (selectedWeaponType == name) and Color3.fromRGB(0, 160, 240) or Color3.fromRGB(28, 35, 48)
-    b.Text = icons[i]
-    b.TextColor3 = (selectedWeaponType == name) and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(140, 150, 170)
+    b.BackgroundColor3 = (selectedWeapon == name) and Color3.fromRGB(0, 160, 240) or Color3.fromRGB(28, 35, 48)
+    b.Text = wIcons[i]
+    b.TextColor3 = (selectedWeapon == name) and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(160, 170, 190)
     b.Font = Enum.Font.GothamMedium
-    b.TextSize = 12
-    Instance.new("UICorner", b).CornerRadius = UDim.new(0, 3)
-    weaponBtns[name] = b
+    b.TextSize = 14
+    Instance.new("UICorner", b).CornerRadius = UDim.new(0, 4)
+    wBtns[name] = b
     b.MouseButton1Click:Connect(function()
-        selectedWeaponType = name
-        for n, btn in pairs(weaponBtns) do
+        selectedWeapon = name
+        for n, btn in pairs(wBtns) do
             btn.BackgroundColor3 = (n == name) and Color3.fromRGB(0, 160, 240) or Color3.fromRGB(28, 35, 48)
-            btn.TextColor3 = (n == name) and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(140, 150, 170)
+            btn.TextColor3 = (n == name) and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(160, 170, 190)
         end
     end)
 end
 
-createToggle("⚡ AFK Farm (Bay + Đánh)", false, function(v) AutoFarm = v end)
-createToggle("📜 Tự Nhận Nhiệm Vụ", true, function(v) AutoQuest = v end)
-createToggle("🧲 Gom Quái (TẮT để đánh mượt)", false, function(v) BringMob = v end)
-createSlider("🏔️ Chiều Cao Bay", 10, 50, 28, function(v) flightHeight = v end, false)
-createSlider("⚡ Tốc Độ Đánh (s)", 0.01, 0.2, 0.04, function(v) attackSpeed = v end, true)
+addToggle("⚡ AFK Farm", false, function(v) AutoFarm = v end)
+addToggle("📜 Auto Quest", true, function(v) AutoQuest = v end)
+addSlider("🏔️ Độ cao bay", 10, 50, 28, function(v) flightHeight = v end, false)
+addSlider("⚡ Tốc đánh (s)", 0.01, 0.2, 0.04, function(v) attackSpeed = v end, true)
 
--- ESP
-createToggle("👤 ESP Người Chơi", false, function(v) espPlayer = v end)
-createToggle("🍎 ESP Trái Ác Quỷ", false, function(v) espFruit = v end)
-createToggle("📦 ESP Rương", false, function(v) espChest = v end)
+addToggle("👤 ESP Player", false, function(v) espPlayer = v end)
+addToggle("🍎 ESP Fruit", false, function(v) espFruit = v end)
+addToggle("📦 ESP Chest", false, function(v) espChest = v end)
 
--- Speed / Jump
-createToggle("🏃 Bật Chạy Nhanh", false, function(v) speedEnabled = v end)
-createSlider("🏃 Tốc Độ", 16, 300, 16, function(v) speedValue = v end, false)
-createToggle("🦘 Bật Nhảy Cao", false, function(v) jumpEnabled = v end)
-createSlider("🦘 Lực Nhảy", 50, 400, 50, function(v) jumpValue = v end, false)
+addToggle("🏃 Speed", false, function(v) speedEnabled = v end)
+addSlider("🏃 Speed", 16, 300, 16, function(v) speedValue = v end, false)
+addToggle("🦘 Jump", false, function(v) jumpEnabled = v end)
+addSlider("🦘 Jump", 50, 400, 50, function(v) jumpValue = v end, false)
 
--- Fruit
-createToggle("🎲 Mua Trái Ngẫu Nhiên", false, function(v) autoBuyFruit = v end)
-createToggle("🧲 Nhặt Trái Rơi", false, function(v) autoCollectFruit = v end)
-createToggle("📦 Cất Trái Vào Rương", false, function(v) autoStoreFruit = v end)
+addToggle("🎲 Buy Fruit", false, function(v) autoBuyFruit = v end)
+addToggle("🧲 Collect Fruit", false, function(v) autoCollectFruit = v end)
+addToggle("📦 Store Fruit", false, function(v) autoStoreFruit = v end)
 
--- Server
-createButton("🎁 Nhập Code Game", function()
+addButton("🎁 Redeem Codes", function()
     local codes = {"ADMINHACKED", "ADMINDARES", "SECRET_ADMIN", "NOOB2PRO", "StrawHatMaine", "Sub2Fer999", "Enyu_is_Pro", "Magicbus", "JCWK", "Starcodeheo", "Bluxxy", "THEGREATACE", "SUB2GAMERROBOT_EXP1", "Sub2OfficialNoobie", "FUDD10", "BIGNEWS", "KITT_RESET", "SUB2NOOBMASTER123", "Sub2UncleKizaru", "Sub2Daigrock", "Axiore", "TantaiGaming", "FUDD10_V2", "CHANDLER", "GAMER_ROBOT_1M", "TY_FOR_WATCHING", "UPD16", "3BVISITS", "2BILLION"}
     task.spawn(function() for _, c in ipairs(codes) do pcall(function() CommF:InvokeServer("RedeemCustomCode", c) end) task.wait(0.1) end end)
 end)
-createButton("🔄 Vào Lại Server", function() TeleportService:Teleport(game.PlaceId, LocalPlayer) end)
-createButton("🌐 Chuyển Server", function()
-    local success, response = pcall(function() return HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100")) end)
-    if success and response and response.data then
-        for _, s in ipairs(response.data) do
+addButton("🔄 Rejoin", function() TeleportService:Teleport(game.PlaceId, LocalPlayer) end)
+addButton("🌐 Server Hop", function()
+    local success, res = pcall(function() return HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100")) end)
+    if success and res and res.data then
+        for _, s in ipairs(res.data) do
             if s.playing < s.maxPlayers and s.id ~= game.JobId then
                 TeleportService:TeleportToPlaceInstance(game.PlaceId, s.id, LocalPlayer)
                 break
@@ -381,16 +360,16 @@ createButton("🌐 Chuyển Server", function()
         end
     end
 end)
-createButton("🔧 Tối Ưu FPS", function()
+addButton("🔧 Boost FPS", function()
     Lighting.GlobalShadows = not Lighting.GlobalShadows
     for _, obj in ipairs(Workspace:GetDescendants()) do
         if obj:IsA("BasePart") then obj.Material = Enum.Material.SmoothPlastic end
     end
 end)
-createButton("❌ Đóng Cửa Sổ", function() ScreenGui:Destroy() end)
+addButton("❌ Close", function() ScreenGui:Destroy() end)
 
 -- ===================================================
--- 2. ESP (ĐƠN GIẢN, KHÔNG GIẬT)
+-- 2. ESP
 -- ===================================================
 local espCache = {}
 
@@ -400,7 +379,7 @@ local function updateESP(parent, name, text, color)
     if not bb then
         bb = Instance.new("BillboardGui", parent)
         bb.Name = name
-        bb.Size = UDim2.new(0, 160, 0, 28)
+        bb.Size = UDim2.new(0, 160, 0, 26)
         bb.StudsOffset = Vector3.new(0, 2.5, 0)
         bb.AlwaysOnTop = true
         local label = Instance.new("TextLabel", bb)
@@ -416,35 +395,34 @@ local function updateESP(parent, name, text, color)
     bb.Label.Text = text or ""
     if color then bb.Label.TextColor3 = color end
     bb.Enabled = true
-    return bb
 end
 
 task.spawn(function()
     while true do
         task.wait(0.3)
-        local myHRP = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-        if not myHRP then continue end
+        local root = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+        if not root then continue end
         
-        -- Player ESP
+        -- Player
         for _, p in ipairs(Players:GetPlayers()) do
             if p ~= LocalPlayer and p.Character then
                 local head = p.Character:FindFirstChild("Head")
                 local hum = p.Character:FindFirstChildOfClass("Humanoid")
                 if espPlayer and head and hum and hum.Health > 0 then
-                    local dist = math.floor((head.Position - myHRP.Position).Magnitude)
-                    updateESP(head, "Zenith_Player", string.format("%s [%dm] HP:%d/%d", p.DisplayName, dist, math.floor(hum.Health), math.floor(hum.MaxHealth)), Color3.fromRGB(255, 60, 90))
-                else
-                    if head and espCache[head .. "Zenith_Player"] then espCache[head .. "Zenith_Player"].Enabled = false end
+                    local dist = math.floor((head.Position - root.Position).Magnitude)
+                    updateESP(head, "Zenith_Player", string.format("%s [%dm] HP:%d", p.DisplayName, dist, math.floor(hum.Health)), Color3.fromRGB(255, 60, 90))
+                elseif head and espCache[head .. "Zenith_Player"] then
+                    espCache[head .. "Zenith_Player"].Enabled = false
                 end
             end
         end
         
-        -- Fruit ESP
+        -- Fruit
         for _, obj in ipairs(Workspace:GetChildren()) do
             if espFruit and ((obj:IsA("Tool") and string.find(obj.Name, "Fruit")) or obj:FindFirstChild("Fruit")) then
                 local handle = obj:FindFirstChild("Handle") or obj:FindFirstChildWhichIsA("BasePart")
                 if handle then
-                    local dist = math.floor((handle.Position - myHRP.Position).Magnitude)
+                    local dist = math.floor((handle.Position - root.Position).Magnitude)
                     updateESP(handle, "Zenith_Fruit", string.format("🍎 %s [%dm]", obj.Name, dist), Color3.fromRGB(255, 70, 220))
                 end
             else
@@ -453,14 +431,12 @@ task.spawn(function()
             end
         end
         
-        -- Chest ESP
+        -- Chest
         if espChest then
             for _, part in ipairs(Workspace:GetDescendants()) do
                 if part:IsA("BasePart") and (string.find(string.lower(part.Name), "chest") or (part.Parent and string.find(string.lower(part.Parent.Name), "chest"))) then
-                    local dist = math.floor((part.Position - myHRP.Position).Magnitude)
+                    local dist = math.floor((part.Position - root.Position).Magnitude)
                     updateESP(part, "Zenith_Chest", string.format("📦 Chest [%dm]", dist), Color3.fromRGB(255, 215, 0))
-                else
-                    if espCache[part .. "Zenith_Chest"] then espCache[part .. "Zenith_Chest"].Enabled = false end
                 end
             end
         else
@@ -475,16 +451,20 @@ end)
 -- 3. SPEED / JUMP
 -- ===================================================
 RunService.Heartbeat:Connect(function()
-    if speedEnabled and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-        local hum, root = LocalPlayer.Character:FindFirstChildOfClass("Humanoid"), LocalPlayer.Character.HumanoidRootPart
+    if speedEnabled and LocalPlayer.Character then
+        local hum = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+        local root = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
         if hum and root and hum.MoveDirection.Magnitude > 0 then
             root.AssemblyLinearVelocity = Vector3.new(hum.MoveDirection.X * speedValue, root.AssemblyLinearVelocity.Y, hum.MoveDirection.Z * speedValue)
         end
     end
 end)
 UserInputService.JumpRequest:Connect(function()
-    if jumpEnabled and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-        LocalPlayer.Character.HumanoidRootPart.AssemblyLinearVelocity = Vector3.new(LocalPlayer.Character.HumanoidRootPart.AssemblyLinearVelocity.X, jumpValue, LocalPlayer.Character.HumanoidRootPart.AssemblyLinearVelocity.Z)
+    if jumpEnabled and LocalPlayer.Character then
+        local root = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+        if root then
+            root.AssemblyLinearVelocity = Vector3.new(root.AssemblyLinearVelocity.X, jumpValue, root.AssemblyLinearVelocity.Z)
+        end
     end
 end)
 
@@ -492,12 +472,15 @@ end)
 -- 4. FRUIT AUTO
 -- ===================================================
 task.spawn(function()
-    while true do task.wait(5) if autoBuyFruit then pcall(function() CommF:InvokeServer("Cousin", "Buy") end) end end
+    while true do
+        task.wait(5)
+        if autoBuyFruit then pcall(function() CommF:InvokeServer("Cousin", "Buy") end) end
+    end
 end)
 task.spawn(function()
     while true do
         task.wait(1)
-        if autoCollectFruit and not AutoFarm and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        if autoCollectFruit and LocalPlayer.Character then
             for _, obj in ipairs(Workspace:GetChildren()) do
                 if (obj:IsA("Tool") and string.find(obj.Name, "Fruit")) or obj:FindFirstChild("Fruit") then
                     local handle = obj:FindFirstChild("Handle") or obj:FindFirstChildWhichIsA("BasePart")
@@ -518,64 +501,60 @@ end)
 task.spawn(function()
     while true do
         task.wait(2)
-        if autoStoreFruit and CommF then
+        if autoStoreFruit then
             pcall(function()
-                local backpack, char = LocalPlayer:FindFirstChild("Backpack"), LocalPlayer.Character
-                if backpack then for _, item in ipairs(backpack:GetChildren()) do if string.find(item.Name, "Fruit") then CommF:InvokeServer("StoreFruit", item.Name, item) end end end
-                if char then for _, item in ipairs(char:GetChildren()) do if item:IsA("Tool") and string.find(item.Name, "Fruit") then CommF:InvokeServer("StoreFruit", item.Name, item) end end end
+                local backpack = LocalPlayer:FindFirstChild("Backpack")
+                local char = LocalPlayer.Character
+                if backpack then
+                    for _, item in ipairs(backpack:GetChildren()) do
+                        if string.find(item.Name, "Fruit") then CommF:InvokeServer("StoreFruit", item.Name, item) end
+                    end
+                end
+                if char then
+                    for _, item in ipairs(char:GetChildren()) do
+                        if item:IsA("Tool") and string.find(item.Name, "Fruit") then CommF:InvokeServer("StoreFruit", item.Name, item) end
+                    end
+                end
             end)
         end
     end
 end)
 
 -- ===================================================
--- 5. AUTO FARM (CHUẨN - BAY ĐẾN QUÁI, ĐÁNH, KHÔNG LẶP)
+-- 5. AUTO FARM (CHUẨN - KHÔNG LẶP, KHÔNG GIẬT)
 -- ===================================================
-local hasQuest = false
-local lastQuestCheck = 0
-
--- Kiểm tra quest chính xác
-local function checkHasQuest()
-    -- Kiểm tra trong Data
-    local questData = LocalPlayer:FindFirstChild("Quest")
-    if questData and questData.Value ~= "" and questData.Value ~= nil then
-        return true, questData.Value
-    end
-    -- Kiểm tra UI
-    local questGui = LocalPlayer.PlayerGui:FindFirstChild("Quest")
-    if questGui and questGui.Enabled then
-        return true, "Unknown"
-    end
-    return false, nil
+local function checkQuest()
+    local q = LocalPlayer:FindFirstChild("Quest")
+    if q and q.Value ~= "" and q.Value ~= nil then return true end
+    local gui = LocalPlayer.PlayerGui:FindFirstChild("Quest")
+    if gui and gui.Enabled then return true end
+    return false
 end
 
-local function getQuestByLevel()
+local function getQuest()
     local lv = LocalPlayer.Data and LocalPlayer.Data.Level and LocalPlayer.Data.Level.Value or 1
-    local quests = {
-        {MonName = "Bandit", QuestName = "BanditQuest1", QuestLevel = 1},
-        {MonName = "Gorilla", QuestName = "GorillaQuest1", QuestLevel = 50},
-        {MonName = "Dragon", QuestName = "DragonQuest1", QuestLevel = 120},
-        {MonName = "Ice", QuestName = "IceQuest1", QuestLevel = 200},
-        {MonName = "Dark", QuestName = "DarkQuest1", QuestLevel = 300},
-        {MonName = "Light", QuestName = "LightQuest1", QuestLevel = 400},
-        {MonName = "Dough", QuestName = "DoughQuest1", QuestLevel = 500},
+    local qs = {
+        {Mon = "Bandit", Name = "BanditQuest1", Lv = 1},
+        {Mon = "Gorilla", Name = "GorillaQuest1", Lv = 50},
+        {Mon = "Dragon", Name = "DragonQuest1", Lv = 120},
+        {Mon = "Ice", Name = "IceQuest1", Lv = 200},
+        {Mon = "Dark", Name = "DarkQuest1", Lv = 300},
+        {Mon = "Light", Name = "LightQuest1", Lv = 400},
+        {Mon = "Dough", Name = "DoughQuest1", Lv = 500},
     }
-    for _, q in ipairs(quests) do
-        if lv >= q.QuestLevel then return q end
-    end
-    return quests[#quests]
+    for _, q in ipairs(qs) do if lv >= q.Lv then return q end end
+    return qs[#qs]
 end
 
-local function getEnemies(monName)
+local function getMobs(name)
     local list = {}
-    local monLower = string.lower(monName)
+    local lower = string.lower(name)
     for _, obj in ipairs(Workspace:GetDescendants()) do
         if obj:IsA("Model") and obj:FindFirstChild("Humanoid") and obj:FindFirstChild("HumanoidRootPart") then
             local hum = obj:FindFirstChildOfClass("Humanoid")
-            local hrp = obj:FindFirstChild("HumanoidRootPart")
-            if hum and hrp and hum.Health > 0 then
-                local objName = string.lower(obj.Name)
-                if string.find(objName, monLower) or string.find(objName, string.gsub(monLower, " ", "")) then
+            if hum and hum.Health > 0 then
+                local n = string.lower(obj.Name)
+                if string.find(n, lower) then
                     table.insert(list, obj)
                 end
             end
@@ -584,34 +563,31 @@ local function getEnemies(monName)
     return list
 end
 
-local function equipWeapon()
+local function equipTool()
     pcall(function()
         local char = LocalPlayer.Character
         if not char then return end
         local backpack = LocalPlayer:FindFirstChild("Backpack")
         local list = {}
-        if backpack then for _, tool in ipairs(backpack:GetChildren()) do if tool:IsA("Tool") then table.insert(list, tool) end end end
-        if char then for _, tool in ipairs(char:GetChildren()) do if tool:IsA("Tool") then table.insert(list, tool) end end end
+        if backpack then for _, t in ipairs(backpack:GetChildren()) do if t:IsA("Tool") then table.insert(list, t) end end end
+        if char then for _, t in ipairs(char:GetChildren()) do if t:IsA("Tool") then table.insert(list, t) end end end
         
-        local function match(t, name)
-            local n = string.lower(name)
-            if t == "Melee" and (string.find(n, "melee") or string.find(n, "fist") or string.find(n, "combat") or string.find(n, "fighting")) then return true
-            elseif t == "Sword" and (string.find(n, "sword") or string.find(n, "blade") or string.find(n, "katana") or string.find(n, "cutlass") or string.find(n, "saber")) then return true
-            elseif t == "Blox Fruit" and (string.find(n, "fruit") or string.find(n, "devil") or string.find(n, "paw") or string.find(n, "buddha") or string.find(n, "light") or string.find(n, "dough")) then return true
+        local function match(t, n)
+            local nl = string.lower(n)
+            if t == "Melee" and (string.find(nl, "melee") or string.find(nl, "fist") or string.find(nl, "combat")) then return true
+            elseif t == "Sword" and (string.find(nl, "sword") or string.find(nl, "blade") or string.find(nl, "katana") or string.find(nl, "cutlass")) then return true
+            elseif t == "Fruit" and (string.find(nl, "fruit") or string.find(nl, "devil") or string.find(nl, "paw") or string.find(nl, "buddha") or string.find(nl, "light") or string.find(nl, "dough")) then return true
             end
             return false
         end
         
-        for _, tool in ipairs(list) do
-            if match(selectedWeaponType, tool.Name) then
-                if tool.Parent == backpack then
-                    CommF:InvokeServer("EquipTool", tool)
-                    task.wait(0.1)
-                end
+        for _, t in ipairs(list) do
+            if match(selectedWeapon, t.Name) and t.Parent == backpack then
+                CommF:InvokeServer("EquipTool", t)
+                task.wait(0.1)
                 return
             end
         end
-        -- Fallback: equip first tool
         if list[1] and list[1].Parent == backpack then
             CommF:InvokeServer("EquipTool", list[1])
             task.wait(0.1)
@@ -626,30 +602,34 @@ local function flyTo(pos)
     if not root then return false end
     
     local target = Vector3.new(pos.X, flightHeight, pos.Z)
-    local current = root.Position
-    local dist = (target - current).Magnitude
+    local cur = root.Position
+    local dist = (target - cur).Magnitude
     
     if dist < 3 then
         root.AssemblyLinearVelocity = Vector3.zero
         return true
     end
     
-    local dir = (target - current).Unit
+    local dir = (target - cur).Unit
     root.AssemblyLinearVelocity = dir * 100
     
-    local yDiff = flightHeight - current.Y
-    if math.abs(yDiff) > 1 then
-        root.AssemblyLinearVelocity = Vector3.new(root.AssemblyLinearVelocity.X, yDiff * 3, root.AssemblyLinearVelocity.Z)
+    local yd = flightHeight - cur.Y
+    if math.abs(yd) > 1 then
+        root.AssemblyLinearVelocity = Vector3.new(root.AssemblyLinearVelocity.X, yd * 3, root.AssemblyLinearVelocity.Z)
     end
     return false
 end
 
-local function attack()
+local function doAttack()
     pcall(function()
         local char = LocalPlayer.Character
         if not char then return end
         local tool = char:FindFirstChildOfClass("Tool")
-        if tool then tool:Activate() task.wait(0.01) tool:Activate() end
+        if tool then
+            tool:Activate()
+            task.wait(0.01)
+            tool:Activate()
+        end
         
         local CbFw = require(LocalPlayer.PlayerScripts.CombatFramework)
         local c = CbFw.activeController
@@ -665,7 +645,7 @@ local function attack()
             c.increment = 10
             c.attacking = false
             c.blocking = false
-            for i = 1, 6 do
+            for i = 1, 5 do
                 c:attack()
                 task.wait(0.008)
             end
@@ -673,11 +653,15 @@ local function attack()
     end)
 end
 
--- MAIN FARM THREAD
+-- MAIN LOOP
 task.spawn(function()
+    local lastQuestTime = 0
+    local isFarming = false
+    
     while true do
         task.wait(0.1)
         if not AutoFarm then
+            isFarming = false
             task.wait(0.5)
             continue
         end
@@ -687,74 +671,73 @@ task.spawn(function()
         local root = char:FindFirstChild("HumanoidRootPart")
         if not root then task.wait(0.5) continue end
         
-        -- NHẬN QUEST
+        -- QUEST
         if AutoQuest then
-            local has, questName = checkHasQuest()
-            if not has then
-                local q = getQuestByLevel()
+            if not checkQuest() and tick() - lastQuestTime > 2 then
+                local q = getQuest()
                 if q then
                     pcall(function()
-                        CommF:InvokeServer("StartQuest", q.QuestName, q.QuestLevel)
-                        infoLabel.Text = "📜 Đã nhận quest: " .. q.MonName
+                        CommF:InvokeServer("StartQuest", q.Name, q.Lv)
+                        infoLabel.Text = "📜 Quest: " .. q.Mon
                     end)
-                    task.wait(0.5)
+                    lastQuestTime = tick()
                 end
-            else
-                hasQuest = true
             end
         end
         
-        local questData = getQuestByLevel()
-        if not questData then
-            infoLabel.Text = "⚠️ Không có nhiệm vụ"
+        local quest = getQuest()
+        if not quest then
+            infoLabel.Text = "⚠️ No quest"
             task.wait(1)
             continue
         end
         
-        local mobs = getEnemies(questData.MonName)
+        -- TÌM QUÁI
+        local mobs = getMobs(quest.Mon)
         if #mobs == 0 then
-            infoLabel.Text = string.format("🔍 Tìm %s...", questData.MonName)
+            infoLabel.Text = "🔍 Tìm " .. quest.Mon .. "..."
             task.wait(0.3)
             continue
         end
         
-        -- Tìm quái gần nhất
-        local nearest = nil
-        local nearestDist = math.huge
+        -- LẤY QUÁI GẦN NHẤT
+        local target = nil
+        local minDist = math.huge
         for _, mob in ipairs(mobs) do
             local hrp = mob:FindFirstChild("HumanoidRootPart")
             if hrp then
                 local d = (hrp.Position - root.Position).Magnitude
-                if d < nearestDist then
-                    nearestDist = d
-                    nearest = mob
+                if d < minDist then
+                    minDist = d
+                    target = mob
                 end
             end
         end
         
-        if not nearest then task.wait(0.1) continue end
-        
-        local targetHRP = nearest:FindFirstChild("HumanoidRootPart")
-        if not targetHRP then task.wait(0.1) continue end
-        
-        local lv = LocalPlayer.Data.Level.Value
-        infoLabel.Text = string.format("⚔️ %s | Lv.%d | Quái: %d", questData.MonName, lv, #mobs)
-        
-        equipWeapon()
-        
-        -- BAY ĐẾN QUÁI
-        local dist = (targetHRP.Position - root.Position).Magnitude
-        if dist > 15 then
-            local reached = flyTo(targetHRP.Position)
-            if not reached then
-                task.wait(0.05)
-                continue
-            end
+        if not target then
+            task.wait(0.1)
+            continue
         end
         
-        -- ĐÁNH KHI ĐẾN GẦN
-        if dist <= 20 then
-            -- Giữ độ cao
+        local tHRP = target:FindFirstChild("HumanoidRootPart")
+        if not tHRP then task.wait(0.1) continue end
+        
+        local lv = LocalPlayer.Data.Level.Value
+        infoLabel.Text = string.format("⚔️ %s | Lv.%d | %d mobs", quest.Mon, lv, #mobs)
+        
+        equipTool()
+        
+        -- BAY ĐẾN
+        local dist = (tHRP.Position - root.Position).Magnitude
+        if dist > 15 then
+            flyTo(tHRP.Position)
+            task.wait(0.05)
+            continue
+        end
+        
+        -- ĐÁNH
+        if dist <= 18 then
+            -- GIỮ ĐỘ CAO
             local y = root.Position.Y
             if y < flightHeight - 1 then
                 root.AssemblyLinearVelocity = Vector3.new(root.AssemblyLinearVelocity.X, 15, root.AssemblyLinearVelocity.Z)
@@ -764,38 +747,16 @@ task.spawn(function()
                 root.AssemblyLinearVelocity = Vector3.zero
             end
             
-            -- Quay mặt vào quái
-            local look = (targetHRP.Position - root.Position).Unit
+            -- QUAY MẶT
+            local look = (tHRP.Position - root.Position).Unit
             if look.Magnitude > 0 then
                 root.CFrame = CFrame.lookAt(root.Position, root.Position + look * 10)
-            end
-            
-            -- GOM QUÁI (CHỈ KHI BẬT)
-            if BringMob then
-                for _, mob in ipairs(mobs) do
-                    local hrp = mob:FindFirstChild("HumanoidRootPart")
-                    local hum = mob:FindFirstChildOfClass("Humanoid")
-                    if hrp and hum and hum.Health > 0 then
-                        local d = (hrp.Position - root.Position).Magnitude
-                        if d > 15 and d < 80 then
-                            hrp.CFrame = CFrame.new(root.Position + Vector3.new(math.random(-3, 3), 0, math.random(-3, 3)))
-                            hrp.AssemblyLinearVelocity = Vector3.zero
-                            hrp.CanCollide = false
-                            hum.WalkSpeed = 0
-                            hum.JumpPower = 0
-                            hum.Sit = true
-                            hum.PlatformStand = true
-                            local anim = hum:FindFirstChild("Animator")
-                            if anim then for _, track in ipairs(anim:GetPlayingAnimationTracks()) do track:Stop() end end
-                        end
-                    end
-                end
             end
             
             -- SPAM ĐÁNH
             for i = 1, 10 do
                 if not AutoFarm then break end
-                attack()
+                doAttack()
                 task.wait(attackSpeed)
             end
         end
@@ -806,12 +767,10 @@ task.spawn(function()
             root.AssemblyLinearVelocity = Vector3.new(0, 40, 0)
             task.wait(0.5)
         end
-        
-        task.wait(0.05)
     end
 end)
 
--- DUY TRÌ ĐỘ CAO (KHI KHÔNG FARM)
+-- DUY TRÌ ĐỘ CAO
 task.spawn(function()
     while true do
         task.wait(0.1)
@@ -836,7 +795,6 @@ task.spawn(function()
     end
 end)
 
-print("✅ ZENITH V12.24 - FIX ESP + AUTO FARM CHUẨN")
-print("📌 Bật 'AFK Farm' để bắt đầu farm")
-print("📌 TẮT 'Gom Quái' để đánh mượt hơn")
-print("📌 ESP hoạt động khi bật các toggle tương ứng")
+print("✅ ZENITH V12.24 - UI ĐƠN GIẢN + AUTO FARM CHUẨN")
+print("📌 Bật 'AFK Farm' để farm")
+print("📌 ESP hoạt động khi bật toggle")
