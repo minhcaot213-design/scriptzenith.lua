@@ -35,7 +35,7 @@ local jumpValue, jumpEnabled = 50, false
 local AutoRandomFruit, AutoCollectFruit, AutoStoreFruit = false, false, false
 
 -- ===================================================
--- 1. UI (CỨNG - KHÔNG LỖI)
+-- 1. UI (CỨNG - FULL CHỨC NĂNG HIỆN ĐẦY ĐỦ)
 -- ===================================================
 local UI_NAME = "ZenithBloxFruit_Zyrox_V12"
 
@@ -55,11 +55,9 @@ ScreenGui.Name = UI_NAME
 ScreenGui.ResetOnSpawn = false
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 pcall(function() ScreenGui.Parent = targetUIFolder end)
-if not ScreenGui.Parent then
-    ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
-end
+if not ScreenGui.Parent then ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui") end
 
--- NÚT THU NHỎ
+-- NÚT THU NHỎ (Z)
 local FloatingButton = Instance.new("TextButton", ScreenGui)
 FloatingButton.Size = UDim2.new(0, 48, 0, 48)
 FloatingButton.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -75,7 +73,9 @@ Instance.new("UICorner", FloatingButton).CornerRadius = UDim.new(0, 12)
 Instance.new("UIStroke", FloatingButton).Color = Color3.fromRGB(0, 210, 255)
 Instance.new("UIStroke", FloatingButton).Thickness = 1.5
 
-local FULL_HEIGHT, MIN_HEIGHT = 330, 38
+-- MAIN FRAME
+local FULL_HEIGHT = 380
+local MIN_HEIGHT = 38
 local MainFrame = Instance.new("Frame", ScreenGui)
 MainFrame.Size = UDim2.new(0, 540, 0, FULL_HEIGHT)
 MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -90,6 +90,7 @@ Instance.new("UIStroke", MainFrame).Thickness = 1.2
 
 local UIScale = Instance.new("UIScale", MainFrame)
 
+-- KÉO THẢ
 local isDraggingWindow, dragStart, frameStart = false, nil, nil
 MainFrame.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -108,6 +109,7 @@ UserInputService.InputChanged:Connect(function(input)
     end
 end)
 
+-- TOPBAR
 local TopBar = Instance.new("Frame", MainFrame)
 TopBar.Size = UDim2.new(1, 0, 0, 38)
 TopBar.BackgroundColor3 = Color3.fromRGB(15, 18, 26)
@@ -177,11 +179,18 @@ CloseBtn.Font = Enum.Font.GothamBold
 CloseBtn.TextSize = 10
 Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(0, 5)
 
+-- NÚT ĐÓNG / MỞ FORM
 CloseBtn.MouseButton1Click:Connect(function()
     MainFrame.Visible = false
     FloatingButton.Visible = true
 end)
 
+FloatingButton.MouseButton1Click:Connect(function()
+    MainFrame.Visible = true
+    FloatingButton.Visible = false
+end)
+
+-- SIDEBAR
 local Sidebar = Instance.new("Frame", MainFrame)
 Sidebar.Size = UDim2.new(0, 140, 1, -38)
 Sidebar.Position = UDim2.new(0, 0, 0, 38)
@@ -192,11 +201,14 @@ TabListLayout.Padding = UDim.new(0, 3)
 TabListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 Instance.new("UIPadding", Sidebar).PaddingTop = UDim.new(0, 6)
 
+-- CONTENT CONTAINER
 local ContentContainer = Instance.new("Frame", MainFrame)
 ContentContainer.Size = UDim2.new(1, -140, 1, -38)
 ContentContainer.Position = UDim2.new(0, 140, 0, 38)
 ContentContainer.BackgroundTransparency = 1
+ContentContainer.ClipsDescendants = true
 
+-- THU NHỎ
 local isMinimized = false
 MinBtn.MouseButton1Click:Connect(function()
     isMinimized = not isMinimized
@@ -213,17 +225,18 @@ MinBtn.MouseButton1Click:Connect(function()
     end
 end)
 
-local tabButtons, tabPages = {}, {}
+-- TẠO TAB
+local tabButtons = {}
+local tabPages = {}
+
 local function createPage(name)
-    local page = Instance.new("ScrollingFrame", ContentContainer)
-    page.Size = UDim2.new(1, 0, 1, 0)
+    local page = Instance.new("Frame", ContentContainer)
+    page.Size = UDim2.new(1, 0, 0, 0)
     page.BackgroundTransparency = 1
-    page.ScrollBarThickness = 2
-    page.ScrollBarImageColor3 = Color3.fromRGB(0, 180, 255)
-    page.BorderSizePixel = 0
     page.Visible = false
+    page.AutomaticSize = Enum.AutomaticSize.Y
     local layout = Instance.new("UIListLayout", page)
-    layout.Padding = UDim.new(0, 6)
+    layout.Padding = UDim.new(0, 8)
     layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
     Instance.new("UIPadding", page).PaddingTop = UDim.new(0, 8)
     tabPages[name] = page
@@ -261,11 +274,13 @@ local function createTabButton(name, icon)
                 item.Pill.Visible = false
             end
         end
-        for pName, page in pairs(tabPages) do page.Visible = (pName == name) end
+        for pName, page in pairs(tabPages) do
+            page.Visible = (pName == name)
+        end
     end)
 end
 
--- TẠO TAB
+-- TẠO CÁC TAB
 local tabList = {"Farm", "Fruit", "PVP-ESP", "Server", "RAID", "FARM ITEM", "SETTING"}
 local iconList = {"🌾", "🍎", "⚔️", "🌐", "⚡", "🗡️", "⚙️"}
 for i, name in ipairs(tabList) do
@@ -295,7 +310,9 @@ local function createToggle(page, labelText, defaultState, callback)
     local frame = Instance.new("Frame", page)
     frame.Size = UDim2.new(0.94, 0, 0, 34)
     frame.BackgroundColor3 = Color3.fromRGB(16, 20, 28)
+    frame.AutomaticSize = Enum.AutomaticSize.None
     Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 6)
+    
     local label = Instance.new("TextLabel", frame)
     label.Size = UDim2.new(1, -50, 1, 0)
     label.Position = UDim2.new(0, 10, 0, 0)
@@ -305,17 +322,21 @@ local function createToggle(page, labelText, defaultState, callback)
     label.Font = Enum.Font.Gotham
     label.TextSize = 11
     label.TextXAlignment = Enum.TextXAlignment.Left
+    label.TextYAlignment = Enum.TextYAlignment.Center
+    
     local switch = Instance.new("TextButton", frame)
     switch.Size = UDim2.new(0, 32, 0, 16)
     switch.Position = UDim2.new(1, -40, 0.5, -8)
     switch.BackgroundColor3 = state and Color3.fromRGB(0, 190, 255) or Color3.fromRGB(35, 40, 54)
     switch.Text = ""
     Instance.new("UICorner", switch).CornerRadius = UDim.new(1, 0)
+    
     local circle = Instance.new("Frame", switch)
     circle.Size = UDim2.new(0, 12, 0, 12)
     circle.Position = state and UDim2.new(1, -14, 0.5, -6) or UDim2.new(0, 2, 0.5, -6)
     circle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     Instance.new("UICorner", circle).CornerRadius = UDim.new(1, 0)
+    
     switch.MouseButton1Click:Connect(function()
         state = not state
         switch.BackgroundColor3 = state and Color3.fromRGB(0, 190, 255) or Color3.fromRGB(35, 40, 54)
@@ -329,7 +350,9 @@ local function createSlider(page, labelText, min, max, default, callback)
     local frame = Instance.new("Frame", page)
     frame.Size = UDim2.new(0.94, 0, 0, 44)
     frame.BackgroundColor3 = Color3.fromRGB(16, 20, 28)
+    frame.AutomaticSize = Enum.AutomaticSize.None
     Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 6)
+    
     local label = Instance.new("TextLabel", frame)
     label.Size = UDim2.new(1, -70, 0, 20)
     label.Position = UDim2.new(0, 10, 0, 3)
@@ -339,6 +362,7 @@ local function createSlider(page, labelText, min, max, default, callback)
     label.Font = Enum.Font.Gotham
     label.TextSize = 11
     label.TextXAlignment = Enum.TextXAlignment.Left
+    
     local valueLabel = Instance.new("TextLabel", frame)
     valueLabel.Size = UDim2.new(0, 55, 0, 20)
     valueLabel.Position = UDim2.new(1, -65, 0, 3)
@@ -348,6 +372,7 @@ local function createSlider(page, labelText, min, max, default, callback)
     valueLabel.Font = Enum.Font.GothamBold
     valueLabel.TextSize = 11
     valueLabel.TextXAlignment = Enum.TextXAlignment.Right
+    
     local track = Instance.new("TextButton", frame)
     track.Size = UDim2.new(0.94, 0, 0, 4)
     track.Position = UDim2.new(0.03, 0, 0, 28)
@@ -355,10 +380,12 @@ local function createSlider(page, labelText, min, max, default, callback)
     track.AutoButtonColor = false
     track.Text = ""
     Instance.new("UICorner", track).CornerRadius = UDim.new(1, 0)
+    
     local fill = Instance.new("Frame", track)
     fill.Size = UDim2.new((current - min) / (max - min), 0, 1, 0)
     fill.BackgroundColor3 = Color3.fromRGB(0, 190, 255)
     Instance.new("UICorner", fill).CornerRadius = UDim.new(1, 0)
+    
     local isDraggingSlider = false
     local function update(percent)
         fill.Size = UDim2.new(math.clamp(percent, 0, 1), 0, 1, 0)
@@ -366,6 +393,7 @@ local function createSlider(page, labelText, min, max, default, callback)
         valueLabel.Text = tostring(current)
         if callback then callback(current) end
     end
+    
     track.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             isDraggingSlider = true
@@ -392,6 +420,7 @@ local function createButton(page, labelText, callback)
     btn.TextColor3 = Color3.fromRGB(0, 210, 255)
     btn.Font = Enum.Font.GothamMedium
     btn.TextSize = 11
+    btn.AutomaticSize = Enum.AutomaticSize.None
     Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
     Instance.new("UIStroke", btn).Color = Color3.fromRGB(0, 180, 255)
     btn.MouseButton1Click:Connect(function() if callback then callback() end end)
@@ -422,8 +451,13 @@ wsLayout.FillDirection = Enum.FillDirection.Horizontal
 wsLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 wsLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 wsLayout.Padding = UDim.new(0, 3)
+
 local weaponBtns = {}
-local weaponList = {{name = "Melee", label = "🥊 Melee"}, {name = "Sword", label = "⚔️ Sword"}, {name = "Blox Fruit", label = "🍎 Fruit"}}
+local weaponList = {
+    {name = "Melee", label = "🥊 Melee"},
+    {name = "Sword", label = "⚔️ Sword"},
+    {name = "Blox Fruit", label = "🍎 Fruit"}
+}
 for _, wData in ipairs(weaponList) do
     local b = Instance.new("TextButton", weaponSegment)
     b.Size = UDim2.new(0.3, 0, 0.78, 0)
@@ -519,7 +553,6 @@ createButton(settingPage, "Đóng Cửa Sổ", function() ScreenGui:Destroy() en
 -- ===================================================
 -- 4. ESP (FIX GIẬT)
 -- ===================================================
-local espCache = {}
 local function getOrCreateBillboard(parent, name, size, offset, color, text)
     if not parent then return nil end
     local bb = parent:FindFirstChild(name)
@@ -951,4 +984,4 @@ task.spawn(function()
     end
 end)
 
-print("✅ Script ZENITH V12.24 đã chạy! Panel hiện, full chức năng.")
+print("✅ Script ZENITH V12.24 đã chạy! Panel hiện, full chức năng, ESP không giật, farm bay được.")
