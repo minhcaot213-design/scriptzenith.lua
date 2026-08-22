@@ -1,4 +1,4 @@
--- [[ ZENITH BLOX FRUIT - V12.24 (FULL FIX: NO LOOP QUEST + FLY TO MOB + ATTACK) ]] --
+-- [[ ZENITH BLOX FRUIT - V13.0 (FIX: FLY + ATTACK + QUEST) ]] --
 
 task.wait(0.5)
 if not game:IsLoaded() then game.Loaded:Wait() end
@@ -25,7 +25,9 @@ LocalPlayer.Idled:Connect(function()
     VirtualUser:ClickButton2(Vector2.new())
 end)
 
+-- ===================================================
 -- BIẾN TOÀN CỤC
+-- ===================================================
 local selectedWeaponType = "Melee"
 local AutoFarmLevel, AutoQuest, BringMob = false, true, true
 local espPlayerEnabled, espFruitEnabled = false, false
@@ -35,18 +37,15 @@ local jumpValue, jumpEnabled = 50, false
 local AutoRandomFruit, AutoCollectFruit, AutoStoreFruit = false, false, false
 
 -- THÔNG SỐ FARM
-local flightHeight = 30
+local flightHeight = 28
 local attackCooldown = 0.04
-local attackCount = 8
-local isFlying = false
-local hasQuest = false
-local questCompleted = false
+local attackCount = 6
 
 -- NGÔN NGỮ
 local currentLang = "VI"
 local Lang = {
     VI = {
-        title = "ZYROX VN <font color='#00d2ff'>• V12.24</font>",
+        title = "ZYROX VN <font color='#00d2ff'>• V13.0</font>",
         tab_farm = "Farm", tab_fruit = "Trái Ác Quỷ", tab_pvp = "PVP & ESP", tab_server = "Máy Chủ",
         tab_raid = "Raid", tab_item = "Farm Item", tab_setting = "Cài Đặt",
         auto_farm = "⚡ AFK Farm (Bay + Đánh)", auto_quest = "📜 Tự Nhận Nhiệm Vụ", bring_mob = "🧲 Gom Quái",
@@ -60,10 +59,10 @@ local Lang = {
         lang_toggle = "🌐 Ngôn Ngữ"
     },
     EN = {
-        title = "ZYROX VN <font color='#00d2ff'>• V12.24</font>",
+        title = "ZYROX VN <font color='#00d2ff'>• V13.0</font>",
         tab_farm = "Farm", tab_fruit = "Devil Fruit", tab_pvp = "PVP & ESP", tab_server = "Server",
         tab_raid = "Raid", tab_item = "Item Farm", tab_setting = "Settings",
-        auto_farm = "⚡ AFK Farm", auto_quest = "📜 Auto Quest", bring_mob = "🧲 Bring Mobs",
+        auto_farm = "⚡ AFK Farm (Fly + Attack)", auto_quest = "📜 Auto Quest", bring_mob = "🧲 Bring Mobs",
         flight_height = "🏔️ Flight Height", attack_speed = "⚡ Attack Speed (s)",
         fruit_buy = "🎲 Buy Fruit", fruit_collect = "🧲 Collect Fruit", fruit_store = "📦 Store Fruit",
         speed_toggle = "WalkSpeed", speed_slider = "Speed", jump_toggle = "High Jump", jump_slider = "Jump Power",
@@ -78,7 +77,7 @@ local Lang = {
 -- ===================================================
 -- 1. UI
 -- ===================================================
-local UI_NAME = "ZenithBloxFruit_Zyrox_V12"
+local UI_NAME = "ZenithBloxFruit_Zyrox_V13"
 
 local function GetSafeUIFolder()
     local coreGui = game:GetService("CoreGui")
@@ -533,7 +532,7 @@ end
 createToggle(farmPage, "auto_farm", false, function(v) AutoFarmLevel = v end)
 createToggle(farmPage, "auto_quest", true, function(v) AutoQuest = v end)
 createToggle(farmPage, "bring_mob", true, function(v) BringMob = v end)
-createSlider(farmPage, "flight_height", 10, 50, 30, function(val) flightHeight = val print("✈️ Độ cao bay: " .. val) end, false)
+createSlider(farmPage, "flight_height", 10, 50, 28, function(val) flightHeight = val print("✈️ Độ cao bay: " .. val) end, false)
 createSlider(farmPage, "attack_speed", 0.01, 0.2, 0.04, function(val) attackCooldown = val print("⚡ Tốc độ đánh: " .. string.format("%.2f", val) .. "s") end, true)
 
 -- TAB FRUIT
@@ -796,10 +795,10 @@ task.spawn(function()
 end)
 
 -- ===================================================
--- 8. AUTO FARM (FIX: BAY ĐẾN QUÁI + ĐÁNH + GOM QUÁI TRÊN KHÔNG)
+-- 8. AUTO FARM (FIX: FLY ĐÚNG + ATTACK + QUEST)
 -- ===================================================
 local currentTarget = nil
-local targetPosition = nil
+local questAccepted = false
 
 local function equipWeapon()
     pcall(function()
@@ -878,71 +877,65 @@ local function getQuestByLevel()
 end
 
 local function checkQuest()
-    local success, has = pcall(function()
-        local quest = LocalPlayer:FindFirstChild("Quest")
-        return quest and quest.Value ~= "" and quest.Value ~= nil
+    -- Kiểm tra quest thực tế
+    local hasQuest = false
+    pcall(function()
+        -- Kiểm tra bằng Remote event
+        local questData = CommF:InvokeServer("GetQuest")
+        if questData and questData.Name and questData.Name ~= "" then
+            hasQuest = true
+        end
     end)
-    if success and has then return true end
+    if hasQuest then return true end
+    
+    -- Kiểm tra bằng PlayerGui
+    local gui = LocalPlayer.PlayerGui:FindFirstChild("Quest")
+    if gui and gui.Enabled then return true end
+    
+    -- Kiểm tra bằng biến LocalPlayer
+    local questVal = LocalPlayer:FindFirstChild("Quest")
+    if questVal and questVal.Value and questVal.Value ~= "" then return true end
+    
     return false
 end
 
--- FLY THREAD (chạy liên tục để duy trì bay đến target)
-task.spawn(function()
-    while true do
-        task.wait(0.03)
-        if not AutoFarmLevel then
-            isFlying = false
-            task.wait(0.5)
-            continue
-        end
-        
-        local char = LocalPlayer.Character
-        if not char then continue end
-        local root = char:FindFirstChild("HumanoidRootPart")
-        if not root then continue end
-        
-        -- Nếu có targetPosition thì bay đến
-        if targetPosition then
-            local targetPos = Vector3.new(targetPosition.X, flightHeight, targetPosition.Z)
-            local currentPos = root.Position
-            local dist = (targetPos - currentPos).Magnitude
-            
-            if dist > 3 then
-                local dir = (targetPos - currentPos).Unit
-                root.AssemblyLinearVelocity = Vector3.new(dir.X * 130, dir.Y * 130 + (flightHeight - currentPos.Y) * 3, dir.Z * 130)
-                isFlying = true
-            else
-                root.AssemblyLinearVelocity = Vector3.zero
-                isFlying = false
-            end
-        else
-            -- Không có target, đứng im giữ độ cao
-            local y = root.Position.Y
-            if y < flightHeight - 1 then
-                root.AssemblyLinearVelocity = Vector3.new(0, 20, 0)
-            elseif y > flightHeight + 1 then
-                root.AssemblyLinearVelocity = Vector3.new(0, -5, 0)
-            else
-                root.AssemblyLinearVelocity = Vector3.zero
-            end
-        end
-        
-        -- Disable collision
-        for _, part in ipairs(char:GetDescendants()) do
-            if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
-                part.CanCollide = false
-            end
-        end
+-- FLY TO POSITION
+local function flyTo(pos)
+    local char = LocalPlayer.Character
+    if not char then return false end
+    local root = char:FindFirstChild("HumanoidRootPart")
+    if not root then return false end
+    
+    local targetPos = Vector3.new(pos.X, flightHeight, pos.Z)
+    local currentPos = root.Position
+    local dist = (targetPos - currentPos).Magnitude
+    
+    if dist < 3 then
+        root.AssemblyLinearVelocity = Vector3.zero
+        return true
     end
-end)
+    
+    local dir = (targetPos - currentPos).Unit
+    root.AssemblyLinearVelocity = dir * 120
+    
+    local yDiff = flightHeight - currentPos.Y
+    if math.abs(yDiff) > 1 then
+        root.AssemblyLinearVelocity = Vector3.new(
+            root.AssemblyLinearVelocity.X,
+            yDiff * 4,
+            root.AssemblyLinearVelocity.Z
+        )
+    end
+    return false
+end
 
--- MAIN FARM THREAD
+-- MAIN FARM THREAD (FIX LẶP QUEST)
 task.spawn(function()
     while true do
-        task.wait(0.1)
+        task.wait(0.08)
         if not AutoFarmLevel then
             currentTarget = nil
-            targetPosition = nil
+            questAccepted = false
             task.wait(0.5)
             continue
         end
@@ -959,28 +952,34 @@ task.spawn(function()
             continue
         end
         
-        -- NHẬN QUEST (chỉ 1 lần)
-        if AutoQuest and not hasQuest then
-            if not checkQuest() then
+        -- NHẬN QUEST (CHỈ GỌI 1 LẦN)
+        if AutoQuest then
+            local hasQuest = checkQuest()
+            if not hasQuest and not questAccepted then
                 pcall(function()
                     CommF:InvokeServer("StartQuest", questData.QuestName, questData.QuestLevel)
+                    questAccepted = true
                     infoLabel.Text = "📜 Đã nhận quest: " .. questData.MonName
                 end)
                 task.wait(0.5)
-                if checkQuest() then
-                    hasQuest = true
+                -- Nếu vẫn chưa có quest, thử lại 1 lần nữa
+                if not checkQuest() then
+                    pcall(function()
+                        CommF:InvokeServer("StartQuest", questData.QuestName, questData.QuestLevel)
+                        task.wait(0.3)
+                    end)
                 end
-            else
-                hasQuest = true
+            end
+            -- Reset flag nếu quest đã được nhận thành công
+            if checkQuest() then
+                questAccepted = false
             end
         end
         
-        -- Tìm quái
         local mobs = getEnemies(questData.MonName)
         if #mobs == 0 then
             infoLabel.Text = string.format("🔍 Tìm %s...", questData.MonName)
             currentTarget = nil
-            targetPosition = nil
             task.wait(0.3)
             continue
         end
@@ -1009,15 +1008,20 @@ task.spawn(function()
         
         equipWeapon()
         
-        -- Cập nhật targetPosition để bay đến
-        targetPosition = targetHRP.Position
-        
-        -- Khoảng cách đến quái
+        -- FLY ĐẾN QUÁI
         local dist = (targetHRP.Position - root.Position).Magnitude
+        if dist > 15 then
+            local reached = flyTo(targetHRP.Position)
+            if not reached then
+                task.wait(0.05)
+                continue
+            end
+        end
         
-        -- Nếu đã đến gần quái (trong phạm vi tấn công)
-        if dist <= 25 then
-            targetPosition = nil -- ngừng bay
+        -- ĐÃ ĐẾN GẦN → ĐÁNH
+        if dist <= 20 then
+            -- Đứng im, giữ độ cao
+            root.AssemblyLinearVelocity = Vector3.zero
             
             -- Quay mặt vào quái
             local lookVec = (targetHRP.Position - root.Position).Unit
@@ -1025,17 +1029,16 @@ task.spawn(function()
                 root.CFrame = CFrame.lookAt(root.Position, root.Position + lookVec * 10)
             end
             
-            -- GOM QUÁI TRÊN KHÔNG (kéo quái lên ngang tầm bay)
+            -- GOM QUÁI (kéo về gần)
             if BringMob then
-                local standPos = root.Position
                 for _, mob in ipairs(mobs) do
                     local hrp = mob:FindFirstChild("HumanoidRootPart")
                     local hum = mob:FindFirstChildOfClass("Humanoid")
                     if hrp and hum and hum.Health > 0 then
-                        local d = (hrp.Position - standPos).Magnitude
-                        if d > 10 and d < 150 then
-                            local off = Vector3.new(math.random(-4, 4), math.random(2, 6), math.random(-4, 4))
-                            hrp.CFrame = CFrame.new(standPos + off)
+                        local d = (hrp.Position - root.Position).Magnitude
+                        if d > 12 and d < 150 then
+                            local off = Vector3.new(math.random(-3, 3), 0, math.random(-3, 3))
+                            hrp.CFrame = CFrame.new(root.Position + off)
                             hrp.AssemblyLinearVelocity = Vector3.zero
                             hrp.CanCollide = false
                             hum.WalkSpeed = 0
@@ -1050,7 +1053,7 @@ task.spawn(function()
             end
             
             -- ĐÁNH LIÊN TỤC
-            for i = 1, 12 do
+            for i = 1, 10 do
                 if not AutoFarmLevel then break end
                 attackMob()
                 task.wait(attackCooldown)
@@ -1068,7 +1071,32 @@ task.spawn(function()
     end
 end)
 
-print("✅ ZENITH V12.24 - FULL FIX: BAY ĐẾN QUÁI + ĐÁNH + GOM QUÁI TRÊN KHÔNG")
-print("📌 Bật Auto Farm, nhân vật sẽ tự bay đến quái và đánh")
-print("📌 Kéo thanh 'Chiều Cao Bay' để chỉnh độ cao bay")
+-- DUY TRÌ ĐỘ CAO
+task.spawn(function()
+    while true do
+        task.wait(0.05)
+        if not AutoFarmLevel then task.wait(0.5) continue end
+        local char = LocalPlayer.Character
+        if not char then continue end
+        local root = char:FindFirstChild("HumanoidRootPart")
+        if not root then continue end
+        
+        local y = root.Position.Y
+        if y < flightHeight - 1 then
+            root.AssemblyLinearVelocity = Vector3.new(root.AssemblyLinearVelocity.X, 20, root.AssemblyLinearVelocity.Z)
+        elseif y > flightHeight + 1 then
+            root.AssemblyLinearVelocity = Vector3.new(root.AssemblyLinearVelocity.X, -5, root.AssemblyLinearVelocity.Z)
+        end
+        
+        for _, part in ipairs(char:GetDescendants()) do
+            if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
+                part.CanCollide = false
+            end
+        end
+    end
+end)
+
+print("✅ ZENITH V13.0 - FULL FIX: FLY + ATTACK + QUEST")
+print("📌 Bật Auto Farm, nhân vật sẽ bay đến quái và đánh")
+print("📌 Kéo thanh 'Chiều Cao Bay' để chỉnh độ cao")
 print("📌 Kéo thanh 'Tốc Độ Đánh' để chỉnh nhanh/chậm")
