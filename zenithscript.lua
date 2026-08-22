@@ -1,4 +1,4 @@
--- [[ ZENITH BLOX FRUIT - V12.24 (FULL FIX: AFK STAND STILL + FLY + AUTO FARM) ]] --
+-- [[ ZENITH BLOX FRUIT - V12.24 (FULL FIX: AUTO FLY + AUTO FARM + AUTO QUEST) ]] --
 
 task.wait(0.5)
 if not game:IsLoaded() then game.Loaded:Wait() end
@@ -37,7 +37,7 @@ local jumpValue, jumpEnabled = 50, false
 local AutoRandomFruit, AutoCollectFruit, AutoStoreFruit = false, false, false
 
 -- THÔNG SỐ FARM
-local flightHeight = 25
+local flightHeight = 28
 local attackCooldown = 0.04
 local attackCount = 6
 
@@ -532,7 +532,7 @@ end
 createToggle(farmPage, "auto_farm", false, function(v) AutoFarmLevel = v end)
 createToggle(farmPage, "auto_quest", true, function(v) AutoQuest = v end)
 createToggle(farmPage, "bring_mob", true, function(v) BringMob = v end)
-createSlider(farmPage, "flight_height", 10, 50, 25, function(val) flightHeight = val print("✈️ Độ cao bay: " .. val) end, false)
+createSlider(farmPage, "flight_height", 10, 50, 28, function(val) flightHeight = val print("✈️ Độ cao bay: " .. val) end, false)
 createSlider(farmPage, "attack_speed", 0.01, 0.2, 0.04, function(val) attackCooldown = val print("⚡ Tốc độ đánh: " .. string.format("%.2f", val) .. "s") end, true)
 
 -- TAB FRUIT
@@ -795,8 +795,11 @@ task.spawn(function()
 end)
 
 -- ===================================================
--- 8. AUTO FARM (AFK STAND STILL)
+-- 8. AUTO FARM (FLY TO MOB + ATTACK)
 -- ===================================================
+local currentTarget = nil
+local currentTween = nil
+
 local function equipWeapon()
     pcall(function()
         local char = LocalPlayer.Character
@@ -837,7 +840,7 @@ local function getEnemies(monName)
     return list
 end
 
-local function attack()
+local function attackMob()
     pcall(function()
         local char = LocalPlayer.Character
         if not char then return end
@@ -874,55 +877,67 @@ local function getQuestByLevel()
 end
 
 local function checkQuest()
-    -- Kiểm tra quest bằng cách xem có nhiệm vụ đang làm không
     local success, has = pcall(function()
         local quest = LocalPlayer:FindFirstChild("Quest")
         return quest and quest.Value ~= "" and quest.Value ~= nil
     end)
     if success and has then return true end
-    -- Kiểm tra qua UI
     local gui = LocalPlayer.PlayerGui:FindFirstChild("Quest")
     if gui and gui.Enabled then return true end
     return false
 end
 
--- ĐỨNG IM + FLY
-task.spawn(function()
-    while true do
-        task.wait(0.05)
-        if not AutoFarmLevel then task.wait(0.5) continue end
-        local char = LocalPlayer.Character
-        if not char then continue end
-        local root = char:FindFirstChild("HumanoidRootPart")
-        if not root then continue end
-        local y = root.Position.Y
-        if y < flightHeight - 1 then
-            root.AssemblyLinearVelocity = Vector3.new(0, 25, 0)
-        elseif y > flightHeight + 1 then
-            root.AssemblyLinearVelocity = Vector3.new(0, -8, 0)
-        else
-            root.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
-        end
-        for _, part in ipairs(char:GetDescendants()) do
-            if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
-                part.CanCollide = false
-            end
-        end
+-- FLY TO POSITION
+local function flyTo(pos)
+    local char = LocalPlayer.Character
+    if not char then return false end
+    local root = char:FindFirstChild("HumanoidRootPart")
+    if not root then return false end
+    
+    local targetPos = Vector3.new(pos.X, flightHeight, pos.Z)
+    local currentPos = root.Position
+    local dist = (targetPos - currentPos).Magnitude
+    
+    if dist < 3 then
+        root.AssemblyLinearVelocity = Vector3.zero
+        return true
     end
-end)
+    
+    local dir = (targetPos - currentPos).Unit
+    root.AssemblyLinearVelocity = dir * 120
+    
+    local yDiff = flightHeight - currentPos.Y
+    if math.abs(yDiff) > 1 then
+        root.AssemblyLinearVelocity = Vector3.new(
+            root.AssemblyLinearVelocity.X,
+            yDiff * 4,
+            root.AssemblyLinearVelocity.Z
+        )
+    end
+    return false
+end
 
--- FARM
+-- MAIN FARM THREAD
 task.spawn(function()
     while true do
         task.wait(0.08)
-        if not AutoFarmLevel then task.wait(0.5) continue end
+        if not AutoFarmLevel then
+            currentTarget = nil
+            task.wait(0.5)
+            continue
+        end
+        
         local char = LocalPlayer.Character
         if not char then task.wait(0.5) continue end
         local root = char:FindFirstChild("HumanoidRootPart")
         if not root then task.wait(0.5) continue end
         
         local questData = getQuestByLevel()
-        if not questData then infoLabel.Text = "⚠️ Không có nhiệm vụ" task.wait(1) continue end
+        if not questData then
+            infoLabel.Text = "⚠️ Không có nhiệm vụ"
+            task.wait(1)
+            continue
+        end
         
         -- NHẬN QUEST
         if AutoQuest and not checkQuest() then
@@ -931,7 +946,6 @@ task.spawn(function()
                 infoLabel.Text = "📜 Đã nhận quest: " .. questData.MonName
             end)
             task.wait(0.5)
-            -- Thử lại nếu chưa có
             if not checkQuest() then
                 pcall(function()
                     CommF:InvokeServer("StartQuest", questData.QuestName, questData.QuestLevel)
@@ -943,6 +957,7 @@ task.spawn(function()
         local mobs = getEnemies(questData.MonName)
         if #mobs == 0 then
             infoLabel.Text = string.format("🔍 Tìm %s...", questData.MonName)
+            currentTarget = nil
             task.wait(0.3)
             continue
         end
@@ -971,45 +986,60 @@ task.spawn(function()
         
         equipWeapon()
         
-        -- GOM QUÁI - KÉO VỀ PHÍA DƯỚI CHÂN
-        if BringMob then
-            local standPos = root.Position + Vector3.new(0, -flightHeight + 0.5, 0)
-            for _, mob in ipairs(mobs) do
-                local hrp = mob:FindFirstChild("HumanoidRootPart")
-                local hum = mob:FindFirstChildOfClass("Humanoid")
-                if hrp and hum and hum.Health > 0 then
-                    local d = (hrp.Position - standPos).Magnitude
-                    if d > 6 and d < 150 then
-                        local off = Vector3.new(math.random(-2, 2), 0, math.random(-2, 2))
-                        hrp.CFrame = CFrame.new(standPos + off)
-                        hrp.AssemblyLinearVelocity = Vector3.zero
-                        hrp.CanCollide = false
-                        hum.WalkSpeed = 0
-                        hum.JumpPower = 0
-                        hum.Sit = true
-                        hum.PlatformStand = true
-                        local anim = hum:FindFirstChild("Animator")
-                        if anim then for _, track in ipairs(anim:GetPlayingAnimationTracks()) do track:Stop() end end
-                        for _, part in ipairs(mob:GetDescendants()) do
-                            if part:IsA("BasePart") and part ~= hrp then
-                                part.CFrame = CFrame.new(standPos + off + Vector3.new(0, math.random(-1, 1), 0))
-                                part.AssemblyLinearVelocity = Vector3.zero
-                                part.CanCollide = false
-                            end
+        -- FLY ĐẾN QUÁI
+        local dist = (targetHRP.Position - root.Position).Magnitude
+        if dist > 20 then
+            local reached = flyTo(targetHRP.Position)
+            if not reached then
+                task.wait(0.05)
+                continue
+            end
+        end
+        
+        -- ĐÃ ĐẾN GẦN → ĐÁNH
+        if dist <= 25 then
+            -- Đứng im, giữ độ cao
+            root.AssemblyLinearVelocity = Vector3.zero
+            
+            -- Quay mặt vào quái
+            local lookVec = (targetHRP.Position - root.Position).Unit
+            if lookVec.Magnitude > 0 then
+                root.CFrame = CFrame.lookAt(root.Position, root.Position + lookVec * 10)
+            end
+            
+            -- GOM QUÁI (kéo về gần)
+            if BringMob then
+                for _, mob in ipairs(mobs) do
+                    local hrp = mob:FindFirstChild("HumanoidRootPart")
+                    local hum = mob:FindFirstChildOfClass("Humanoid")
+                    if hrp and hum and hum.Health > 0 then
+                        local d = (hrp.Position - root.Position).Magnitude
+                        if d > 15 and d < 150 then
+                            local off = Vector3.new(math.random(-3, 3), 0, math.random(-3, 3))
+                            hrp.CFrame = CFrame.new(root.Position + off)
+                            hrp.AssemblyLinearVelocity = Vector3.zero
+                            hrp.CanCollide = false
+                            hum.WalkSpeed = 0
+                            hum.JumpPower = 0
+                            hum.Sit = true
+                            hum.PlatformStand = true
+                            local anim = hum:FindFirstChild("Animator")
+                            if anim then for _, track in ipairs(anim:GetPlayingAnimationTracks()) do track:Stop() end end
                         end
                     end
                 end
             end
+            
+            -- ĐÁNH LIÊN TỤC
+            for i = 1, 10 do
+                if not AutoFarmLevel then break end
+                attackMob()
+                task.wait(attackCooldown)
+            end
+            
+            local weapon = char:FindFirstChildOfClass("Tool")
+            if weapon then weapon:Activate() task.wait(0.03) weapon:Activate() end
         end
-        
-        -- ĐÁNH
-        for i = 1, 8 do
-            if not AutoFarmLevel then break end
-            attack()
-            task.wait(attackCooldown)
-        end
-        local weapon = char:FindFirstChildOfClass("Tool")
-        if weapon then weapon:Activate() task.wait(0.03) weapon:Activate() end
         
         local hum = char:FindFirstChildOfClass("Humanoid")
         if hum and hum.Health < hum.MaxHealth * 0.2 then
@@ -1019,7 +1049,32 @@ task.spawn(function()
     end
 end)
 
-print("✅ ZENITH V12.24 - FULL FIX")
-print("📌 Bật Auto Farm, đứng im trên không, quái sẽ được kéo về dưới chân")
-print("📌 Kéo thanh 'Chiều Cao Bay' để chỉnh độ cao")
+-- DUY TRÌ ĐỘ CAO
+task.spawn(function()
+    while true do
+        task.wait(0.05)
+        if not AutoFarmLevel then task.wait(0.5) continue end
+        local char = LocalPlayer.Character
+        if not char then continue end
+        local root = char:FindFirstChild("HumanoidRootPart")
+        if not root then continue end
+        
+        local y = root.Position.Y
+        if y < flightHeight - 1 then
+            root.AssemblyLinearVelocity = Vector3.new(root.AssemblyLinearVelocity.X, 20, root.AssemblyLinearVelocity.Z)
+        elseif y > flightHeight + 1 then
+            root.AssemblyLinearVelocity = Vector3.new(root.AssemblyLinearVelocity.X, -5, root.AssemblyLinearVelocity.Z)
+        end
+        
+        for _, part in ipairs(char:GetDescendants()) do
+            if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
+                part.CanCollide = false
+            end
+        end
+    end
+end)
+
+print("✅ ZENITH V12.24 - FULL FIX: AUTO FLY + AUTO FARM + AUTO QUEST")
+print("📌 Bật Auto Farm, nhân vật sẽ tự bay đến quái và đánh")
+print("📌 Kéo thanh 'Chiều Cao Bay' để chỉnh độ cao bay")
 print("📌 Kéo thanh 'Tốc Độ Đánh' để chỉnh nhanh/chậm")
