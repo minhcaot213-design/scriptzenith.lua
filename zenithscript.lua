@@ -56,11 +56,8 @@ _G.AutoBoss = false; _G.AllBossesFarm = false; _G.SelectedBossName = "None"
 _G.AutoSeaBeast = false
 _G.AutoGhostShip = false
 _G.BoatSpeedEnabled = false
-_G.BoatSpeedVal = 1.5   -- hệ số tốc độ (mặc định 1.5)
+_G.BoatSpeedVal = 1.5
 _G.BoatFlyHeight = 30
-
--- Xóa bỏ Bot Farm theo vùng (không dùng nữa)
--- _G.AutoBotFarm = false; _G.BotZone = 1; _G.ResetBot = false
 
 local World1 = game.PlaceId == 2753915549 or game.PlaceId == 85211729168715
 local World2 = game.PlaceId == 4442272183 or game.PlaceId == 79091703265657
@@ -71,12 +68,10 @@ local BossListSea2 = {"Diamond", "Elegance", "Jeremy", "Fajita", "Smoke Admiral"
 local BossListSea3 = {"Stone", "Island Empress", "Kilo Admiral", "Captain Elephant", "Beautiful Pirate", "Cake Prince", "Dough King"}
 local CurrentBossList = World1 and BossListSea1 or (World2 and BossListSea2 or BossListSea3)
 
--- Danh sách võ, kiếm, súng
 local AllSwords = {"Cutlass", "Katana", "Iron Mace", "Dual Katana", "Triple Katana", "Shark Saw", "Soul Cane", "Dark Dagger", "Pipe", "Longsword", "Twin Blade", "Rengoku", "Saddi", "Yoru", "Canvander", "True Triple Katana"}
 local AllGuns = {"Musket", "Refined Flintlock", "Flintlock", "Slingshot", "Cannon", "Kabucha", "Bazooka", "Acidum Rifle"}
 local AllStyles = {"Dark Step", "Electro", "Fishman Karate", "Dragon Breath", "Superhuman", "Death Step", "Sharkman Karate", "Electric Claw", "Dragon Talon", "Godhuman"}
 
--- Bảng ngôn ngữ mở rộng
 local Loc = {
     VN = {
         Title = "ZENITH HUB <font color='#ff3344'>• V500 OMNIPOTENT</font>",
@@ -277,7 +272,7 @@ end
 -- Tạo các tab
 local pFarm = createTab("Farm", "🌾", "Farm")
 local pItem = createTab("FarmItem", "🦴", "FarmItem")
-local pSeaQuest = createTab("SeaQuest", "🌊", "SeaQuest")   -- chứa Sea Beast, Ghost Ship, Boat
+local pSeaQuest = createTab("SeaQuest", "🌊", "SeaQuest")
 local pBoss = createTab("Boss", "👑", "Boss")
 local pPVP = createTab("PVP", "🎯", "PVP")
 local pFruitEsp = createTab("FruitEsp", "🍎", "FruitEsp")
@@ -313,14 +308,14 @@ local takakuriLabel = Instance.new("TextLabel", pItem); takakuriLabel.Size = UDi
 createButton(pItem, "BtnSea2", function() pcall(function() if LocalPlayer.Data.Level.Value >= 700 then CommF:InvokeServer("DressrosaQuest") else infoLabel.Text = "Cần Cấp 700 để lên Sea 2!" end end) end)
 createButton(pItem, "BtnSea3", function() pcall(function() if LocalPlayer.Data.Level.Value >= 1500 then CommF:InvokeServer("ZouQuest") else infoLabel.Text = "Cần Cấp 1500 để lên Sea 3!" end end) end)
 
--- [ TAB SEA QUEST ] - thêm auto sea beast, ghost ship, và boat speed + height
+-- [ TAB SEA QUEST ]
 createToggle(pSeaQuest, "ToggleAutoSeaBeast", false, function(v) _G.AutoSeaBeast = v end)
 createToggle(pSeaQuest, "ToggleAutoGhostShip", false, function(v) _G.AutoGhostShip = v end)
 createButton(pSeaQuest, "SeaQuestDaily", function() if CommF then CommF:InvokeServer("DailyQuest") end end)
 createButton(pSeaQuest, "SeaQuestShip", function() if CommF then CommF:InvokeServer("ShipQuest") end end)
 createButton(pSeaQuest, "SeaQuestBoss", function() if CommF then CommF:InvokeServer("SeaBossQuest") end end)
 
--- Boat Speed Toggle và Slider
+-- Boat Speed Toggle
 local boatSpeedToggleFrame = Instance.new("Frame", pSeaQuest); boatSpeedToggleFrame.Size = UDim2.new(0.95, 0, 0, 36); boatSpeedToggleFrame.BackgroundColor3 = Color3.fromRGB(22, 12, 15); boatSpeedToggleFrame.BackgroundTransparency = 0.3; Instance.new("UICorner", boatSpeedToggleFrame).CornerRadius = UDim.new(0, 6)
 Instance.new("UIStroke", boatSpeedToggleFrame).Color = Color3.fromRGB(75, 25, 35); Instance.new("UIStroke", boatSpeedToggleFrame).Thickness = 1
 local boatSpeedLbl = Instance.new("TextLabel", boatSpeedToggleFrame); boatSpeedLbl.Size = UDim2.new(1, -55, 1, 0); boatSpeedLbl.Position = UDim2.new(0, 12, 0, 0); boatSpeedLbl.BackgroundTransparency = 1; boatSpeedLbl.TextColor3 = Color3.fromRGB(255, 240, 245); boatSpeedLbl.Font = Enum.Font.GothamMedium; boatSpeedLbl.TextSize = 12; boatSpeedLbl.TextXAlignment = Enum.TextXAlignment.Left; boatSpeedLbl.Text = L("ToggleBoatSpeed")
@@ -380,7 +375,7 @@ bossSelectFrame.InputBegan:Connect(function(input)
 end)
 local bossListLabel = Instance.new("TextLabel", pBoss); bossListLabel.Size = UDim2.new(0.95, 0, 0, 30); bossListLabel.BackgroundTransparency = 1; bossListLabel.TextColor3 = Color3.fromRGB(255, 100, 115); bossListLabel.Font = Enum.Font.GothamBold; bossListLabel.TextSize = 11; bossListLabel.Text = "👑 Boss Đang Sống: Quét..."
 
--- [ TAB PVP ] (bỏ boat speed, height)
+-- [ TAB PVP ]
 local pvpContainer = pPVP
 local silentToggleFrame = Instance.new("Frame", pvpContainer); silentToggleFrame.Size = UDim2.new(0.95, 0, 0, 36); silentToggleFrame.BackgroundColor3 = Color3.fromRGB(22, 12, 15); silentToggleFrame.BackgroundTransparency = 0.3; Instance.new("UICorner", silentToggleFrame).CornerRadius = UDim.new(0, 6)
 Instance.new("UIStroke", silentToggleFrame).Color = Color3.fromRGB(75, 25, 35); Instance.new("UIStroke", silentToggleFrame).Thickness = 1
@@ -502,18 +497,17 @@ createToggle(pStats, "🛡️ Defense", false, function(v) _G.StatsDefense = v e
 createToggle(pStats, "⚔️ Sword", false, function(v) _G.StatsSword = v end)
 createToggle(pStats, "🍎 Blox Fruit", false, function(v) _G.StatsFruit = v end)
 
--- [ TAB TELEPORT ] (giữ nguyên, không có zone select nữa)
+-- [ TAB TELEPORT ]
 createButton(pTele, "BtnSea1", function() if CommF then CommF:InvokeServer("TravelMain") end end)
 createButton(pTele, "BtnSea2", function() if CommF then CommF:InvokeServer("TravelDressrosa") end end)
 createButton(pTele, "BtnSea3", function() if CommF then CommF:InvokeServer("TravelZou") end end)
 
--- [ TAB SHOP ] - sửa chức năng mua võ
+-- [ TAB SHOP ]
 createButton(pShop, "BtnGeppo", function() if CommF then CommF:InvokeServer("BuyHaki", "Geppo") end end)
 createButton(pShop, "BtnBuso", function() if CommF then CommF:InvokeServer("BuyHaki", "Buso") end end)
 createButton(pShop, "BtnSoru", function() if CommF then CommF:InvokeServer("BuyHaki", "Soru") end end)
 createButton(pShop, "BtnKen", function() if CommF then CommF:InvokeServer("BuyHaki", "KenTalk", "Buy") end end)
 
--- Phần chọn võ và mua
 local styleSelectLabel = Instance.new("TextLabel", pShop); styleSelectLabel.Size = UDim2.new(0.95, 0, 0, 22); styleSelectLabel.BackgroundTransparency = 1; styleSelectLabel.TextColor3 = Color3.fromRGB(255, 215, 0); styleSelectLabel.Font = Enum.Font.GothamBold; styleSelectLabel.TextSize = 12; styleSelectLabel.Text = L("SelectStyle")
 local styleDropdown = Instance.new("TextButton", pShop); styleDropdown.Size = UDim2.new(0.95, 0, 0, 30); styleDropdown.BackgroundColor3 = Color3.fromRGB(35, 18, 22); styleDropdown.TextColor3 = Color3.fromRGB(255, 255, 255); styleDropdown.Font = Enum.Font.GothamBold; styleDropdown.TextSize = 11; styleDropdown.Text = AllStyles[1]; Instance.new("UICorner", styleDropdown).CornerRadius = UDim.new(0, 4)
 local styleIdx = 1
@@ -531,7 +525,6 @@ buyStyleBtn.MouseButton1Click:Connect(function()
     end
 end)
 
--- Các nút mua hàng loạt
 createButton(pShop, "Mua Tất Cả Kiếm", function()
     for _, sword in ipairs(AllSwords) do
         pcall(function() CommF:InvokeServer("BuyItem", sword) end)
@@ -554,7 +547,7 @@ createButton(pShop, "BtnBuySword", function() if CommF then CommF:InvokeServer("
 createButton(pShop, "BtnBuyGun", function() if CommF then CommF:InvokeServer("BuyItem", "Musket") CommF:InvokeServer("BuyItem", "Refined Flintlock") end end)
 createButton(pShop, "BtnBuyStyle", function() if CommF then CommF:InvokeServer("BuyItem", "Dark Step") CommF:InvokeServer("BuyItem", "Electro") end end)
 
--- [ TAB MISC ] - bỏ bot farm, chỉ giữ các cài đặt chung
+-- [ TAB MISC ]
 createButton(pMisc, "BtnDiscord", function() setclipboard("https://discord.gg/yourlink") end)
 local langSeg = Instance.new("Frame", pMisc); langSeg.Size = UDim2.new(0.95, 0, 0, 35); langSeg.BackgroundColor3 = Color3.fromRGB(22, 12, 15); langSeg.BackgroundTransparency = 0.3; Instance.new("UICorner", langSeg).CornerRadius = UDim.new(0, 6)
 Instance.new("UIStroke", langSeg).Color = Color3.fromRGB(75, 25, 35); Instance.new("UIStroke", langSeg).Thickness = 1
@@ -676,7 +669,7 @@ task.spawn(function()
     end
 end)
 
--- Speed thuyền và độ bay cao
+-- Boat speed & height
 task.spawn(function()
     while task.wait() do
         if _G.BoatSpeedEnabled then
@@ -782,7 +775,7 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
--- ESP
+-- ESP (giữ nguyên, không thay đổi)
 task.spawn(function()
     while task.wait(1) do
         if _G.ESPPlayer then
@@ -867,7 +860,7 @@ task.spawn(function()
 end)
 
 -- =========================================================
--- LOGIC AUTO FARM (SỬA LỖI LEVEL 150)
+-- LOGIC AUTO FARM (SỬA LỖI KÉO QUÁI, GOM QUÁI, TỐI ƯU COLOSSEUM)
 -- =========================================================
 function EquipWeapon(weaponType)
     pcall(function()
@@ -927,7 +920,7 @@ function CheckQuest()
     end
 end
 
--- Vòng lặp Auto Farm Level & Item Farm (sửa lỗi đứng farm, đặc biệt level 150)
+-- Vòng lặp Auto Farm Level & Item Farm (sửa lỗi đứng farm, kéo quái về đúng vị trí, tối ưu colosseum)
 spawn(function()
     while task.wait() do
         if _G.AutoFarm or _G.AutoItemFarm then
@@ -943,11 +936,11 @@ spawn(function()
                     StartBring = false; _G.GlobalFarmActive = false; if CommF then CommF:InvokeServer("AbandonQuest") end
                 else
                     local foundMob = false
-                    -- Tìm quái trong Workspace.Enemies (hoặc cả Workspace)
                     local enemies = Workspace:FindFirstChild("Enemies") or Workspace
                     for _, v512 in pairs(enemies:GetChildren()) do
                         if v512:FindFirstChild("HumanoidRootPart") and v512:FindFirstChild("Humanoid") and v512.Humanoid.Health > 0 and v512.Name == Mon then
                             foundMob = true
+                            -- Di chuyển đến vị trí quái (không di chuyển liên tục)
                             local targetPos = v512.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0)
                             if (LocalPlayer.Character.HumanoidRootPart.Position - targetPos.Position).Magnitude > 10 then
                                 topos(targetPos)
@@ -957,17 +950,28 @@ spawn(function()
                                 EquipWeapon(_G.SelectWeapon)
                                 local hrp = LocalPlayer.Character.HumanoidRootPart
                                 hrp.CFrame = CFrame.lookAt(hrp.Position, v512.HumanoidRootPart.Position)
-                                v512.HumanoidRootPart.CanCollide = false; v512.Humanoid.WalkSpeed = 0; v512.Head.CanCollide = false; v512.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
-                                v512.HumanoidRootPart.CFrame = CFrame.new(v512.HumanoidRootPart.Position.X, 0, v512.HumanoidRootPart.Position.Z)
-                                StartBring = true; _G.GlobalFarmActive = true
-                                VirtualUser:CaptureController(); VirtualUser:Button1Down(Vector2.new(1280, 672))
+                                -- Kéo quái về gần người chơi, giữ nguyên y của quái để không bị chui xuống đất
+                                if _G.BringMonster then
+                                    local mobY = v512.HumanoidRootPart.Position.Y
+                                    v512.HumanoidRootPart.CFrame = CFrame.new(hrp.Position.X, mobY, hrp.Position.Z) * CFrame.new(0, 0, 5)
+                                end
+                                v512.HumanoidRootPart.CanCollide = false
+                                v512.Humanoid.WalkSpeed = 0
+                                v512.Head.CanCollide = false
+                                v512.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
+                                StartBring = true
+                                _G.GlobalFarmActive = true
+                                VirtualUser:CaptureController()
+                                VirtualUser:Button1Down(Vector2.new(1280, 672))
                             until not (_G.AutoFarm or _G.AutoItemFarm) or v512.Humanoid.Health <= 0 or not v512.Parent or questGui.Visible == false
                         end
                     end
                     if not foundMob then
                         StartBring = false; _G.GlobalFarmActive = false
-                        -- Nếu không tìm thấy quái, đến vị trí spawn (CFrameMon) để tìm
-                        topos(CFrameMon)
+                        -- Nếu không tìm thấy quái, di chuyển đến vị trí spawn (CFrameMon) để tìm
+                        if (LocalPlayer.Character.HumanoidRootPart.Position - CFrameMon.Position).Magnitude > 15 then
+                            topos(CFrameMon)
+                        end
                     end
                 end
             end)
@@ -990,7 +994,7 @@ spawn(function()
     end
 end)
 
--- Bring Mob
+-- Bring Mob (gom quái về 1 chỗ, giữ y của quái)
 spawn(function()
     while task.wait() do
         pcall(function()
@@ -1000,9 +1004,11 @@ spawn(function()
                 for _, v1167 in pairs(enemies:GetChildren()) do
                     if v1167.Name == Mon and v1167:FindFirstChild("Humanoid") and v1167:FindFirstChild("HumanoidRootPart") and v1167.Humanoid.Health > 0 then
                         if (v1167.HumanoidRootPart.Position - hrp.Position).Magnitude <= 320 then
+                            local mobY = v1167.HumanoidRootPart.Position.Y  -- giữ nguyên độ cao của quái
                             v1167.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
-                            v1167.HumanoidRootPart.CFrame = CFrame.new(hrp.Position.X, 0, hrp.Position.Z) * CFrame.new(0, 0, 5)
-                            v1167.HumanoidRootPart.CanCollide = false; v1167.Head.CanCollide = false
+                            v1167.HumanoidRootPart.CFrame = CFrame.new(hrp.Position.X, mobY, hrp.Position.Z) * CFrame.new(0, 0, 5)
+                            v1167.HumanoidRootPart.CanCollide = false
+                            v1167.Head.CanCollide = false
                             if v1167.Humanoid:FindFirstChild("Animator") then v1167.Humanoid.Animator:Destroy() end
                             v1167.Humanoid:ChangeState(11)
                             sethiddenproperty(LocalPlayer, "SimulationRadius", math.huge)
@@ -1014,7 +1020,7 @@ spawn(function()
     end
 end)
 
--- Boss Farm
+-- Boss Farm (sửa tương tự)
 task.spawn(function()
     while task.wait(1) do
         pcall(function()
@@ -1040,10 +1046,14 @@ task.spawn(function()
                                 EquipWeapon(_G.SelectWeapon)
                                 local hrp = LocalPlayer.Character.HumanoidRootPart
                                 hrp.CFrame = CFrame.lookAt(hrp.Position, v.HumanoidRootPart.Position)
-                                v.HumanoidRootPart.CFrame = CFrame.new(v.HumanoidRootPart.Position.X, 0, v.HumanoidRootPart.Position.Z)
+                                if _G.BringMonster then
+                                    local mobY = v.HumanoidRootPart.Position.Y
+                                    v.HumanoidRootPart.CFrame = CFrame.new(hrp.Position.X, mobY, hrp.Position.Z) * CFrame.new(0, 0, 5)
+                                end
                                 v.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
                                 v.HumanoidRootPart.CanCollide = false
-                                v.Humanoid.WalkSpeed = 0; v.Humanoid.JumpPower = 0
+                                v.Humanoid.WalkSpeed = 0
+                                v.Humanoid.JumpPower = 0
                                 if v.Humanoid:FindFirstChild("Animator") then v.Humanoid.Animator:Destroy() end
                                 v.Humanoid:ChangeState(11)
                             until not (_G.AutoBoss or _G.AllBossesFarm) or v.Humanoid.Health <= 0 or not v.Parent
@@ -1072,7 +1082,7 @@ task.spawn(function()
     end
 end)
 
--- Fast Attack (giảm số lần gửi)
+-- Fast Attack
 local v1 = next; local v2 = {ReplicatedStorage.Util, ReplicatedStorage.Common, ReplicatedStorage.Remotes, ReplicatedStorage.Assets, ReplicatedStorage.FX}; local v3, u4, u5 = nil, nil, nil
 task.spawn(function()
     while true do
@@ -1165,10 +1175,14 @@ task.spawn(function()
                                 EquipWeapon(_G.SelectWeapon)
                                 local hrp = LocalPlayer.Character.HumanoidRootPart
                                 hrp.CFrame = CFrame.lookAt(hrp.Position, v.HumanoidRootPart.Position)
-                                v.HumanoidRootPart.CFrame = CFrame.new(v.HumanoidRootPart.Position.X, 0, v.HumanoidRootPart.Position.Z)
+                                if _G.BringMonster then
+                                    local mobY = v.HumanoidRootPart.Position.Y
+                                    v.HumanoidRootPart.CFrame = CFrame.new(hrp.Position.X, mobY, hrp.Position.Z) * CFrame.new(0, 0, 5)
+                                end
                                 v.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
                                 v.HumanoidRootPart.CanCollide = false
-                                v.Humanoid.WalkSpeed = 0; v.Humanoid.JumpPower = 0
+                                v.Humanoid.WalkSpeed = 0
+                                v.Humanoid.JumpPower = 0
                                 if v.Humanoid:FindFirstChild("Animator") then v.Humanoid.Animator:Destroy() end
                                 v.Humanoid:ChangeState(11)
                             until not _G.AutoFarmBone or v.Humanoid.Health <= 0 or not v.Parent
@@ -1199,10 +1213,14 @@ task.spawn(function()
                                 EquipWeapon(_G.SelectWeapon)
                                 local hrp = LocalPlayer.Character.HumanoidRootPart
                                 hrp.CFrame = CFrame.lookAt(hrp.Position, v.HumanoidRootPart.Position)
-                                v.HumanoidRootPart.CFrame = CFrame.new(v.HumanoidRootPart.Position.X, 0, v.HumanoidRootPart.Position.Z)
+                                if _G.BringMonster then
+                                    local mobY = v.HumanoidRootPart.Position.Y
+                                    v.HumanoidRootPart.CFrame = CFrame.new(hrp.Position.X, mobY, hrp.Position.Z) * CFrame.new(0, 0, 5)
+                                end
                                 v.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
                                 v.HumanoidRootPart.CanCollide = false
-                                v.Humanoid.WalkSpeed = 0; v.Humanoid.JumpPower = 0
+                                v.Humanoid.WalkSpeed = 0
+                                v.Humanoid.JumpPower = 0
                                 if v.Humanoid:FindFirstChild("Animator") then v.Humanoid.Animator:Destroy() end
                                 v.Humanoid:ChangeState(11)
                             until not _G.AutoFarmTakakuri or v.Humanoid.Health <= 0 or not v.Parent
@@ -1236,10 +1254,14 @@ task.spawn(function()
                             EquipWeapon(_G.SelectWeapon)
                             local hrp = LocalPlayer.Character.HumanoidRootPart
                             hrp.CFrame = CFrame.lookAt(hrp.Position, v.HumanoidRootPart.Position)
-                            v.HumanoidRootPart.CFrame = CFrame.new(v.HumanoidRootPart.Position.X, 0, v.HumanoidRootPart.Position.Z)
+                            if _G.BringMonster then
+                                local mobY = v.HumanoidRootPart.Position.Y
+                                v.HumanoidRootPart.CFrame = CFrame.new(hrp.Position.X, mobY, hrp.Position.Z) * CFrame.new(0, 0, 5)
+                            end
                             v.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
                             v.HumanoidRootPart.CanCollide = false
-                            v.Humanoid.WalkSpeed = 0; v.Humanoid.JumpPower = 0
+                            v.Humanoid.WalkSpeed = 0
+                            v.Humanoid.JumpPower = 0
                             if v.Humanoid:FindFirstChild("Animator") then v.Humanoid.Animator:Destroy() end
                             v.Humanoid:ChangeState(11)
                         until not _G.AutoSeaBeast or v.Humanoid.Health <= 0 or not v.Parent
@@ -1267,10 +1289,14 @@ task.spawn(function()
                             EquipWeapon(_G.SelectWeapon)
                             local hrp = LocalPlayer.Character.HumanoidRootPart
                             hrp.CFrame = CFrame.lookAt(hrp.Position, v.HumanoidRootPart.Position)
-                            v.HumanoidRootPart.CFrame = CFrame.new(v.HumanoidRootPart.Position.X, 0, v.HumanoidRootPart.Position.Z)
+                            if _G.BringMonster then
+                                local mobY = v.HumanoidRootPart.Position.Y
+                                v.HumanoidRootPart.CFrame = CFrame.new(hrp.Position.X, mobY, hrp.Position.Z) * CFrame.new(0, 0, 5)
+                            end
                             v.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
                             v.HumanoidRootPart.CanCollide = false
-                            v.Humanoid.WalkSpeed = 0; v.Humanoid.JumpPower = 0
+                            v.Humanoid.WalkSpeed = 0
+                            v.Humanoid.JumpPower = 0
                             if v.Humanoid:FindFirstChild("Animator") then v.Humanoid.Animator:Destroy() end
                             v.Humanoid:ChangeState(11)
                         until not _G.AutoGhostShip or v.Humanoid.Health <= 0 or not v.Parent
