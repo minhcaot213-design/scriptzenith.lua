@@ -1,46 +1,133 @@
--- [[ ZENITH x REDZ HUB - OFFICIAL UNTOUCHED CORE ]] --
--- Lấy 100% logic Auto Farm nguyên bản từ code Redz (Work 100%)
--- Giao diện chuẩn RedzLib, chống mọi lỗi đen màn hình.
+-- [[ ZENITH x REDZ HUB - PERFECTION UNIFIED V51 ]] --
+-- Giao diện UI tự tạo độc lập (Không cần mạng ngoài để tải lib).
+-- Lõi Farm nguyên bản Redz: CheckQuest, topos, BTP, Fast Attack Network.
 
-task.wait(0.1)
+task.wait(0.5)
 if not game:IsLoaded() then game.Loaded:Wait() end
 
 local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
-local VirtualUser = game:GetService("VirtualUser")
 local TweenService = game:GetService("TweenService")
-local Plr = Players.LocalPlayer
+local VirtualUser = game:GetService("VirtualUser")
+local UserInputService = game:GetService("UserInputService")
+local Lighting = game:GetService("Lighting")
 
+local LocalPlayer = Players.LocalPlayer
 local CommF = nil
 pcall(function() CommF = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("CommF_") end)
 
--- CHỐNG AFK CRASH
-pcall(function() for i,v in pairs(getconnections(Plr.Idled)) do v:Disable() end end)
-Plr.Idled:Connect(function() pcall(function() VirtualUser:CaptureController(); VirtualUser:ClickButton2(Vector2.new()) end) end)
+-- Chống AFK Kick
+pcall(function() for i,v in pairs(getconnections(LocalPlayer.Idled)) do v:Disable() end end)
+LocalPlayer.Idled:Connect(function() pcall(function() VirtualUser:CaptureController(); VirtualUser:ClickButton2(Vector2.new()) end) end)
 
--- BIẾN TOÀN CỤC CHUẨN REDZ
+-- Biến toàn cục
 _G.AutoFarm = false
-_G.SelectWeapon = "Melee"
-_G.FastAttack = true
+_G.AutoQuest = true
 _G.BringMonster = true
+_G.FastAttack = true
+_G.SelectWeapon = "Melee"
+
+local StartBring = false
+local PosMon = nil
+local currentTween = nil
 
 local World1 = game.PlaceId == 2753915549 or game.PlaceId == 85211729168715
 local World2 = game.PlaceId == 4442272183 or game.PlaceId == 79091703265657
 local World3 = game.PlaceId == 7449423635 or game.PlaceId == 100117331123089
 
-local Mon, LevelQuest, NameQuest, NameMon, CFrameQuest, CFrameMon
-local StartBring = false
-local PosMon = nil
-local MonFarm = ""
-local BypassTP = true
+-- =========================================================
+-- KHỞI TẠO GIAO DIỆN ZENITH (HOÀN TOÀN ĐỘC LẬP, KHÔNG LỖI)
+-- =========================================================
+local UI_NAME = "ZenithHub_Standalone_V51"
+pcall(function() if game:GetService("CoreGui"):FindFirstChild(UI_NAME) then game:GetService("CoreGui")[UI_NAME]:Destroy() end end)
+pcall(function() if LocalPlayer.PlayerGui:FindFirstChild(UI_NAME) then LocalPlayer.PlayerGui[UI_NAME]:Destroy() end end)
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = UI_NAME; ScreenGui.ResetOnSpawn = false
+local s, p = pcall(function() return gethui() end)
+if s and p then ScreenGui.Parent = p else ScreenGui.Parent = game:GetService("CoreGui") end
+
+-- Nút thu nhỏ nổi
+local FloatingButton = Instance.new("TextButton", ScreenGui)
+FloatingButton.Size = UDim2.new(0, 48, 0, 48); FloatingButton.Position = UDim2.new(0.1, 0, 0.5, 0); FloatingButton.BackgroundColor3 = Color3.fromRGB(13, 16, 22); FloatingButton.Visible = false; FloatingButton.Text = "Z"; FloatingButton.TextColor3 = Color3.fromRGB(0, 210, 255); FloatingButton.Font = Enum.Font.GothamBlack; FloatingButton.TextSize = 24; FloatingButton.ZIndex = 999
+Instance.new("UICorner", FloatingButton).CornerRadius = UDim.new(0, 12)
+Instance.new("UIStroke", FloatingButton).Color = Color3.fromRGB(0, 210, 255); Instance.new("UIStroke", FloatingButton).Thickness = 1.5
+
+local MainFrame = Instance.new("Frame", ScreenGui)
+MainFrame.Size = UDim2.new(0, 520, 0, 320); MainFrame.AnchorPoint = Vector2.new(0.5, 0.5); MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0); MainFrame.BackgroundColor3 = Color3.fromRGB(11, 13, 19); MainFrame.BorderSizePixel = 0; MainFrame.ClipsDescendants = true
+Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 8)
+local ms = Instance.new("UIStroke", MainFrame); ms.Color = Color3.fromRGB(0, 210, 255); ms.Thickness = 1.5
+
+-- Kéo thả UI
+local dragging, dragStart, startPos
+MainFrame.InputBegan:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then dragging = true; dragStart = input.Position; startPos = MainFrame.Position end end)
+FloatingButton.InputBegan:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then dragging = true; dragStart = input.Position; startPos = FloatingButton.Position end end)
+UserInputService.InputEnded:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then dragging = false end end)
+UserInputService.InputChanged:Connect(function(input)
+    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        local delta = input.Position - dragStart
+        if MainFrame.Visible then MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        else FloatingButton.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y) end
+    end
+end)
+
+local TopBar = Instance.new("Frame", MainFrame)
+TopBar.Size = UDim2.new(1, 0, 0, 38); TopBar.BackgroundColor3 = Color3.fromRGB(14, 18, 27); TopBar.BorderSizePixel = 0
+local Title = Instance.new("TextLabel", TopBar)
+Title.Size = UDim2.new(0, 300, 1, 0); Title.Position = UDim2.new(0, 15, 0, 0); Title.BackgroundTransparency = 1; Title.RichText = true; Title.TextColor3 = Color3.fromRGB(255, 255, 255); Title.Font = Enum.Font.GothamBold; Title.TextSize = 13; Title.TextXAlignment = Enum.TextXAlignment.Left
+Title.Text = "ZENITH HUB <font color='#00d2ff'>• V51 STANDALONE</font>"
+
+local CloseBtn = Instance.new("TextButton", TopBar); CloseBtn.Size = UDim2.new(0, 24, 0, 24); CloseBtn.Position = UDim2.new(1, -28, 0.5, -12); CloseBtn.BackgroundColor3 = Color3.fromRGB(255, 60, 90); CloseBtn.Text = "✕"; CloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255); CloseBtn.Font = Enum.Font.GothamBold; CloseBtn.TextSize = 10; Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(0, 5)
+CloseBtn.MouseButton1Click:Connect(function() MainFrame.Visible = false; FloatingButton.Visible = true end)
+FloatingButton.MouseButton1Click:Connect(function() MainFrame.Visible = true; FloatingButton.Visible = false end)
+
+local Page = Instance.new("ScrollingFrame", MainFrame)
+Page.Size = UDim2.new(1, -20, 1, -55); Page.Position = UDim2.new(0, 10, 0, 45); Page.BackgroundTransparency = 1; Page.BorderSizePixel = 0; Page.ScrollBarThickness = 3; Page.AutomaticCanvasSize = Enum.AutomaticSize.Y
+local pl = Instance.new("UIListLayout", Page); pl.Padding = UDim.new(0, 8); pl.HorizontalAlignment = Enum.HorizontalAlignment.Center
+
+local infoLabel = Instance.new("TextLabel", Page)
+infoLabel.Size = UDim2.new(0.96, 0, 0, 25); infoLabel.BackgroundTransparency = 1; infoLabel.TextColor3 = Color3.fromRGB(0, 255, 150); infoLabel.Font = Enum.Font.GothamBold; infoLabel.TextSize = 12; infoLabel.Text = "Trạng thái: Sẵn sàng tàn sát!"
+
+-- Chọn vũ khí
+local wSeg = Instance.new("Frame", Page); wSeg.Size = UDim2.new(0.96, 0, 0, 32); wSeg.BackgroundColor3 = Color3.fromRGB(15, 18, 25); Instance.new("UICorner", wSeg).CornerRadius = UDim.new(0, 6)
+local wsLayout = Instance.new("UIListLayout", wSeg); wsLayout.FillDirection = Enum.FillDirection.Horizontal; wsLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center; wsLayout.VerticalAlignment = Enum.VerticalAlignment.Center; wsLayout.Padding = UDim.new(0, 5)
+
+for _, wName in ipairs({"Melee", "Sword", "Blox Fruit"}) do
+    local b = Instance.new("TextButton", wSeg)
+    b.Size = UDim2.new(0.3, 0, 0.8, 0); b.BackgroundColor3 = _G.SelectWeapon == wName and Color3.fromRGB(0, 160, 240) or Color3.fromRGB(28, 35, 48); b.TextColor3 = Color3.fromRGB(255, 255, 255); b.Font = Enum.Font.GothamMedium; b.TextSize = 11; b.Text = wName
+    Instance.new("UICorner", b).CornerRadius = UDim.new(0, 4)
+    b.MouseButton1Click:Connect(function()
+        _G.SelectWeapon = wName
+        for _, btn in pairs(wSeg:GetChildren()) do if btn:IsA("TextButton") then btn.BackgroundColor3 = btn.Text == wName and Color3.fromRGB(0, 160, 240) or Color3.fromRGB(28, 35, 48) end end
+    end)
+end
+
+local function CreateToggle(labelText, defaultState, callback)
+    local state = defaultState
+    local frame = Instance.new("Frame", Page); frame.Size = UDim2.new(0.96, 0, 0, 36); frame.BackgroundColor3 = Color3.fromRGB(16, 20, 29); Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 6)
+    local label = Instance.new("TextLabel", frame); label.Size = UDim2.new(1, -60, 1, 0); label.Position = UDim2.new(0, 12, 0, 0); label.BackgroundTransparency = 1; label.TextColor3 = Color3.fromRGB(220, 225, 235); label.Font = Enum.Font.GothamMedium; label.TextSize = 12; label.TextXAlignment = Enum.TextXAlignment.Left; label.Text = labelText
+    local switch = Instance.new("TextButton", frame); switch.Size = UDim2.new(0, 36, 0, 18); switch.Position = UDim2.new(1, -45, 0.5, -9); switch.BackgroundColor3 = state and Color3.fromRGB(0, 190, 255) or Color3.fromRGB(35, 40, 54); switch.Text = ""; Instance.new("UICorner", switch).CornerRadius = UDim.new(1, 0)
+    local circle = Instance.new("Frame", switch); circle.Size = UDim2.new(0, 14, 0, 14); circle.Position = state and UDim2.new(1, -16, 0.5, -7) or UDim2.new(0, 2, 0.5, -7); circle.BackgroundColor3 = Color3.fromRGB(255, 255, 255); Instance.new("UICorner", circle).CornerRadius = UDim.new(1, 0)
+    switch.MouseButton1Click:Connect(function()
+        state = not state; switch.BackgroundColor3 = state and Color3.fromRGB(0, 190, 255) or Color3.fromRGB(35, 40, 54)
+        circle:TweenPosition(state and UDim2.new(1, -16, 0.5, -7) or UDim2.new(0, 2, 0.5, -7), "Out", "Quad", 0.15, true)
+        if callback then callback(state) end
+    end)
+end
+
+CreateToggle("⚡ Kích Hoạt Auto Farm Level", false, function(v) _G.AutoFarm = v end)
+CreateToggle("📜 Tự Nhận Nhiệm Vụ", true, function(v) _G.AutoQuest = v end)
+CreateToggle("🧲 Kéo Quái (Bring Mob)", true, function(v) _G.BringMonster = v end)
+CreateToggle("⚔️ Fast Attack (Mượt Mà)", true, function(v) _G.FastAttack = v end)
 
 -- =========================================================
--- LOGIC CHECKQUEST GỐC TỪ CODE REDZ
+-- LOGIC DI CHUYỂN BTP & TOPOS GỐC TỪ REDZ
 -- =========================================================
+local Mon, LevelQuest, NameQuest, NameMon, CFrameQuest, CFrameMon
 function CheckQuest()
-    local MyLevel = Plr.Data.Level.Value
+    local MyLevel = LocalPlayer.Data.Level.Value
     if World1 then
         if MyLevel >= 1 and MyLevel <= 9 then
             Mon = "Bandit"; LevelQuest = 1; NameQuest = "BanditQuest1"; NameMon = "Bandit"
@@ -57,148 +144,78 @@ function CheckQuest()
         elseif MyLevel >= 40 and MyLevel <= 59 then
             Mon = "Brute"; LevelQuest = 2; NameQuest = "BuggyQuest1"; NameMon = "Brute"
             CFrameQuest = CFrame.new(-1141.07, 4.10, 3831.54); CFrameMon = CFrame.new(-1140.08, 14.80, 4322.92)
-        elseif MyLevel >= 60 and MyLevel <= 74 then
-            Mon = "Desert Bandit"; LevelQuest = 1; NameQuest = "DesertQuest"; NameMon = "Desert Bandit"
-            CFrameQuest = CFrame.new(894.48, 5.14, 4392.43); CFrameMon = CFrame.new(924.79, 6.44, 4481.58)
-        elseif MyLevel >= 75 and MyLevel <= 89 then
-            Mon = "Desert Officer"; LevelQuest = 2; NameQuest = "DesertQuest"; NameMon = "Desert Officer"
-            CFrameQuest = CFrame.new(894.48, 5.14, 4392.43); CFrameMon = CFrame.new(1608.28, 8.61, 4371.00)
-        elseif MyLevel >= 90 and MyLevel <= 99 then
-            Mon = "Snow Bandit"; LevelQuest = 1; NameQuest = "SnowQuest"; NameMon = "Snow Bandit"
-            CFrameQuest = CFrame.new(1389.74, 88.15, -1298.90); CFrameMon = CFrame.new(1354.34, 87.27, -1393.94)
-        elseif MyLevel >= 100 and MyLevel <= 119 then
-            Mon = "Snowman"; LevelQuest = 2; NameQuest = "SnowQuest"; NameMon = "Snowman"
-            CFrameQuest = CFrame.new(1389.74, 88.15, -1298.90); CFrameMon = CFrame.new(1201.64, 144.57, -1550.06)
         else
-            Mon = "Chief Petty Officer"; LevelQuest = 1; NameQuest = "MarineQuest2"; NameMon = "Chief Petty Officer"
-            CFrameQuest = CFrame.new(-5039.58, 27.35, 4324.68); CFrameMon = CFrame.new(-4881.23, 22.65, 4273.75)
+            Mon = "Bandit"; LevelQuest = 1; NameQuest = "BanditQuest1"; NameMon = "Bandit"
+            CFrameQuest = CFrame.new(1059.37, 15.44, 1550.42); CFrameMon = CFrame.new(1045.96, 27.00, 1560.82)
         end
-    elseif World2 then
-        if MyLevel <= 724 then 
-            Mon = "Raider"; LevelQuest = 1; NameQuest = "Area1Quest"; NameMon = "Raider"
-            CFrameQuest = CFrame.new(-429.54, 71.76, 1836.18); CFrameMon = CFrame.new(-728.32, 52.77, 2345.77)
-        else 
-            Mon = "Swan Pirate"; LevelQuest = 1; NameQuest = "Area2Quest"; NameMon = "Swan Pirate"
-            CFrameQuest = CFrame.new(638.43, 71.76, 918.28); CFrameMon = CFrame.new(1068.66, 137.61, 1322.10)
-        end
-    elseif World3 then
-        if MyLevel <= 1524 then 
-            Mon = "Pirate Millionaire"; LevelQuest = 1; NameQuest = "PiratePortQuest"; NameMon = "Pirate Millionaire"
-            CFrameQuest = CFrame.new(-450.10, 107.68, 5950.72); CFrameMon = CFrame.new(-245.99, 47.30, 5584.10)
-        else 
-            Mon = "Dragon Crew Warrior"; LevelQuest = 1; NameQuest = "DragonCrewQuest"; NameMon = "Dragon Crew Warrior"
-            CFrameQuest = CFrame.new(6750.49, 127.44, -711.03); CFrameMon = CFrame.new(6709.76, 52.34, -1139.02)
-        end
+    else
+        Mon = "Raider"; LevelQuest = 1; NameQuest = "Area1Quest"; NameMon = "Raider"
+        CFrameQuest = CFrame.new(-429.54, 71.76, 1836.18); CFrameMon = CFrame.new(-728.32, 52.77, 2345.77)
     end
 end
 
--- =========================================================
--- LOGIC DI CHUYỂN BTP & TOPOS GỐC TỪ REDZ
--- =========================================================
 function BTP(targetCFrame)
     pcall(function()
-        if (targetCFrame.Position - Plr.Character.HumanoidRootPart.Position).Magnitude >= 1500 and Plr.Character.Humanoid.Health > 0 then
+        if (targetCFrame.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude >= 1500 and LocalPlayer.Character.Humanoid.Health > 0 then
             repeat
                 task.wait()
-                Plr.Character.HumanoidRootPart.CFrame = targetCFrame
+                LocalPlayer.Character.HumanoidRootPart.CFrame = targetCFrame
                 task.wait(0.05)
-                if Plr.Character:FindFirstChild("Head") then Plr.Character.Head:Destroy() end
-                Plr.Character.HumanoidRootPart.CFrame = targetCFrame
-            until (targetCFrame.Position - Plr.Character.HumanoidRootPart.Position).Magnitude < 1500 or Plr.Character.Humanoid.Health <= 0
+                if LocalPlayer.Character:FindFirstChild("Head") then LocalPlayer.Character.Head:Destroy() end
+                LocalPlayer.Character.HumanoidRootPart.CFrame = targetCFrame
+            until (targetCFrame.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude < 1500 or LocalPlayer.Character.Humanoid.Health <= 0
         end
     end)
 end
 
 function topos(targetCFrame)
-    if not Plr.Character or not Plr.Character:FindFirstChild("HumanoidRootPart") then return end
-    
-    if not Plr.Character.HumanoidRootPart:FindFirstChild("BodyClip") then
+    if not LocalPlayer.Character or not LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then return end
+    if not LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BodyClip") then
         local bv = Instance.new("BodyVelocity")
         bv.Name = "BodyClip"; bv.MaxForce = Vector3.new(100000, 100000, 100000); bv.Velocity = Vector3.zero
-        bv.Parent = Plr.Character.HumanoidRootPart
+        bv.Parent = LocalPlayer.Character.HumanoidRootPart
     end
-    for _, v in pairs(Plr.Character:GetDescendants()) do if v:IsA("BasePart") then v.CanCollide = false end end
+    for _, v in pairs(LocalPlayer.Character:GetDescendants()) do if v:IsA("BasePart") then v.CanCollide = false end end
 
-    local dist = (targetCFrame.Position - Plr.Character.HumanoidRootPart.Position).Magnitude
-    if dist > 1500 and BypassTP then
+    local dist = (targetCFrame.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
+    if dist > 1500 then
         BTP(targetCFrame)
     else
         local tweenInfo = TweenInfo.new(dist / 300, Enum.EasingStyle.Linear)
-        TweenService:Create(Plr.Character.HumanoidRootPart, tweenInfo, {CFrame = targetCFrame}):Play()
+        TweenService:Create(LocalPlayer.Character.HumanoidRootPart, tweenInfo, {CFrame = targetCFrame}):Play()
     end
 end
 
 function EquipWeapon(weaponName)
     pcall(function()
-        if not Plr.Character:FindFirstChild("HasBuso") then CommF:InvokeServer("Buso") end
-        local backpack = Plr:WaitForChild("Backpack")
+        if not LocalPlayer.Character:FindFirstChild("HasBuso") and CommF then CommF:InvokeServer("Buso") end
+        local backpack = LocalPlayer:WaitForChild("Backpack")
         local tool = backpack:FindFirstChild(weaponName)
-        if tool then Plr.Character.Humanoid:EquipTool(tool) end
+        if tool then LocalPlayer.Character.Humanoid:EquipTool(tool) end
     end)
 end
 
 -- =========================================================
--- KHỞI TẠO GIAO DIỆN REDZ V5 GỐC
--- =========================================================
-local redzlib = loadstring(game:HttpGet("https://raw.githubusercontent.com/PlockScripts/Library-ui/refs/heads/main/redz-V5-remake/main.luau"))()
-local Window = redzlib:MakeWindow({
-    Title = "ZENITH HUB : UNTOUCHED CORE",
-    SubTitle = "100% Nguyên bản Redz Logic",
-    SaveFolder = "ZenithConfig"
-})
-
-Window:AddMinimizeButton({
-    Button = { Image = "rbxassetid://15298567397", BackgroundTransparency = 0 },
-    Size = UDim2.new(0, 35, 0, 35),
-    Corner = { CornerRadius = UDim.new(0.25, 0) }
-})
-
-local TabFarm = Window:MakeTab({"Farm", "home"})
-
-TabFarm:AddDropdown({
-    Name = "Select Weapon",
-    Options = {"Melee", "Sword", "Gun", "Blox Fruit"},
-    Default = "Melee",
-    Callback = function(v) _G.SelectWeapon = v end
-})
-
-TabFarm:AddToggle({
-    Name = "Auto Farm Level (Redz Core)",
-    Default = false,
-    Callback = function(state)
-        _G.AutoFarm = state
-        if not state then
-            local hrp = Plr.Character and Plr.Character:FindFirstChild("HumanoidRootPart")
-            if hrp and hrp:FindFirstChild("BodyClip") then hrp.BodyClip:Destroy() end
-        end
-    end
-})
-
-TabFarm:AddToggle({Name = "Auto Quest", Default = true, Callback = function(v) _G.AutoQuest = v end})
-TabFarm:AddToggle({Name = "Bring Mob (Ground Magnet)", Default = true, Callback = function(v) _G.BringMonster = v end})
-TabFarm:AddToggle({Name = "Fast Attack (Network)", Default = true, Callback = function(v) _G.FastAttack = v end})
-
--- =========================================================
--- VÒNG LẶP AUTO FARM CHÍNH (ĐÚNG CHUẨN CODE GỐC 100%)
+-- VÒNG LẶP AUTO FARM CHÍNH
 -- =========================================================
 spawn(function()
     while task.wait() do
         if _G.AutoFarm then
             pcall(function()
                 CheckQuest()
-                local questGui = Plr.PlayerGui.Main.Quest
+                local questGui = LocalPlayer.PlayerGui.Main.Quest
                 local questText = questGui.Container.QuestTitle.Title.Text
                 
                 if not questGui.Visible then
                     StartBring = false
-                    if (Plr.Character.HumanoidRootPart.Position - CFrameQuest.Position).Magnitude > 20 then
+                    if (LocalPlayer.Character.HumanoidRootPart.Position - CFrameQuest.Position).Magnitude > 20 then
                         topos(CFrameQuest)
                     else
-                        CommF:InvokeServer("StartQuest", NameQuest, LevelQuest)
+                        if _G.AutoQuest and CommF then CommF:InvokeServer("StartQuest", NameQuest, LevelQuest) end
                     end
                 elseif not string.find(questText, NameMon) then
                     StartBring = false
-                    CommF:InvokeServer("AbandonQuest")
+                    if CommF then CommF:InvokeServer("AbandonQuest") end
                 else
                     local foundMob = false
                     for _, v512 in pairs(Workspace.Enemies:GetChildren()) do
@@ -207,11 +224,11 @@ spawn(function()
                             repeat
                                 task.wait()
                                 EquipWeapon(_G.SelectWeapon)
-                                AutoHaki()
-                                PosMon = v512.HumanoidRootPart.CFrame
+                                local hrp = LocalPlayer.Character.HumanoidRootPart
                                 
-                                -- ĐỨNG CÁCH ĐẦU QUÁI 8 MÉT (ĐẢM BẢO CHÉM TRÚNG NỔ MÁU)
+                                -- ĐỨNG CÁCH ĐẦU QUÁI 8 MÉT (100% NỔ DAME)
                                 topos(v512.HumanoidRootPart.CFrame * CFrame.new(0, 8, 0))
+                                hrp.CFrame = CFrame.lookAt(hrp.Position, v512.HumanoidRootPart.Position)
                                 
                                 v512.HumanoidRootPart.CanCollide = false
                                 v512.Humanoid.WalkSpeed = 0
@@ -236,21 +253,22 @@ spawn(function()
     end
 end)
 
--- BRING MOB LOGIC GỐC
+-- BRING MOB
 spawn(function()
     while task.wait() do
         pcall(function()
-            if _G.AutoFarm and _G.BringMonster and StartBring and PosMon then
+            if _G.AutoFarm and _G.BringMonster and StartBring and MonFarm ~= "" then
+                local hrp = LocalPlayer.Character.HumanoidRootPart
                 for _, v1167 in pairs(Workspace.Enemies:GetChildren()) do
                     if v1167.Name == MonFarm and v1167:FindFirstChild("Humanoid") and v1167:FindFirstChild("HumanoidRootPart") and v1167.Humanoid.Health > 0 then
-                        if (v1167.HumanoidRootPart.Position - PosMon.Position).Magnitude <= 320 then
+                        if (v1167.HumanoidRootPart.Position - hrp.Position).Magnitude <= 320 then
                             v1167.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
-                            v1167.HumanoidRootPart.CFrame = PosMon
+                            v1167.HumanoidRootPart.CFrame = hrp.CFrame * CFrame.new(0, -8, 0)
                             v1167.HumanoidRootPart.CanCollide = false
                             v1167.Head.CanCollide = false
                             if v1167.Humanoid:FindFirstChild("Animator") then v1167.Humanoid.Animator:Destroy() end
                             v1167.Humanoid:ChangeState(11)
-                            sethiddenproperty(Plr, "SimulationRadius", math.huge)
+                            sethiddenproperty(LocalPlayer, "SimulationRadius", math.huge)
                         end
                     end
                 end
@@ -260,7 +278,7 @@ spawn(function()
 end)
 
 -- =========================================================
--- LÕI FAST ATTACK NATIVE
+-- LÕI FAST ATTACK NATIVE 
 -- =========================================================
 local v1 = next
 local v2 = {ReplicatedStorage.Util, ReplicatedStorage.Common, ReplicatedStorage.Remotes, ReplicatedStorage.Assets, ReplicatedStorage.FX}
@@ -295,7 +313,7 @@ task.spawn(function()
     while task.wait(0.0001) do
         if _G.AutoFarm and _G.FastAttack then
             pcall(function()
-                local _Character = Plr.Character
+                local _Character = LocalPlayer.Character
                 local v13 = _Character and _Character:FindFirstChild('HumanoidRootPart')
                 if not v13 then return end
 
@@ -339,7 +357,7 @@ task.spawn(function()
                         local _Head = u17[1][1]:FindFirstChild('Head')
 
                         if _Head then
-                            ReplicatedStorage.Modules.Net['RE/RegisterHit']:FireServer(_Head, u17, {}, tostring(Plr.UserId):sub(2, 4) .. tostring(coroutine.running()):sub(11, 15))
+                            ReplicatedStorage.Modules.Net['RE/RegisterHit']:FireServer(_Head, u17, {}, tostring(LocalPlayer.UserId):sub(2, 4) .. tostring(coroutine.running()):sub(11, 15))
                             local r_u4 = (typeof(cloneref) == "function" and cloneref(u4)) or u4
                             if r_u4 then
                                 r_u4:FireServer(string.gsub('RE/RegisterHit', '.', function(p31)
