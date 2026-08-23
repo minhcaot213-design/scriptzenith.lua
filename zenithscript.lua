@@ -3736,11 +3736,11 @@ function CheckItemBPCRBPCR(v463)
         end
     end
 end
-local vu32 = loadstring(game:HttpGet("https://raw.githubusercontent.com/minhcaot213-design/scriptzenith.lua/refs/heads/main/zenithscript.lua"))()
+local vu32 = loadstring(game:HttpGet("https://raw.githubusercontent.com/PlockScripts/Library-ui/refs/heads/main/redz-V5-remake/main.luau"))()
 local v466 = vu32:MakeWindow({
-    Title = "Zenith: Blox Fruits",
+    Title = "redz hub [ SKIDDED VERSION BY ZERO ] : Blox Fruits",
     SubTitle = "skidded version",
-    SaveFolder = "Zyrox | Blox Fruit v4.5.lua"
+    SaveFolder = "Redz | redz lib v5.lua"
 })
 
 v466:AddMinimizeButton({
@@ -3762,10 +3762,10 @@ local v494 = v466:MakeTab({"Visual", "user"})
 local v495 = v466:MakeTab({"Shop", "shoppingCart"})
 local v496 = v466:MakeTab({"Misc", "settings"})
 v484:AddDiscordInvite({
-    Name = "Zyrox Vn | Community",
+    Name = "DesplockHub | Community",
     Description = "Join server to receive Update",
     Logo = "rbxassetid://131723242350068",
-    Invite = "https://discord.gg/NepSnPEzMQ"
+    Invite = "https://discord.gg/BnEDf68jwx"
 })
 _G.SelectWeapon = "Melee"
 task.spawn(function()
