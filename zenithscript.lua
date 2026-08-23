@@ -1,5 +1,5 @@
--- [[ ZENITH BLOX FRUIT - V26.0 (THE ULTIMATE ZENITH)
---    PHỤC HỒI 100% GIAO DIỆN GỐC + LÕI HACK SKY MAGNET VIP
+-- [[ ZENITH BLOX FRUIT - V27.0 (TRUE HUB - GROUND MAGNET)
+--    FIX LỖI KÉO QUÁI LÊN TRỜI. QUÁI NẰM DƯỚI ĐẤT, BẠN TRÊN MÂY (HITBOX 60)
 -- ]] --
 
 task.wait(0.5)
@@ -79,7 +79,7 @@ local IslandPositions = {
 -- =========================================================
 -- DỌN DẸP GIAO DIỆN CŨ & TẠO UI MỚI
 -- =========================================================
-local UI_NAME = "ZenithTrueHub_V26"
+local UI_NAME = "ZenithTrueHub_V27"
 local function GetSafeParent()
     local success, parent = pcall(function() return gethui() end)
     if success and parent then return parent end
@@ -128,7 +128,7 @@ local TopBar = Instance.new("Frame", MainFrame)
 TopBar.Size = UDim2.new(1, 0, 0, 38); TopBar.BackgroundColor3 = Color3.fromRGB(14, 18, 27); TopBar.BorderSizePixel = 0
 local Title = Instance.new("TextLabel", TopBar)
 Title.Size = UDim2.new(0, 240, 1, 0); Title.Position = UDim2.new(0, 15, 0, 0); Title.BackgroundTransparency = 1; Title.RichText = true; Title.TextColor3 = Color3.fromRGB(255, 255, 255); Title.Font = Enum.Font.GothamBold; Title.TextSize = 12; Title.TextXAlignment = Enum.TextXAlignment.Left
-Title.Text = "ZYROX VN <font color='#00d2ff'>• V26.0 (FULL PREMIUM)</font>"
+Title.Text = "ZYROX VN <font color='#00d2ff'>• V27.0 (GROUND MAGNET)</font>"
 
 local CloseBtn = Instance.new("TextButton", TopBar); CloseBtn.Size = UDim2.new(0, 24, 0, 24); CloseBtn.Position = UDim2.new(1, -28, 0.5, -12); CloseBtn.BackgroundColor3 = Color3.fromRGB(255, 60, 90); CloseBtn.Text = "✕"; CloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255); CloseBtn.Font = Enum.Font.GothamBold; CloseBtn.TextSize = 10; Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(0, 5)
 local MinBtn = Instance.new("TextButton", TopBar); MinBtn.Size = UDim2.new(0, 24, 0, 24); MinBtn.Position = UDim2.new(1, -56, 0.5, -12); MinBtn.BackgroundColor3 = Color3.fromRGB(22, 26, 38); MinBtn.Text = "−"; MinBtn.TextColor3 = Color3.fromRGB(160, 170, 190); MinBtn.Font = Enum.Font.GothamBold; MinBtn.TextSize = 13; Instance.new("UICorner", MinBtn).CornerRadius = UDim.new(0, 5)
@@ -251,16 +251,15 @@ for _, wData in ipairs(weaponList) do
     end)
 end
 
-createToggle(farmPage, "⚡ Kích Hoạt Auto Farm (God Mode)", false, function(v) AutoFarmLevel = v end)
+createToggle(farmPage, "⚡ Kích Hoạt Auto Farm (Bypass Tốc Độ)", false, function(v) AutoFarmLevel = v end)
 createToggle(farmPage, "📜 Tự Nhận Nhiệm Vụ", true, function(v) AutoQuest = v end)
-createToggle(farmPage, "🧲 Hút Quái Lên Trời (Sky Magnet)", true, function(v) BringMob = v end)
+createToggle(farmPage, "🧲 Gom Quái (Chuẩn Ground Hub)", true, function(v) BringMob = v end)
 
--- [ TAB TRÁI ÁC QUỶ ]
+-- [ CÁC TAB CÒN LẠI ĐƯỢC GIỮ NGUYÊN... ]
 createToggle(fruitPage, "🎲 Mua Ngẫu Nhiên Trái (Gacha)", false, function(v) AutoRandomFruit = v end)
 createToggle(fruitPage, "🧲 Tự Động Nhặt Trái Rơi", false, function(v) AutoCollectFruit = v end)
 createToggle(fruitPage, "📦 Tự Động Cất Trái Vào Rương", false, function(v) AutoStoreFruit = v end)
 
--- [ TAB PVP & ESP ]
 createToggle(pvpPage, "🏃‍♂️ Bật Chạy Nhanh", false, function(v) speedEnabled = v end)
 createSlider(pvpPage, "Tốc Độ", 16, 300, 16, function(val) speedValue = val end)
 createToggle(pvpPage, "🦘 Bật Nhảy Cao", false, function(v) jumpEnabled = v end)
@@ -271,7 +270,6 @@ createToggle(pvpPage, "📦 Hiện Rương Gỗ", false, function(v) espChest1En
 createToggle(pvpPage, "🪙 Hiện Rương Vàng", false, function(v) espChest2Enabled = v end)
 createToggle(pvpPage, "💎 Hiện Rương Kim Cương", false, function(v) espChest3Enabled = v end)
 
--- [ TAB MÁY CHỦ ]
 createButton(serverPage, "🎁 Tự Động Nhập Code Game", function()
     local codes = {"ADMINHACKED", "ADMINDARES", "SECRET_ADMIN", "NOOB2PRO", "StrawHatMaine", "Sub2Fer999", "Enyu_is_Pro", "Magicbus", "JCWK", "Starcodeheo", "Bluxxy", "THEGREATACE", "SUB2GAMERROBOT_EXP1", "Sub2OfficialNoobie", "FUDD10", "BIGNEWS", "KITT_RESET", "SUB2NOOBMASTER123", "Sub2UncleKizaru", "Sub2Daigrock", "Axiore", "TantaiGaming", "FUDD10_V2", "CHANDLER", "GAMER_ROBOT_1M", "TY_FOR_WATCHING", "UPD16", "3BVISITS", "2BILLION"}
     task.spawn(function() for _, c in ipairs(codes) do pcall(function() if CommF then CommF:InvokeServer("RedeemCustomCode", c) end end); task.wait(0.1) end end)
@@ -284,11 +282,9 @@ createButton(serverPage, "⏭️ Chuyển Sang Server Khác", function()
     end
 end)
 
--- [ TAB RAID & ITEM (PLACEHOLDER THEO GIAO DIỆN GỐC) ]
 createToggle(raidPage, "⚡ Tự Động Mua Vé & Bắt Đầu Raid", false, function(v) end)
 createToggle(itemPage, "☠️ Tự Farm Xương (Bones)", false, function(v) end)
 
--- [ TAB CÀI ĐẶT ]
 createToggle(settingPage, "🚀 Tối Ưu Đồ Họa (Chống Giật FPS)", false, function(v)
     Lighting.GlobalShadows = not v
     if v then for _, obj in ipairs(Workspace:GetDescendants()) do if obj:IsA("BasePart") then obj.Material = Enum.Material.SmoothPlastic end end end
@@ -301,7 +297,6 @@ createButton(settingPage, "❌ Tắt Hẳn Menu (Đóng Script)", function() Scr
 -- HỆ THỐNG BACKGROUND (ESP, TỐC ĐỘ, VŨ KHÍ...)
 -- =========================================================
 
--- Tự động đổi Vũ Khí & Bật Haki
 task.spawn(function()
     while task.wait(0.5) do
         if AutoFarmLevel then
@@ -348,21 +343,6 @@ task.spawn(function()
                 end
             end
         end
-    end
-end)
-
--- Speed & Jump Logic
-RunService.Heartbeat:Connect(function()
-    if speedEnabled and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-        local humanoid, rootPart = LocalPlayer.Character:FindFirstChildOfClass("Humanoid"), LocalPlayer.Character.HumanoidRootPart
-        if humanoid and rootPart and humanoid.MoveDirection.Magnitude > 0 then
-            rootPart.AssemblyLinearVelocity = Vector3.new(humanoid.MoveDirection.X * speedValue, rootPart.AssemblyLinearVelocity.Y, humanoid.MoveDirection.Z * speedValue)
-        end
-    end
-end)
-UserInputService.JumpRequest:Connect(function()
-    if jumpEnabled and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-        LocalPlayer.Character.HumanoidRootPart.AssemblyLinearVelocity = Vector3.new(LocalPlayer.Character.HumanoidRootPart.AssemblyLinearVelocity.X, jumpValue, LocalPlayer.Character.HumanoidRootPart.AssemblyLinearVelocity.Z)
     end
 end)
 
@@ -421,7 +401,7 @@ task.spawn(function()
                 local myHRP = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
                 if myHRP then
                     local dist = (myHRP.Position - FlyTarget.Position).Magnitude
-                    if dist <= 15 then -- Phạm vi rất rộng do dùng Sky Magnet
+                    if dist <= 15 then
                         local controller = GetActiveControllerSafe()
                         if controller then
                             controller.hitboxLimiter = 0
@@ -463,7 +443,7 @@ RunService.Stepped:Connect(function()
 end)
 
 -- =========================================================
--- LOGIC NHIỆM VỤ & SKY MAGNET (HÚT QUÁI LÊN MÂY)
+-- LOGIC NHIỆM VỤ & GROUND MAGNET (CHUẨN HACKER XỊN)
 -- =========================================================
 local function getAutoQuestByLevel()
     local level = 1
@@ -531,7 +511,7 @@ task.spawn(function()
                 local currentQuest = getAutoQuestByLevel()
                 if currentQuest then
                     local mobName = currentQuest.MonName
-                    infoLabel.Text = string.format("Đang Sky Farm: %s [Cấp %d]", mobName, LocalPlayer.Data.Level.Value)
+                    infoLabel.Text = string.format("Đang Farm: %s [Cấp %d]", mobName, LocalPlayer.Data.Level.Value)
 
                     if AutoQuest and not checkHasQuest() and CommF then
                         CommF:InvokeServer("StartQuest", currentQuest.QuestName, currentQuest.QuestLevel)
@@ -543,18 +523,20 @@ task.spawn(function()
 
                     if targetMob and targetMob:FindFirstChild("HumanoidRootPart") then
                         local primaryHRP = targetMob.HumanoidRootPart
-                        if not lockedFarmPosition or (lockedFarmPosition.Position - primaryHRP.Position).Magnitude > 300 then lockedFarmPosition = primaryHRP.CFrame end
-                        -- PLAYER: BAY TRÊN TRỜI CAO 35M
-                        targetPos = CFrame.new(lockedFarmPosition.Position.X, lockedFarmPosition.Position.Y + 35, lockedFarmPosition.Position.Z)
+                        if not lockedFarmPosition or (lockedFarmPosition.Position - primaryHRP.Position).Magnitude > 300 then 
+                            lockedFarmPosition = primaryHRP.CFrame 
+                        end
+                        -- PLAYER: BAY TRÊN TRỜI CAO 30M CHO AN TOÀN
+                        targetPos = CFrame.new(lockedFarmPosition.Position.X, lockedFarmPosition.Position.Y + 30, lockedFarmPosition.Position.Z)
                     else
                         lockedFarmPosition = nil
                         local spawnCFrame = GetMobSpawn(mobName)
                         if spawnCFrame then
                             lockedFarmPosition = spawnCFrame
-                            targetPos = CFrame.new(spawnCFrame.Position.X, spawnCFrame.Position.Y + 35, spawnCFrame.Position.Z)
+                            targetPos = CFrame.new(spawnCFrame.Position.X, spawnCFrame.Position.Y + 30, spawnCFrame.Position.Z)
                         elseif IslandPositions[mobName] then
                             lockedFarmPosition = CFrame.new(IslandPositions[mobName])
-                            targetPos = CFrame.new(IslandPositions[mobName] + Vector3.new(0, 35, 0))
+                            targetPos = CFrame.new(IslandPositions[mobName] + Vector3.new(0, 30, 0))
                         end
                     end
 
@@ -564,8 +546,8 @@ task.spawn(function()
                         local dist = (myHRP.Position - targetPos.Position).Magnitude
                         
                         if dist <= 5 then
-                            -- PLAYER: NHÌN VỀ PHÍA TRƯỚC
-                            myHRP.CFrame = CFrame.lookAt(targetPos.Position, targetPos.Position + Vector3.new(1, 0, 0))
+                            -- BẠN ĐỨNG TRÊN TRỜI CAO, NHÌN XUỐNG ĐẤT
+                            myHRP.CFrame = CFrame.lookAt(targetPos.Position, lockedFarmPosition.Position)
 
                             if BringMob then
                                 for _, mob in ipairs(Workspace.Enemies:GetChildren()) do
@@ -573,22 +555,28 @@ task.spawn(function()
                                         local oHRP = mob:FindFirstChild("HumanoidRootPart")
                                         local oHum = mob:FindFirstChildOfClass("Humanoid")
                                         if oHRP and oHum and oHum.Health > 0 then
-                                            -- MOB: KÉO LÊN TRỜI, LƠ LỬNG TRƯỚC MẶT PLAYER 5 MÉT (CÙNG ĐỘ CAO)
-                                            oHRP.CFrame = targetPos * CFrame.new(0, -2, -5)
-                                            -- MỞ RỘNG HITBOX ĐỂ SÁT THƯƠNG AURA CHÉM LÀ TRÚNG
-                                            oHRP.Size = Vector3.new(50, 50, 50)
+                                            -- QUÁI VẬT NẰM Ở DƯỚI ĐẤT LÀM BAO CÁT (KHÔNG KÉO LÊN NỮA)
+                                            oHRP.CFrame = lockedFarmPosition
+                                            
+                                            -- MỞ RỘNG HITBOX LÊN 60 ĐỂ BẠN TỪ TRÊN TRỜI VẪN CHÉM TRÚNG 100%
+                                            oHRP.Size = Vector3.new(60, 60, 60)
                                             oHRP.Transparency = 1
                                             oHRP.CanCollide = false
                                             
-                                            -- ĐÓNG BĂNG QUÁI TRÊN KHÔNG
                                             oHRP.AssemblyLinearVelocity = Vector3.zero
                                             local mobBv = oHRP:FindFirstChild("MobAntiFall")
-                                            if not mobBv then mobBv = Instance.new("BodyVelocity"); mobBv.Name = "MobAntiFall"; mobBv.MaxForce = Vector3.new(math.huge, math.huge, math.huge); mobBv.Velocity = Vector3.zero; mobBv.Parent = oHRP end
+                                            if not mobBv then 
+                                                mobBv = Instance.new("BodyVelocity")
+                                                mobBv.Name = "MobAntiFall"
+                                                mobBv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+                                                mobBv.Velocity = Vector3.zero
+                                                mobBv.Parent = oHRP 
+                                            end
 
                                             oHum.WalkSpeed = 0
                                             oHum.JumpPower = 0
                                             oHum.Sit = true
-                                            oHum:ChangeState(11) -- StrafingNoPhysics (Tắt AI hoàn toàn)
+                                            oHum:ChangeState(11) -- Tắt vật lý (AI đơ 100%)
                                         end
                                     end
                                 end
