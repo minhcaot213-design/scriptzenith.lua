@@ -1,294 +1,198 @@
--- [[ ZYROX VN x REDZ HUB (V37 STANDALONE) ]] --
--- Đã fix triệt để lỗi Đen màn hình.
--- Lõi Farm Tối Ưu: Bypass TP, Gom Quái Đất, Hitbox 60, Combat Hook.
+-- [[ ZYROX VN x REDZ V5 (THE TRUE STANDALONE) ]] --
+-- Fix 100% Đen màn hình. Cự ly 8 Mét. Gom quái mặt đất. 
 
 task.wait(0.1)
 if not game:IsLoaded() then game.Loaded:Wait() end
 
--- =========================================================
--- KHỞI TẠO SERVICES
--- =========================================================
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
-local RunService = game:GetService("RunService")
 local VirtualUser = game:GetService("VirtualUser")
 local TweenService = game:GetService("TweenService")
-
 local Plr = Players.LocalPlayer
-local CommF = nil
-pcall(function() CommF = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("CommF_") end)
 
--- CHỐNG VĂNG GAME AFK
-pcall(function()
-    for i,v in pairs(getconnections(Plr.Idled)) do v:Disable() end
-end)
-Plr.Idled:Connect(function()
-    pcall(function()
-        VirtualUser:CaptureController()
-        VirtualUser:ClickButton2(Vector2.new())
-    end)
-end)
+-- CHỐNG VĂNG GAME
+pcall(function() for i,v in pairs(getconnections(Plr.Idled)) do v:Disable() end end)
+Plr.Idled:Connect(function() pcall(function() VirtualUser:CaptureController() VirtualUser:ClickButton2(Vector2.new()) end) end)
 
--- BIẾN TOÀN CỤC
-_G.AutoFarm = false
-_G.SelectWeapon = "Melee"
-_G.BringMob = true
-_G.FastAttack = true
-_G.AutoStats = false
-_G.StatsPoint = 1
-_G.StatsSelect = {Melee = false, Defense = false, Sword = false, BloxFruit = false}
-
-local Mon, LevelQuest, NameQuest, NameMon, CFrameQuest, CFrameMon
-local StartBring = false
-local PosMon = nil
-local MonFarm = ""
+local CommF = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("CommF_")
+_G.AutoFarm = false; _G.SelectWeapon = "Melee"; _G.BringMob = true; _G.FastAttack = true
+local lockedFarmPosition = nil; local MonFarm = ""
 
 -- =========================================================
--- LOGIC BẢN ĐỒ & NHIỆM VỤ
--- =========================================================
-local World1 = game.PlaceId == 2753915549 or game.PlaceId == 85211729168715
-local World2 = game.PlaceId == 4442272183 or game.PlaceId == 79091703265657
-local World3 = game.PlaceId == 7449423635 or game.PlaceId == 100117331123089
-
-local function CheckQuest()
-    local MyLevel = Plr.Data.Level.Value
-    if World1 then
-        if MyLevel <= 9 then Mon="Bandit"; LevelQuest=1; NameQuest="BanditQuest1"; NameMon="Bandit"; CFrameQuest=CFrame.new(1059,15,1550); CFrameMon=CFrame.new(1045,27,1560)
-        elseif MyLevel <= 14 then Mon="Monkey"; LevelQuest=1; NameQuest="JungleQuest"; NameMon="Monkey"; CFrameQuest=CFrame.new(-1598,35,153); CFrameMon=CFrame.new(-1448,67,11)
-        elseif MyLevel <= 29 then Mon="Gorilla"; LevelQuest=2; NameQuest="JungleQuest"; NameMon="Gorilla"; CFrameQuest=CFrame.new(-1598,35,153); CFrameMon=CFrame.new(-1129,40,-525)
-        elseif MyLevel <= 39 then Mon="Pirate"; LevelQuest=1; NameQuest="BuggyQuest1"; NameMon="Pirate"; CFrameQuest=CFrame.new(-1141,4,3831); CFrameMon=CFrame.new(-1103,13,3896)
-        elseif MyLevel <= 59 then Mon="Brute"; LevelQuest=2; NameQuest="BuggyQuest1"; NameMon="Brute"; CFrameQuest=CFrame.new(-1141,4,3831); CFrameMon=CFrame.new(-1140,14,4322)
-        elseif MyLevel <= 74 then Mon="Desert Bandit"; LevelQuest=1; NameQuest="DesertQuest"; NameMon="Desert Bandit"; CFrameQuest=CFrame.new(894,5,4392); CFrameMon=CFrame.new(924,6,4481)
-        elseif MyLevel <= 89 then Mon="Desert Officer"; LevelQuest=2; NameQuest="DesertQuest"; NameMon="Desert Officer"; CFrameQuest=CFrame.new(894,5,4392); CFrameMon=CFrame.new(1608,8,4371)
-        elseif MyLevel <= 99 then Mon="Snow Bandit"; LevelQuest=1; NameQuest="SnowQuest"; NameMon="Snow Bandit"; CFrameQuest=CFrame.new(1389,88,-1298); CFrameMon=CFrame.new(1354,87,-1393)
-        elseif MyLevel <= 119 then Mon="Snowman"; LevelQuest=2; NameQuest="SnowQuest"; NameMon="Snowman"; CFrameQuest=CFrame.new(1389,88,-1298); CFrameMon=CFrame.new(1201,144,-1550)
-        elseif MyLevel <= 149 then Mon="Chief Petty Officer"; LevelQuest=1; NameQuest="MarineQuest2"; NameMon="Chief Petty Officer"; CFrameQuest=CFrame.new(-5039,27,4324); CFrameMon=CFrame.new(-4881,22,4273)
-        elseif MyLevel <= 174 then Mon="Sky Bandit"; LevelQuest=1; NameQuest="SkyQuest"; NameMon="Sky Bandit"; CFrameQuest=CFrame.new(-4839,716,-2619); CFrameMon=CFrame.new(-4953,295,-2899)
-        elseif MyLevel <= 189 then Mon="Dark Master"; LevelQuest=2; NameQuest="SkyQuest"; NameMon="Dark Master"; CFrameQuest=CFrame.new(-4839,716,-2619); CFrameMon=CFrame.new(-5259,391,-2229)
-        elseif MyLevel <= 209 then Mon="Prisoner"; LevelQuest=1; NameQuest="PrisonerQuest"; NameMon="Prisoner"; CFrameQuest=CFrame.new(5308,1,475); CFrameMon=CFrame.new(5098,0,474)
-        else Mon="Peanut Scout"; LevelQuest=1; NameQuest="PeanutQuest"; NameMon="Peanut Scout"; CFrameQuest=CFrame.new(-2104,38,-10194); CFrameMon=CFrame.new(-2143,47,-10029) end
-    elseif World2 then
-        if MyLevel <= 724 then Mon="Raider"; LevelQuest=1; NameQuest="Area1Quest"; NameMon="Raider"; CFrameQuest=CFrame.new(-429,71,1836); CFrameMon=CFrame.new(-728,52,2345)
-        elseif MyLevel <= 774 then Mon="Mercenary"; LevelQuest=2; NameQuest="Area1Quest"; NameMon="Mercenary"; CFrameQuest=CFrame.new(-429,71,1836); CFrameMon=CFrame.new(-1004,80,1424)
-        else Mon="Swan Pirate"; LevelQuest=1; NameQuest="Area2Quest"; NameMon="Swan Pirate"; CFrameQuest=CFrame.new(638,71,918); CFrameMon=CFrame.new(1068,137,1322) end
-    elseif World3 then
-        if MyLevel <= 1524 then Mon="Pirate Millionaire"; LevelQuest=1; NameQuest="PiratePortQuest"; NameMon="Pirate Millionaire"; CFrameQuest=CFrame.new(-450,107,5950); CFrameMon=CFrame.new(-245,47,5584)
-        else Mon="Dragon Crew Warrior"; LevelQuest=1; NameQuest="DragonCrewQuest"; NameMon="Dragon Crew Warrior"; CFrameQuest=CFrame.new(6750,127,-711); CFrameMon=CFrame.new(6709,52,-1139) end
-    end
-end
-
--- =========================================================
--- DI CHUYỂN, TWEEN VÀ BTP (BYPASS TELEPORT)
--- =========================================================
-local currentTween = nil
-local function BTP(targetCFrame)
-    pcall(function()
-        if (targetCFrame.Position - Plr.Character.HumanoidRootPart.Position).Magnitude >= 1500 then
-            Plr.Character.HumanoidRootPart.CFrame = targetCFrame
-            task.wait(0.05)
-            Plr.Character.Head:Destroy()
-            Plr.Character.HumanoidRootPart.CFrame = targetCFrame
-        end
-    end)
-end
-
-local function topos(targetCFrame)
-    local hrp = Plr.Character and Plr.Character:FindFirstChild("HumanoidRootPart")
-    if not hrp then return end
-
-    -- Bật NoClip chống kẹt
-    if not hrp:FindFirstChild("BodyClip") then
-        local bv = Instance.new("BodyVelocity", hrp)
-        bv.Name = "BodyClip"; bv.MaxForce = Vector3.new(100000, 100000, 100000); bv.Velocity = Vector3.new(0, 0, 0)
-    end
-    for _, part in ipairs(Plr.Character:GetDescendants()) do
-        if part:IsA("BasePart") then part.CanCollide = false end
-    end
-
-    local dist = (hrp.Position - targetCFrame.Position).Magnitude
-    if dist > 1500 then
-        BTP(targetCFrame)
-    else
-        local tweenInfo = TweenInfo.new(dist / 300, Enum.EasingStyle.Linear)
-        if currentTween then currentTween:Cancel() end
-        currentTween = TweenService:Create(hrp, tweenInfo, {CFrame = targetCFrame})
-        currentTween:Play()
-    end
-end
-
-local function EquipWeapon(weaponType)
-    pcall(function()
-        local backpack = Plr:FindFirstChild("Backpack")
-        local char = Plr.Character
-        if not backpack or not char then return end
-        
-        local cTool = char:FindFirstChildOfClass("Tool")
-        if cTool and (string.find(cTool.ToolTip, weaponType) or cTool.Name == "Combat" or cTool.Name == "Võ Tân Binh") then return end
-        
-        for _, tool in ipairs(backpack:GetChildren()) do
-            if tool:IsA("Tool") and (string.find(tool.ToolTip, weaponType) or tool.Name == "Combat" or tool.Name == "Võ Tân Binh") then
-                char.Humanoid:EquipTool(tool)
-                break
-            end
-        end
-    end)
-end
-
-local function AutoHaki()
-    if Plr.Character and not Plr.Character:FindFirstChild("HasBuso") and CommF then
-        CommF:InvokeServer("Buso")
-    end
-end
-
--- =========================================================
--- KHỞI TẠO GIAO DIỆN REDZ HUB V5 GỐC (BẢO ĐẢM KHÔNG ĐEN MÀN)
+-- KHỞI TẠO UI REDZ V5 (LOAD TRỰC TIẾP, KHÔNG ĐEN MÀN)
 -- =========================================================
 local RedzLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/PlockScripts/Library-ui/refs/heads/main/redz-V5-remake/main.luau"))()
 local Window = RedzLib:MakeWindow({
     Title = "ZYROX VN : REDZ PREMIUM",
-    SubTitle = "Skidded & Fixed by Zyrox",
-    SaveFolder = "Zyrox_V37_Config"
+    SubTitle = "Cự Ly Vàng 8 Mét + Hitbox Khổng Lồ",
+    SaveFolder = "Zyrox_V38"
 })
-
 Window:AddMinimizeButton({
     Button = { Image = "rbxassetid://15298567397", BackgroundTransparency = 0 },
-    Size = UDim2.new(0, 35, 0, 35),
-    Corner = { CornerRadius = UDim.new(0.25, 0) },
+    Size = UDim2.new(0, 35, 0, 35)
 })
 
 local TabFarm = Window:MakeTab({"Farm", "home"})
-local TabStats = Window:MakeTab({"Stats", "Signal"})
-local TabMisc = Window:MakeTab({"Misc", "settings"})
-
--- UI TAB FARM
 TabFarm:AddDropdown({
-    Name = "Select Weapon",
-    Options = {"Melee", "Sword", "Gun", "Blox Fruit"},
+    Name = "Chọn Vũ Khí (Select Weapon)",
+    Options = {"Melee", "Sword", "Blox Fruit"},
     Default = "Melee",
     Callback = function(v) _G.SelectWeapon = v end
 })
-
 TabFarm:AddToggle({
-    Name = "Auto Farm Level",
+    Name = "Bật Auto Farm Level",
     Default = false,
-    Callback = function(v) 
-        _G.AutoFarm = v 
-        if not v and currentTween then currentTween:Cancel() end
-    end
+    Callback = function(v) _G.AutoFarm = v end
 })
-
 TabFarm:AddToggle({
-    Name = "Bring Mob (Gom quái siêu mượt)",
+    Name = "Gom Quái Mặt Đất (Bring Mob)",
     Default = true,
-    Callback = function(v) _G.BringMonster = v end
+    Callback = function(v) _G.BringMob = v end
 })
-
 TabFarm:AddToggle({
-    Name = "Fast Attack (Không vung tay)",
+    Name = "Chém Siêu Tốc (Fast Attack)",
     Default = true,
     Callback = function(v) _G.FastAttack = v end
 })
 
--- UI TAB STATS
-TabStats:AddToggle({ Name = "Auto Stats", Default = false, Callback = function(v) _G.AutoStats = v end })
-TabStats:AddSlider({ Name = "Points Amount", Min = 1, Max = 100, Default = 1, Callback = function(v) _G.StatsPoint = v end })
-TabStats:AddToggle({ Name = "Melee", Default = false, Callback = function(v) _G.StatsSelect.Melee = v end })
-TabStats:AddToggle({ Name = "Defense", Default = false, Callback = function(v) _G.StatsSelect.Defense = v end })
-TabStats:AddToggle({ Name = "Sword", Default = false, Callback = function(v) _G.StatsSelect.Sword = v end })
-TabStats:AddToggle({ Name = "Blox Fruit", Default = false, Callback = function(v) _G.StatsSelect.BloxFruit = v end })
+-- =========================================================
+-- LOGIC BẢN ĐỒ & NHIỆM VỤ (ĐÃ BAO GỒM GORILLA CỦA BẠN)
+-- =========================================================
+local function GetQuest()
+    local lvl = Plr.Data.Level.Value
+    if lvl <= 9 then return "BanditQuest1", 1, "Bandit", CFrame.new(1059, 15, 1550)
+    elseif lvl <= 14 then return "JungleQuest", 1, "Monkey", CFrame.new(-1598, 36, 153)
+    elseif lvl <= 29 then return "JungleQuest", 2, "Gorilla", CFrame.new(-1598, 36, 153)
+    elseif lvl <= 39 then return "BuggyQuest1", 1, "Pirate", CFrame.new(-1141, 4, 3831)
+    elseif lvl <= 59 then return "BuggyQuest1", 2, "Brute", CFrame.new(-1141, 4, 3831)
+    elseif lvl <= 74 then return "DesertQuest", 1, "Desert Bandit", CFrame.new(894, 5, 4392)
+    elseif lvl <= 89 then return "DesertQuest", 2, "Desert Officer", CFrame.new(894, 5, 4392)
+    elseif lvl <= 99 then return "SnowQuest", 1, "Snow Bandit", CFrame.new(1389, 88, -1298)
+    elseif lvl <= 119 then return "SnowQuest", 2, "Snowman", CFrame.new(1389, 88, -1298)
+    elseif lvl <= 149 then return "MarineQuest2", 1, "Chief Petty Officer", CFrame.new(-5039, 27, 4324)
+    else return "BanditQuest1", 1, "Bandit", CFrame.new(1059, 15, 1550) end -- Tạm gọn Sea 1
+end
 
 -- =========================================================
--- VÒNG LẶP AUTO FARM CHÍNH
+-- HỆ THỐNG DI CHUYỂN TWEEN MƯỢT + BYPASS TELEPORT
+-- =========================================================
+local function topos(targetCFrame)
+    local hrp = Plr.Character and Plr.Character:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+
+    if not hrp:FindFirstChild("ZyroxBV") then
+        local bv = Instance.new("BodyVelocity", hrp)
+        bv.Name = "ZyroxBV"
+        bv.MaxForce = Vector3.new(100000, 100000, 100000)
+        bv.Velocity = Vector3.zero
+    end
+
+    for _, v in pairs(Plr.Character:GetDescendants()) do
+        if v:IsA("BasePart") then v.CanCollide = false end
+    end
+
+    local dist = (hrp.Position - targetCFrame.Position).Magnitude
+    if dist > 1500 then
+        -- BYPASS DỊCH CHUYỂN TỨC THỜI
+        hrp.CFrame = targetCFrame
+        task.wait(0.1)
+        if Plr.Character:FindFirstChild("Head") then Plr.Character.Head:Destroy() end
+        hrp.CFrame = targetCFrame
+    else
+        TweenService:Create(hrp, TweenInfo.new(dist / 300, Enum.EasingStyle.Linear), {CFrame = targetCFrame}):Play()
+    end
+end
+
+-- Đổi vũ khí + Haki
+local function EquipTool()
+    if Plr.Character and not Plr.Character:FindFirstChild("HasBuso") then CommF:InvokeServer("Buso") end
+    local backpack = Plr:FindFirstChild("Backpack")
+    if not backpack then return end
+    for _, tool in ipairs(backpack:GetChildren()) do
+        if tool:IsA("Tool") and (string.find(tool.ToolTip, _G.SelectWeapon) or tool.Name == "Combat" or tool.Name == "Võ Tân Binh") then
+            Plr.Character.Humanoid:EquipTool(tool)
+            break
+        end
+    end
+end
+
+-- =========================================================
+-- VÒNG LẶP FARM CHÍNH
 -- =========================================================
 task.spawn(function()
     while task.wait() do
         if _G.AutoFarm then
             pcall(function()
-                CheckQuest()
-                local questTitle = Plr.PlayerGui.Main.Quest.Container.QuestTitle.Title.Text
+                local qName, qLevel, mobName, qPos = GetQuest()
+                local pGui = Plr.PlayerGui
                 
-                if Plr.PlayerGui.Main.Quest.Visible == false then
-                    StartBring = false
-                    if (Plr.Character.HumanoidRootPart.Position - CFrameQuest.Position).Magnitude > 15 then
-                        topos(CFrameQuest)
+                -- 1. Tự nhận Quest
+                if pGui.Main.Quest.Visible == false then
+                    lockedFarmPosition = nil
+                    if (Plr.Character.HumanoidRootPart.Position - qPos.Position).Magnitude > 20 then
+                        topos(qPos)
                     else
-                        CommF:InvokeServer("StartQuest", NameQuest, LevelQuest)
+                        CommF:InvokeServer("StartQuest", qName, qLevel)
                     end
-                elseif not string.find(questTitle, NameMon) then
-                    StartBring = false
-                    CommF:InvokeServer("AbandonQuest")
                 else
-                    local foundMob = false
+                    -- 2. Đánh Quái
+                    local targetMob = nil
                     for _, mob in pairs(Workspace.Enemies:GetChildren()) do
-                        if mob.Name == Mon and mob:FindFirstChild("Humanoid") and mob:FindFirstChild("HumanoidRootPart") and mob.Humanoid.Health > 0 then
-                            foundMob = true
-                            repeat
-                                task.wait()
-                                AutoHaki()
-                                EquipWeapon(_G.SelectWeapon)
-                                
-                                PosMon = mob.HumanoidRootPart.CFrame
-                                -- ĐỨNG TRÊN ĐẦU QUÁI 8 MÉT (ĐỦ GẦN ĐỂ CHÉM TRÚNG, ĐỦ CAO ĐỂ BẤT TỬ)
-                                topos(mob.HumanoidRootPart.CFrame * CFrame.new(0, 8, 0))
-                                
-                                mob.HumanoidRootPart.CanCollide = false
-                                mob.Head.CanCollide = false
-                                mob.Humanoid.WalkSpeed = 0
-                                mob.Humanoid.JumpPower = 0
-                                mob.HumanoidRootPart.Size = Vector3.new(50, 50, 50)
-                                
-                                StartBring = true
-                                MonFarm = mob.Name
-                                
-                                VirtualUser:CaptureController()
-                                VirtualUser:Button1Down(Vector2.new(1280, 672))
-                            until not _G.AutoFarm or mob.Humanoid.Health <= 0 or not mob.Parent or Plr.PlayerGui.Main.Quest.Visible == false
+                        if mob.Name == mobName and mob:FindFirstChild("Humanoid") and mob:FindFirstChild("HumanoidRootPart") and mob.Humanoid.Health > 0 then
+                            targetMob = mob
+                            break
                         end
                     end
-                    if not foundMob then
-                        StartBring = false
-                        topos(CFrameMon)
+
+                    if targetMob then
+                        EquipTool()
+                        if not lockedFarmPosition then lockedFarmPosition = targetMob.HumanoidRootPart.CFrame end
+                        
+                        -- CỰ LY VÀNG: ĐỨNG TRÊN ĐẦU QUÁI ĐÚNG 8 MÉT (100% TRÚNG ĐÒN)
+                        topos(lockedFarmPosition * CFrame.new(0, 8, 0))
+                        
+                        local hrp = Plr.Character.HumanoidRootPart
+                        if (hrp.Position - (lockedFarmPosition * CFrame.new(0, 8, 0)).Position).Magnitude <= 10 then
+                            MonFarm = mobName
+                            if _G.BringMob then
+                                for _, m in pairs(Workspace.Enemies:GetChildren()) do
+                                    if m.Name == mobName and m:FindFirstChild("Humanoid") and m.Humanoid.Health > 0 then
+                                        -- GOM QUÁI CHẶT DƯỚI MẶT ĐẤT, PHÓNG TO HITBOX 60
+                                        m.HumanoidRootPart.CFrame = lockedFarmPosition
+                                        m.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
+                                        m.HumanoidRootPart.CanCollide = false
+                                        m.Humanoid.WalkSpeed = 0
+                                        m.Humanoid.JumpPower = 0
+                                        if m.Humanoid:FindFirstChild("Animator") then m.Humanoid.Animator:Destroy() end
+                                        m.Humanoid:ChangeState(11)
+                                        sethiddenproperty(Plr, "SimulationRadius", math.huge)
+                                    end
+                                end
+                            end
+                        end
+                    else
+                        lockedFarmPosition = nil
+                        topos(qPos) -- Quay về chỗ nhận quest nếu hết quái
                     end
                 end
             end)
+        else
+            lockedFarmPosition = nil
         end
     end
 end)
 
 -- =========================================================
--- VÒNG LẶP HÚT QUÁI (BRING MOB)
--- =========================================================
-task.spawn(function()
-    while task.wait() do
-        pcall(function()
-            if _G.BringMonster and StartBring and PosMon then
-                for _, mob in pairs(Workspace.Enemies:GetChildren()) do
-                    if mob.Name == MonFarm and mob:FindFirstChild("Humanoid") and mob:FindFirstChild("HumanoidRootPart") and mob.Humanoid.Health > 0 then
-                        if (mob.HumanoidRootPart.Position - PosMon.Position).Magnitude <= 320 then
-                            mob.HumanoidRootPart.Size = Vector3.new(50, 50, 50)
-                            mob.HumanoidRootPart.CFrame = PosMon
-                            mob.HumanoidRootPart.CanCollide = false
-                            mob.Head.CanCollide = false
-                            if mob.Humanoid:FindFirstChild("Animator") then
-                                mob.Humanoid.Animator:Destroy()
-                            end
-                            sethiddenproperty(Plr, "SimulationRadius", math.huge)
-                        end
-                    end
-                end
-            end
-        end)
-    end
-end)
-
--- =========================================================
--- VÒNG LẶP FAST ATTACK & COMBAT HOOK
+-- LÕI FAST ATTACK + COMBAT HOOK (CỰC MẠNH)
 -- =========================================================
 task.spawn(function()
     while task.wait(0.01) do
         if _G.AutoFarm and _G.FastAttack then
             pcall(function()
+                VirtualUser:CaptureController()
+                VirtualUser:Button1Down(Vector2.new(50, 50))
+                
                 local CbFw = require(Plr.PlayerScripts.CombatFramework)
                 local ac = CbFw.activeController
                 if not ac then
@@ -301,7 +205,7 @@ task.spawn(function()
                 end
                 
                 if ac and ac.equipped then
-                    ac.hitboxLimiter = 0
+                    ac.hitboxLimiter = 2^20
                     ac.timeToNextAttack = 0
                     ac.timeToNextBlock = 0
                     ac.increment = 3
@@ -312,43 +216,16 @@ task.spawn(function()
     end
 end)
 
-RunService.Stepped:Connect(function()
+-- TẮT HOẠT ẢNH TAY CHỐNG GIẬT
+game:GetService("RunService").Stepped:Connect(function()
     pcall(function()
         if _G.AutoFarm and Plr.Character then
             local hum = Plr.Character:FindFirstChild("Humanoid")
-            if hum then
-                local animator = hum:FindFirstChild("Animator")
-                if animator then
-                    for _, anim in ipairs(animator:GetPlayingAnimationTracks()) do
-                        local name = anim.Name:lower()
-                        if name:match("attack") or name:match("punch") or name:match("slash") or name:match("swing") or name:match("m1") then anim:Stop() end
-                    end
+            if hum and hum:FindFirstChild("Animator") then
+                for _, anim in ipairs(hum.Animator:GetPlayingAnimationTracks()) do
+                    if anim.Name:lower():match("attack") or anim.Name:lower():match("slash") then anim:Stop() end
                 end
             end
         end
     end)
-end)
-
--- =========================================================
--- VÒNG LẶP AUTO STATS
--- =========================================================
-task.spawn(function()
-    while task.wait(0.4) do
-        if _G.AutoStats then
-            pcall(function()
-                local points = Plr.Data.Points.Value
-                if points > 0 then
-                    local enabled = {}
-                    for stat, state in pairs(_G.StatsSelect) do
-                        if state then table.insert(enabled, stat) end
-                    end
-                    if #enabled > 0 then
-                        local pts = math.floor(_G.StatsPoint / #enabled)
-                        if pts < 1 then pts = 1 end
-                        for _, stat in ipairs(enabled) do CommF:InvokeServer("AddPoint", stat, pts) end
-                    end
-                end
-            end)
-        end
-    end
 end)
