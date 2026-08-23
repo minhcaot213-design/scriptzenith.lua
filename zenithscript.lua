@@ -1,4 +1,4 @@
--- [[ ZENITH HUB - V400.2 PART 1: UI & COMPONENTS ]] --
+-- [[ ZENITH HUB - V400.3 PART 1: UI & COMPONENTS ]] --
 task.wait(0.5)
 if not game:IsLoaded() then game.Loaded:Wait() end
 
@@ -39,7 +39,7 @@ _G.PullEnabled = false; _G.PullKey = Enum.KeyCode.T
 -- ESP Configs
 _G.ESPPlayer = false; _G.ESPChest = false; _G.ESPFruit = false; _G.ESPNPC = false; _G.ESPIsland = false
 _G.AutoCollectFruit = false
-_G.AutoItemFarm = false -- Farm Item / Vật phẩm
+_G.AutoItemFarm = false
 
 -- Boss & Sea Configs
 _G.AutoBoss = false; _G.AllBossesFarm = false; _G.SelectedBossName = "None"
@@ -57,7 +57,7 @@ local Loc = {
     VN = {
         Title = "ZENITH HUB <font color='#ff3344'>• V400 OMNIPOTENT</font>",
         Farm = "Cày Cấp", Boss = "Săn Boss", PVP = "PVP & Aim", FruitEsp = "Trái & ESP", Stats = "Nâng Điểm", Teleport = "Dịch Chuyển", Shop = "Cửa Hàng", Misc = "Cài Đặt",
-        StatusReady = "Trạng thái: Crimson UI & Real Tween Flight Sẵn Sàng!",
+        StatusReady = "Trạng thái: Crimson UI & Anti-Hang Fix Sẵn Sàng!",
         ToggleFarm = "⚡ Auto Farm Level", ToggleQuest = "📜 Tự Nhận Nhiệm Vụ", ToggleBring = "🧲 Kéo Quái (Bring Mob)", ToggleFast = "⚔️ Fast Attack (TURBO MAX)",
         ToggleItemFarm = "🦴 Auto Farm Item / Vật Phẩm", ToggleAutoBoss = "👑 Auto Farm Boss Đã Chọn", ToggleAllBoss = "🔥 Đánh Toàn Bộ Boss Trong Server",
         ToggleSilent = "🎯 Silent Aim (Legit FOV)", ToggleSpeed = "🏃 Chạy Nhanh (Speed)", ToggleNoclip = "👻 Đi Xuyên Tường (Noclip)", ToggleJump = "🦘 Nhảy Cao (Super Jump)", TogglePull = "🧲 Kéo Địch (Pull Player)",
@@ -71,7 +71,7 @@ local Loc = {
     EN = {
         Title = "ZENITH HUB <font color='#ff3344'>• V400 OMNIPOTENT</font>",
         Farm = "Auto Farm", Boss = "Boss Hunt", PVP = "PVP & Aim", FruitEsp = "Fruit & ESP", Stats = "Stats", Teleport = "Teleport", Shop = "Shop", Misc = "Settings",
-        StatusReady = "Status: Crimson UI & Real Tween Flight Active!",
+        StatusReady = "Status: Crimson UI & Anti-Hang Fix Active!",
         ToggleFarm = "⚡ Auto Farm Level", ToggleQuest = "📜 Auto Quest", ToggleBring = "🧲 Bring Mob (Ground Magnet)", ToggleFast = "⚔️ Fast Attack (TURBO MAX)",
         ToggleItemFarm = "🦴 Auto Farm Items / Materials", ToggleAutoBoss = "👑 Auto Farm Selected Boss", ToggleAllBoss = "🔥 Farm All Bosses In Server",
         ToggleSilent = "🎯 Silent Aim (Legit FOV)", ToggleSpeed = "🏃 Enable Speed", ToggleNoclip = "👻 Enable Noclip", ToggleJump = "🦘 Super Jump", TogglePull = "🧲 Pull Player",
@@ -98,15 +98,15 @@ ScreenGui.Name = UI_NAME; ScreenGui.ResetOnSpawn = false
 local s, p = pcall(function() return gethui() end)
 if s and p then ScreenGui.Parent = p else ScreenGui.Parent = CoreGui end
 
--- Status HUD (Chỉ hiện khi có tính năng bật, đồng bộ độ trong suốt 0.3)
+-- Status HUD (Bo tròn 100%, trong suốt 0.3)
 local StatusHUD = Instance.new("Frame", ScreenGui)
 StatusHUD.Size = UDim2.new(0, 220, 0, 160); StatusHUD.Position = UDim2.new(1, -235, 0.4, 0); StatusHUD.BackgroundColor3 = Color3.fromRGB(15, 10, 12); StatusHUD.BackgroundTransparency = 0.3; StatusHUD.BorderSizePixel = 0; StatusHUD.ZIndex = 800; StatusHUD.Visible = false
-Instance.new("UICorner", StatusHUD).CornerRadius = UDim.new(0, 8)
+Instance.new("UICorner", StatusHUD).CornerRadius = UDim.new(0, 10)
 local hudStroke = Instance.new("UIStroke", StatusHUD); hudStroke.Color = Color3.fromRGB(235, 50, 65); hudStroke.Transparency = 0.2; hudStroke.Thickness = 1.2
 
 local hudTitle = Instance.new("TextLabel", StatusHUD)
-hudTitle.Size = UDim2.new(1, 0, 0, 28); hudTitle.BackgroundColor3 = Color3.fromRGB(45, 15, 22); hudTitle.BackgroundTransparency = 0.3; hudTitle.BorderSizePixel = 0; hudTitle.TextColor3 = Color3.fromRGB(255, 255, 255); hudTitle.Font = Enum.Font.GothamBold; hudTitle.TextSize = 12; hudTitle.Text = "📊 ACTIVE STATUS HUD"
-Instance.new("UICorner", hudTitle).CornerRadius = UDim.new(0, 8)
+hudTitle.Size = UDim2.new(1, 0, 0, 28); hudTitle.BackgroundColor3 = Color3.fromRGB(45, 15, 22); hudTitle.BackgroundTransparency = 0.2; hudTitle.BorderSizePixel = 0; hudTitle.TextColor3 = Color3.fromRGB(255, 255, 255); hudTitle.Font = Enum.Font.GothamBold; hudTitle.TextSize = 12; hudTitle.Text = "📊 ACTIVE STATUS HUD"
+Instance.new("UICorner", hudTitle).CornerRadius = UDim.new(0, 10)
 
 local hudContent = Instance.new("TextLabel", StatusHUD)
 hudContent.Size = UDim2.new(1, -16, 1, -35); hudContent.Position = UDim2.new(0, 8, 0, 32); hudContent.BackgroundTransparency = 1; hudContent.TextColor3 = Color3.fromRGB(255, 255, 255); hudContent.Font = Enum.Font.GothamMedium; hudContent.TextSize = 11; hudContent.TextXAlignment = Enum.TextXAlignment.Left; hudContent.TextYAlignment = Enum.TextYAlignment.Top; hudContent.RichText = true
@@ -124,6 +124,7 @@ local mStroke = Instance.new("UIStroke", MainFrame); mStroke.Color = Color3.from
 
 local TopBar = Instance.new("Frame", MainFrame)
 TopBar.Size = UDim2.new(1, 0, 0, 42); TopBar.BackgroundColor3 = Color3.fromRGB(30, 12, 17); TopBar.BackgroundTransparency = 0.3; TopBar.BorderSizePixel = 0
+Instance.new("UICorner", TopBar).CornerRadius = UDim.new(0, 10)
 local Title = Instance.new("TextLabel", TopBar)
 Title.Size = UDim2.new(0, 350, 1, 0); Title.Position = UDim2.new(0, 16, 0, 0); Title.BackgroundTransparency = 1; Title.RichText = true; Title.TextColor3 = Color3.fromRGB(255, 255, 255); Title.Font = Enum.Font.GothamBold; Title.TextSize = 13; Title.TextXAlignment = Enum.TextXAlignment.Left
 Title.Text = L("Title")
@@ -135,6 +136,7 @@ CloseBtn.MouseButton1Click:Connect(function() MainFrame.Visible = false; Floatin
 FloatingButton.MouseButton1Click:Connect(function() MainFrame.Visible = true; FloatingButton.Visible = false end)
 
 local Sidebar = Instance.new("Frame", MainFrame); Sidebar.Name = "Sidebar"; Sidebar.Size = UDim2.new(0, 165, 1, -42); Sidebar.Position = UDim2.new(0, 0, 0, 42); Sidebar.BackgroundColor3 = Color3.fromRGB(15, 10, 12); Sidebar.BackgroundTransparency = 0.3; Sidebar.BorderSizePixel = 0
+Instance.new("UICorner", Sidebar).CornerRadius = UDim.new(0, 10)
 local TabScroller = Instance.new("ScrollingFrame", Sidebar); TabScroller.Size = UDim2.new(1, -10, 1, -12); TabScroller.Position = UDim2.new(0, 5, 0, 6); TabScroller.BackgroundTransparency = 1; TabScroller.BorderSizePixel = 0; TabScroller.ScrollBarThickness = 3; TabScroller.ScrollBarImageColor3 = Color3.fromRGB(235, 50, 65); TabScroller.AutomaticCanvasSize = Enum.AutomaticSize.Y
 Instance.new("UIPadding", TabScroller).PaddingTop = UDim.new(0, 4)
 local TabListLayout = Instance.new("UIListLayout", TabScroller); TabListLayout.Padding = UDim.new(0, 5); TabListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
@@ -219,8 +221,6 @@ createToggle(pFarm, "ToggleFarm", false, function(v) _G.AutoFarm = v end)
 createToggle(pFarm, "ToggleQuest", true, function(v) _G.AutoQuest = v end)
 createToggle(pFarm, "ToggleBring", true, function(v) _G.BringMonster = v end)
 createToggle(pFarm, "ToggleFast", true, function(v) _G.FastAttack = v end)
-
--- Danh mục Farm Item dưới Farm Level
 createToggle(pFarm, "ToggleItemFarm", false, function(v) _G.AutoItemFarm = v end)
 
 createButton(pFarm, "🏝️ Auto Farm Lên Sea 2", function()
@@ -251,7 +251,7 @@ end)
 local bossListLabel = Instance.new("TextLabel", pBoss)
 bossListLabel.Size = UDim2.new(0.95, 0, 0, 30); bossListLabel.BackgroundTransparency = 1; bossListLabel.TextColor3 = Color3.fromRGB(255, 100, 115); bossListLabel.Font = Enum.Font.GothamBold; bossListLabel.TextSize = 11; bossListLabel.Text = "👑 Boss Đang Sống: Quét..."
 
--- [ TAB PVP: SILENT AIM + SUB-MENUS + MOVEMENT ]
+-- [ TAB PVP: SILENT AIM & ADVANCED MOVEMENT ]
 local pvpContainer = pPVP
 local silentToggleFrame = Instance.new("Frame", pvpContainer); silentToggleFrame.Size = UDim2.new(0.95, 0, 0, 36); silentToggleFrame.BackgroundColor3 = Color3.fromRGB(22, 12, 15); silentToggleFrame.BackgroundTransparency = 0.3; Instance.new("UICorner", silentToggleFrame).CornerRadius = UDim.new(0, 6)
 Instance.new("UIStroke", silentToggleFrame).Color = Color3.fromRGB(75, 25, 35); Instance.new("UIStroke", silentToggleFrame).Thickness = 1
@@ -390,7 +390,7 @@ createButton(pTele, "BtnSea1", function() if CommF then CommF:InvokeServer("Trav
 createButton(pTele, "BtnSea2", function() if CommF then CommF:InvokeServer("TravelDressrosa") end end)
 createButton(pTele, "BtnSea3", function() if CommF then CommF:InvokeServer("TravelZou") end end)
 
--- [ TAB SHOP (Mua Kiếm, Súng, Võ) ]
+-- [ TAB SHOP ]
 createButton(pShop, "BtnGeppo", function() if CommF then CommF:InvokeServer("BuyHaki", "Geppo") end end)
 createButton(pShop, "BtnBuso", function() if CommF then CommF:InvokeServer("BuyHaki", "Buso") end end)
 createButton(pShop, "BtnSoru", function() if CommF then CommF:InvokeServer("BuyHaki", "Soru") end end)
@@ -464,6 +464,7 @@ RunService.RenderStepped:Connect(function()
     pcall(function()
         local char = LocalPlayer.Character
         local hum = char and char:FindFirstChildOfClass("Humanoid")
+        local hrp = char and char:FindFirstChild("HumanoidRootPart")
         
         if hum then
             hum.WalkSpeed = _G.SpeedEnabled and _G.SpeedVal or 16
@@ -472,15 +473,19 @@ RunService.RenderStepped:Connect(function()
         if _G.NoclipEnabled and char then
             for _, part in ipairs(char:GetDescendants()) do if part:IsA("BasePart") then part.CanCollide = false end end
         end
+
+        -- Dọn dẹp BodyVelocity & Tween khi tắt Auto Farm/Boss để không bị treo hay kéo giật
+        if not (_G.AutoFarm or _G.AutoItemFarm or _G.AutoBoss or _G.AllBossesFarm) then
+            if currentTween then currentTween:Cancel(); currentTween = nil end
+            if hrp and hrp:FindFirstChild("BodyClip") then hrp.BodyClip:Destroy() end
+        end
         
-        -- Khử hiệu ứng chớp sáng lóa màn hình sau khi giết quái
         for _, obj in pairs(Workspace:GetDescendants()) do
             if obj:IsA("ParticleEmitter") and (string.find(obj.Name, "Explosion") or string.find(obj.Name, "Flash") or string.find(obj.Name, "Effect")) then
                 obj.Rate = 0
             end
         end
 
-        -- Cập nhật Status HUD (Chỉ hiện khi có tính năng được bật/gán phím)
         local activeList = {}
         if _G.SpeedEnabled then table.insert(activeList, "🏃 Speed ["..tostring(_G.SpeedKey.Name).."]: " .. tostring(_G.SpeedVal)) end
         if _G.NoclipEnabled then table.insert(activeList, "👻 Noclip ["..tostring(_G.NoclipKey.Name).."]: ON") end
@@ -497,7 +502,6 @@ RunService.RenderStepped:Connect(function()
     end)
 end)
 
--- Vòng tròn FOV cố định giữa màn hình Silent Aim
 local FOVCircle = Drawing.new("Circle")
 FOVCircle.Visible = false
 FOVCircle.Thickness = 1.5
@@ -531,9 +535,7 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
--- =========================================================
--- LOGIC ESP TOÀN DIỆN (FIX HOÀN CHỈNH ESP NPC & ĐẢO)
--- =========================================================
+-- ESP Toàn Diện
 task.spawn(function()
     while task.wait(1) do
         if _G.ESPPlayer then
@@ -617,9 +619,7 @@ task.spawn(function()
     end
 end)
 
--- =========================================================
--- LOGIC AUTO FARM, BRING MOB, BOSS & COLLECT FRUIT
--- =========================================================
+-- Auto Farm, Boss & Collect Fruit execution logic
 function EquipWeapon(weaponType)
     pcall(function()
         if not LocalPlayer.Character:FindFirstChild("HasBuso") then CommF:InvokeServer("Buso") end
@@ -662,7 +662,6 @@ function CheckQuest()
     end
 end
 
--- Auto Farm Level & Item Farm
 spawn(function()
     while task.wait() do
         if _G.AutoFarm or _G.AutoItemFarm then
@@ -702,7 +701,6 @@ spawn(function()
     end
 end)
 
--- Bring Mob
 spawn(function()
     while task.wait() do
         pcall(function()
@@ -725,7 +723,6 @@ spawn(function()
     end
 end)
 
--- Auto Boss & All Bosses
 task.spawn(function()
     while task.wait(1) do
         pcall(function()
@@ -766,7 +763,6 @@ task.spawn(function()
     end
 end)
 
--- Auto Collect Fruit
 task.spawn(function()
     while task.wait(0.5) do
         if _G.AutoCollectFruit then
