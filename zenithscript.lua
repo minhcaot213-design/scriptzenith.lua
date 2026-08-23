@@ -3736,11 +3736,11 @@ function CheckItemBPCRBPCR(v463)
         end
     end
 end
-local vu32 = loadstring(game:HttpGet("https://raw.githubusercontent.com/PlockScripts/Library-ui/refs/heads/main//main.luau"))()
+local vu32 = loadstring(game:HttpGet("https://raw.githubusercontent.com/PlockScripts/Library-ui/refs/heads/main/redz-V5-remake/main.luau"))()
 local v466 = vu32:MakeWindow({
-    Title = "Zentih Make | Zyrox v4.5",
+    Title = "Zenith: Blox Fruits",
     SubTitle = "skidded version",
-    SaveFolder = "Zyrox  | Blox Fruit v4.5.lua"
+    SaveFolder = "Zyrox | Blox Fruit v4.5.lua"
 })
 
 v466:AddMinimizeButton({
@@ -3762,7 +3762,7 @@ local v494 = v466:MakeTab({"Visual", "user"})
 local v495 = v466:MakeTab({"Shop", "shoppingCart"})
 local v496 = v466:MakeTab({"Misc", "settings"})
 v484:AddDiscordInvite({
-    Name = "DesplockHub | Community",
+    Name = "Zyrox Vn | Community",
     Description = "Join server to receive Update",
     Logo = "rbxassetid://131723242350068",
     Invite = "https://discord.gg/NepSnPEzMQ"
@@ -10843,7 +10843,7 @@ function GetNewServer()
     end
 end
 
--- ===== TOGGLE LIB =====
+-- ===== TOGGLE REDZLIB =====
 v496:AddToggle({
     Name = "Anti-reset",
     Description = "Server hop every 30 minutes",
