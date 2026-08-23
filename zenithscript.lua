@@ -1,7 +1,7 @@
--- [[ ZENITH HUB - V100.0 ULTIMATE OMNIPOTENT MASTERPIECE ]] --
--- Khôi phục 100% mọi chức năng: PVP Silent Aim FOV + Accuracy Slider.
--- Gộp chung Fruit-Esp. Auto Boss Server + All Bosses Farm.
--- Bay nhặt trái ác quỷ + Động cơ bay Tween thật + Move Keybinds + Status HUD trong suốt.
+-- [[ ZENITH HUB - V200.0 ULTIMATE CRIMSON MASTERPIECE ]] --
+-- Giao diện Đỏ trong suốt (Crimson Glassmorphism), HUD chữ trắng.
+-- Khôi phục 100% mọi tính năng: Farm, Boss, PVP Silent Aim, Move (Speed/Noclip/Jump/Pull + Keybinds), Fruit & ESP gộp chung.
+-- Khử hiệu ứng chớp sáng lóa màn hình sau khi giết quái, Fast Attack Siêu Tốc Max Speed.
 
 task.wait(0.5)
 if not game:IsLoaded() then game.Loaded:Wait() end
@@ -34,14 +34,12 @@ _G.StatsMelee = false; _G.StatsDefense = false; _G.StatsSword = false; _G.StatsF
 _G.Language = "VN"
 
 -- PVP & Aim Configs
-_G.SilentAim = false
-_G.FOVSize = 120
-_G.HitAccuracy = 100
+_G.SilentAim = false; _G.FOVSize = 120; _G.HitAccuracy = 100
 
 -- Movement & Keybinds Configs
-_G.SpeedEnabled = false; _G.SpeedVal = 30; _G.SpeedKey = Enum.KeyCode.Q
+_G.SpeedEnabled = false; _G.SpeedVal = 35; _G.SpeedKey = Enum.KeyCode.Q
 _G.NoclipEnabled = false; _G.NoclipKey = Enum.KeyCode.E
-_G.JumpEnabled = false; _G.JumpVal = 150; _G.JumpKey = Enum.KeyCode.R
+_G.JumpEnabled = false; _G.JumpVal = 180; _G.JumpKey = Enum.KeyCode.R
 _G.PullKey = Enum.KeyCode.T
 
 -- ESP Configs
@@ -51,9 +49,7 @@ _G.ESPPlayer = false; _G.ESPChest = false; _G.ESPFruit = false; _G.ESPNPC = fals
 _G.AutoCollectFruit = false
 
 -- Boss Hunt Configs
-_G.AutoBoss = false
-_G.AllBossesFarm = false
-_G.SelectedBossName = "None"
+_G.AutoBoss = false; _G.AllBossesFarm = false; _G.SelectedBossName = "None"
 
 local World1 = game.PlaceId == 2753915549 or game.PlaceId == 85211729168715
 local World2 = game.PlaceId == 4442272183 or game.PlaceId == 79091703265657
@@ -66,30 +62,30 @@ local CurrentBossList = World1 and BossListSea1 or (World2 and BossListSea2 or B
 
 local Loc = {
     VN = {
-        Title = "ZENITH HUB <font color='#00d2ff'>• V100 OMNIPOTENT</font>",
+        Title = "ZENITH HUB <font color='#ff3344'>• V200 CRIMSON</font>",
         Farm = "Cày Cấp", Boss = "Săn Boss", PVP = "PVP & Aim", Move = "Di Chuyển", FruitEsp = "Trái & ESP", Stats = "Nâng Điểm", Teleport = "Dịch Chuyển", Shop = "Cửa Hàng", Misc = "Cài Đặt",
-        StatusReady = "Trạng thái: Đã khôi phục 100% mọi chức năng!",
-        ToggleFarm = "⚡ Auto Farm Level", ToggleQuest = "📜 Tự Nhận Nhiệm Vụ", ToggleBring = "🧲 Kéo Quái (Bring Mob)", ToggleFast = "⚔️ Fast Attack (120m)",
+        StatusReady = "Trạng thái: Crimson UI & Turbo Fast Attack Đã Sẵn Sàng!",
+        ToggleFarm = "⚡ Auto Farm Level", ToggleQuest = "📜 Tự Nhận Nhiệm Vụ", ToggleBring = "🧲 Kéo Quái (Bring Mob)", ToggleFast = "⚔️ Fast Attack (TURBO MAX)",
         ToggleAutoBoss = "👑 Auto Farm Boss Đã Chọn", ToggleAllBoss = "🔥 Đánh Toàn Bộ Boss Trong Server",
         ToggleSilent = "🎯 Silent Aim (Legit FOV)", ToggleSpeed = "🏃 Chạy Nhanh (Speed)", ToggleNoclip = "👻 Đi Xuyên Tường (Noclip)", ToggleJump = "🦘 Nhảy Cao (Super Jump)", TogglePull = "🧲 Kéo Địch (Pull Player)",
         ToggleCollectFruit = "🍎 Auto Bay Nhặt Trái Ác Quỷ", ToggleESPPlr = "👁️ ESP Người Chơi", ToggleESPChest = "📦 ESP Rương Kho Báu", ToggleESPFruit = "🍎 ESP Trái Ác Quỷ", ToggleESPNPC = "👤 ESP NPC", ToggleESPIsland = "🏝️ ESP Đảo",
         BtnGacha = "🎲 Random Fruit (Gacha)", BtnStore = "📦 Cất Tất Cả Trái Vào Rương",
         BtnSea1 = "🏝️ Dịch Chuyển Sea 1", BtnSea2 = "🏝️ Dịch Chuyển Sea 2", BtnSea3 = "🏝️ Dịch Chuyển Sea 3",
         BtnGeppo = "🦵 Mua Geppo (10k)", BtnBuso = "🛡️ Mua Buso Haki (25k)", BtnSoru = "🏃 Mua Soru (100k)", BtnKen = "👁️ Mua Ken Haki (750k)",
-        BtnDiscord = "💬 Mở Link Discord Của Tôi", BtnCode = "🎁 Nhập Tất Cả Giftcode", ToggleLag = "🚀 Giảm Lag / Tắt Lóa", BtnRejoin = "🔄 Vào Lại Server"
+        BtnDiscord = "💬 Mở Link Discord Của Tôi", BtnCode = "🎁 Nhập Tất Cả Giftcode", ToggleLag = "🚀 Chống Lag / Khử Lóa", BtnRejoin = "🔄 Vào Lại Server"
     },
     EN = {
-        Title = "ZENITH HUB <font color='#00d2ff'>• V100 OMNIPOTENT</font>",
+        Title = "ZENITH HUB <font color='#ff3344'>• V200 CRIMSON</font>",
         Farm = "Auto Farm", Boss = "Boss Hunt", PVP = "PVP & Aim", Move = "Movement", FruitEsp = "Fruit & ESP", Stats = "Stats", Teleport = "Teleport", Shop = "Shop", Misc = "Settings",
-        StatusReady = "Status: 100% Features Restored!",
-        ToggleFarm = "⚡ Auto Farm Level", ToggleQuest = "📜 Auto Quest", ToggleBring = "🧲 Bring Mob (Ground Magnet)", ToggleFast = "⚔️ Fast Attack (120m)",
+        StatusReady = "Status: Crimson UI & Turbo Fast Attack Active!",
+        ToggleFarm = "⚡ Auto Farm Level", ToggleQuest = "📜 Auto Quest", ToggleBring = "🧲 Bring Mob (Ground Magnet)", ToggleFast = "⚔️ Fast Attack (TURBO MAX)",
         ToggleAutoBoss = "👑 Auto Farm Selected Boss", ToggleAllBoss = "🔥 Farm All Bosses In Server",
         ToggleSilent = "🎯 Silent Aim (Legit FOV)", ToggleSpeed = "🏃 Enable Speed", ToggleNoclip = "👻 Enable Noclip", ToggleJump = "🦘 Super Jump", TogglePull = "🧲 Pull Player",
         ToggleCollectFruit = "🍎 Auto Collect Fruits", ToggleESPPlr = "👁️ ESP Players", ToggleESPChest = "📦 ESP Chests", ToggleESPFruit = "🍎 ESP Fruits", ToggleESPNPC = "👤 ESP NPCs", ToggleESPIsland = "🏝️ ESP Islands",
         BtnGacha = "🎲 Random Fruit (Gacha)", BtnStore = "📦 Store All Fruits",
         BtnSea1 = "🏝️ Teleport Sea 1", BtnSea2 = "🏝️ Teleport Sea 2", BtnSea3 = "🏝️ Teleport Sea 3",
         BtnGeppo = "🦵 Buy Geppo (10k)", BtnBuso = "🛡️ Buy Buso Haki (25k)", BtnSoru = "🏃 Buy Soru (100k)", BtnKen = "👁️ Buy Ken Haki (750k)",
-        BtnDiscord = "💬 Open My Discord Link", BtnCode = "🎁 Redeem All Codes", ToggleLag = "🚀 Low Graphics / Reduce Flash", BtnRejoin = "🔄 Rejoin Server"
+        BtnDiscord = "💬 Open My Discord Link", BtnCode = "🎁 Redeem All Codes", ToggleLag = "🚀 Anti-Lag / Reduce Flash", BtnRejoin = "🔄 Rejoin Server"
     }
 }
 
@@ -99,9 +95,9 @@ local function L(key)
 end
 
 -- =========================================================
--- KHỞI TẠO GIAO DIỆN ZENITH V100
+-- KHỞI TẠO GIAO DIỆN CHỦ ĐẠO ĐỎ TRONG SUỐT (CRIMSON GLASS)
 -- =========================================================
-local UI_NAME = "ZenithHub_V100_Omnipotent"
+local UI_NAME = "ZenithHub_V200_Crimson"
 pcall(function() if CoreGui:FindFirstChild(UI_NAME) then CoreGui[UI_NAME]:Destroy() end end)
 pcall(function() if LocalPlayer.PlayerGui:FindFirstChild(UI_NAME) then LocalPlayer.PlayerGui[UI_NAME]:Destroy() end end)
 
@@ -110,30 +106,30 @@ ScreenGui.Name = UI_NAME; ScreenGui.ResetOnSpawn = false
 local s, p = pcall(function() return gethui() end)
 if s and p then ScreenGui.Parent = p else ScreenGui.Parent = CoreGui end
 
--- BẢNG STATUS HUD TRONG SUỐT SÁT MÉP PHẢI
+-- BẢNG STATUS HUD TRONG SUỐT SÁT MÉP PHẢI (CHỮ TRẮNG)
 local StatusHUD = Instance.new("Frame", ScreenGui)
-StatusHUD.Size = UDim2.new(0, 220, 0, 150); StatusHUD.Position = UDim2.new(1, -235, 0.4, 0); StatusHUD.BackgroundColor3 = Color3.fromRGB(13, 17, 26); StatusHUD.BackgroundTransparency = 0.35; StatusHUD.BorderSizePixel = 0; StatusHUD.ZIndex = 800; StatusHUD.Visible = false
+StatusHUD.Size = UDim2.new(0, 220, 0, 150); StatusHUD.Position = UDim2.new(1, -235, 0.4, 0); StatusHUD.BackgroundColor3 = Color3.fromRGB(15, 12, 14); StatusHUD.BackgroundTransparency = 0.4; StatusHUD.BorderSizePixel = 0; StatusHUD.ZIndex = 800; StatusHUD.Visible = false
 Instance.new("UICorner", StatusHUD).CornerRadius = UDim.new(0, 8)
-local hudStroke = Instance.new("UIStroke", StatusHUD); hudStroke.Color = Color3.fromRGB(0, 210, 255); hudStroke.Transparency = 0.4; hudStroke.Thickness = 1.2
+local hudStroke = Instance.new("UIStroke", StatusHUD); hudStroke.Color = Color3.fromRGB(235, 50, 65); hudStroke.Transparency = 0.4; hudStroke.Thickness = 1.2
 
 local hudTitle = Instance.new("TextLabel", StatusHUD)
-hudTitle.Size = UDim2.new(1, 0, 0, 28); hudTitle.BackgroundColor3 = Color3.fromRGB(18, 23, 35); hudTitle.BackgroundTransparency = 0.2; hudTitle.BorderSizePixel = 0; hudTitle.TextColor3 = Color3.fromRGB(0, 210, 255); hudTitle.Font = Enum.Font.GothamBold; hudTitle.TextSize = 12; hudTitle.Text = "📊 ACTIVE STATUS HUD"
+hudTitle.Size = UDim2.new(1, 0, 0, 28); hudTitle.BackgroundColor3 = Color3.fromRGB(35, 15, 20); hudTitle.BackgroundTransparency = 0.3; hudTitle.BorderSizePixel = 0; hudTitle.TextColor3 = Color3.fromRGB(255, 255, 255); hudTitle.Font = Enum.Font.GothamBold; hudTitle.TextSize = 12; hudTitle.Text = "📊 ACTIVE STATUS HUD"
 Instance.new("UICorner", hudTitle).CornerRadius = UDim.new(0, 8)
 
 local hudContent = Instance.new("TextLabel", StatusHUD)
-hudContent.Size = UDim2.new(1, -16, 1, -35); hudContent.Position = UDim2.new(0, 8, 0, 32); hudContent.BackgroundTransparency = 1; hudContent.TextColor3 = Color3.fromRGB(240, 245, 250); hudContent.Font = Enum.Font.GothamMedium; hudContent.TextSize = 11; hudContent.TextXAlignment = Enum.TextXAlignment.Left; hudContent.TextYAlignment = Enum.TextYAlignment.Top; hudContent.RichText = true
+hudContent.Size = UDim2.new(1, -16, 1, -35); hudContent.Position = UDim2.new(0, 8, 0, 32); hudContent.BackgroundTransparency = 1; hudContent.TextColor3 = Color3.fromRGB(255, 255, 255); hudContent.Font = Enum.Font.GothamMedium; hudContent.TextSize = 11; hudContent.TextXAlignment = Enum.TextXAlignment.Left; hudContent.TextYAlignment = Enum.TextYAlignment.Top; hudContent.RichText = true
 hudContent.Text = "No active keybinds."
 
 -- Nút nổi thu nhỏ
 local FloatingButton = Instance.new("TextButton", ScreenGui)
-FloatingButton.Size = UDim2.new(0, 50, 0, 50); FloatingButton.Position = UDim2.new(0.05, 0, 0.4, 0); FloatingButton.BackgroundColor3 = Color3.fromRGB(18, 22, 33); FloatingButton.Visible = false; FloatingButton.Text = "Z"; FloatingButton.TextColor3 = Color3.fromRGB(0, 210, 255); FloatingButton.Font = Enum.Font.GothamBlack; FloatingButton.TextSize = 22; FloatingButton.ZIndex = 999
+FloatingButton.Size = UDim2.new(0, 50, 0, 50); FloatingButton.Position = UDim2.new(0.05, 0, 0.4, 0); FloatingButton.BackgroundColor3 = Color3.fromRGB(25, 12, 15); FloatingButton.BackgroundTransparency = 0.2; FloatingButton.Visible = false; FloatingButton.Text = "Z"; FloatingButton.TextColor3 = Color3.fromRGB(255, 50, 70); FloatingButton.Font = Enum.Font.GothamBlack; FloatingButton.TextSize = 22; FloatingButton.ZIndex = 999
 Instance.new("UICorner", FloatingButton).CornerRadius = UDim.new(0, 14)
-local fStroke = Instance.new("UIStroke", FloatingButton); fStroke.Color = Color3.fromRGB(0, 210, 255); fStroke.Thickness = 2
+local fStroke = Instance.new("UIStroke", FloatingButton); fStroke.Color = Color3.fromRGB(235, 50, 65); fStroke.Thickness = 2
 
 local MainFrame = Instance.new("Frame", ScreenGui)
-MainFrame.Size = UDim2.new(0, 620, 0, 410); MainFrame.AnchorPoint = Vector2.new(0.5, 0.5); MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0); MainFrame.BackgroundColor3 = Color3.fromRGB(13, 17, 26); MainFrame.BackgroundTransparency = 0.08; MainFrame.BorderSizePixel = 0; MainFrame.ClipsDescendants = true
+MainFrame.Size = UDim2.new(0, 620, 0, 410); MainFrame.AnchorPoint = Vector2.new(0.5, 0.5); MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0); MainFrame.BackgroundColor3 = Color3.fromRGB(16, 12, 14); MainFrame.BackgroundTransparency = 0.12; MainFrame.BorderSizePixel = 0; MainFrame.ClipsDescendants = true
 Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 10)
-local mStroke = Instance.new("UIStroke", MainFrame); mStroke.Color = Color3.fromRGB(0, 190, 255); mStroke.Thickness = 1.5
+local mStroke = Instance.new("UIStroke", MainFrame); mStroke.Color = Color3.fromRGB(235, 50, 65); mStroke.Thickness = 1.5
 
 local dragging, dragStart, startPos
 MainFrame.InputBegan:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then dragging = true; dragStart = input.Position; startPos = MainFrame.Position end end)
@@ -148,13 +144,13 @@ UserInputService.InputChanged:Connect(function(input)
 end)
 
 local TopBar = Instance.new("Frame", MainFrame)
-TopBar.Size = UDim2.new(1, 0, 0, 42); TopBar.BackgroundColor3 = Color3.fromRGB(18, 23, 35); TopBar.BorderSizePixel = 0
+TopBar.Size = UDim2.new(1, 0, 0, 42); TopBar.BackgroundColor3 = Color3.fromRGB(25, 14, 18); TopBar.BackgroundTransparency = 0.1; TopBar.BorderSizePixel = 0
 local Title = Instance.new("TextLabel", TopBar)
 Title.Size = UDim2.new(0, 350, 1, 0); Title.Position = UDim2.new(0, 16, 0, 0); Title.BackgroundTransparency = 1; Title.RichText = true; Title.TextColor3 = Color3.fromRGB(255, 255, 255); Title.Font = Enum.Font.GothamBold; Title.TextSize = 13; Title.TextXAlignment = Enum.TextXAlignment.Left
 Title.Text = L("Title")
 
 local CloseBtn = Instance.new("TextButton", TopBar); CloseBtn.Size = UDim2.new(0, 26, 0, 26); CloseBtn.Position = UDim2.new(1, -32, 0.5, -13); CloseBtn.BackgroundColor3 = Color3.fromRGB(235, 59, 90); CloseBtn.Text = "✕"; CloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255); CloseBtn.Font = Enum.Font.GothamBold; CloseBtn.TextSize = 11; Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(0, 6)
-local MinBtn = Instance.new("TextButton", TopBar); MinBtn.Size = UDim2.new(0, 26, 0, 26); MinBtn.Position = UDim2.new(1, -66, 0.5, -13); MinBtn.BackgroundColor3 = Color3.fromRGB(30, 38, 54); MinBtn.Text = "−"; MinBtn.TextColor3 = Color3.fromRGB(200, 210, 230); MinBtn.Font = Enum.Font.GothamBold; MinBtn.TextSize = 14; Instance.new("UICorner", MinBtn).CornerRadius = UDim.new(0, 6)
+local MinBtn = Instance.new("TextButton", TopBar); MinBtn.Size = UDim2.new(0, 26, 0, 26); MinBtn.Position = UDim2.new(1, -66, 0.5, -13); MinBtn.BackgroundColor3 = Color3.fromRGB(45, 20, 25); MinBtn.Text = "−"; MinBtn.TextColor3 = Color3.fromRGB(255, 255, 255); MinBtn.Font = Enum.Font.GothamBold; MinBtn.TextSize = 14; Instance.new("UICorner", MinBtn).CornerRadius = UDim.new(0, 6)
 
 CloseBtn.MouseButton1Click:Connect(function() MainFrame.Visible = false; FloatingButton.Visible = true end)
 FloatingButton.MouseButton1Click:Connect(function() MainFrame.Visible = true; FloatingButton.Visible = false end)
@@ -164,8 +160,8 @@ MinBtn.MouseButton1Click:Connect(function()
     MainFrame:TweenSize(isMin and UDim2.new(0, 620, 0, 42) or UDim2.new(0, 620, 0, 410), "Out", "Quart", 0.25, true)
 end)
 
-local Sidebar = Instance.new("Frame", MainFrame); Sidebar.Name = "Sidebar"; Sidebar.Size = UDim2.new(0, 165, 1, -42); Sidebar.Position = UDim2.new(0, 0, 0, 42); Sidebar.BackgroundColor3 = Color3.fromRGB(15, 20, 30); Sidebar.BorderSizePixel = 0
-local TabScroller = Instance.new("ScrollingFrame", Sidebar); TabScroller.Size = UDim2.new(1, -10, 1, -12); TabScroller.Position = UDim2.new(0, 5, 0, 6); TabScroller.BackgroundTransparency = 1; TabScroller.BorderSizePixel = 0; TabScroller.ScrollBarThickness = 3; TabScroller.ScrollBarImageColor3 = Color3.fromRGB(0, 190, 255); TabScroller.AutomaticCanvasSize = Enum.AutomaticSize.Y
+local Sidebar = Instance.new("Frame", MainFrame); Sidebar.Name = "Sidebar"; Sidebar.Size = UDim2.new(0, 165, 1, -42); Sidebar.Position = UDim2.new(0, 0, 0, 42); Sidebar.BackgroundColor3 = Color3.fromRGB(15, 11, 13); Sidebar.BackgroundTransparency = 0.2; Sidebar.BorderSizePixel = 0
+local TabScroller = Instance.new("ScrollingFrame", Sidebar); TabScroller.Size = UDim2.new(1, -10, 1, -12); TabScroller.Position = UDim2.new(0, 5, 0, 6); TabScroller.BackgroundTransparency = 1; TabScroller.BorderSizePixel = 0; TabScroller.ScrollBarThickness = 3; TabScroller.ScrollBarImageColor3 = Color3.fromRGB(235, 50, 65); TabScroller.AutomaticCanvasSize = Enum.AutomaticSize.Y
 Instance.new("UIPadding", TabScroller).PaddingTop = UDim.new(0, 4)
 local TabListLayout = Instance.new("UIListLayout", TabScroller); TabListLayout.Padding = UDim.new(0, 5); TabListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 
@@ -173,11 +169,11 @@ local ContentContainer = Instance.new("Frame", MainFrame); ContentContainer.Size
 
 local tabButtons, tabPages = {}, {}
 local function createTab(nameKey, icon, labelKey)
-    local btn = Instance.new("TextButton", TabScroller); btn.Size = UDim2.new(1, -4, 0, 34); btn.BackgroundColor3 = Color3.fromRGB(22, 28, 41); btn.TextColor3 = Color3.fromRGB(165, 175, 195); btn.Font = Enum.Font.GothamMedium; btn.TextSize = 12; btn.TextXAlignment = Enum.TextXAlignment.Left; btn.Text = "  " .. icon .. "   " .. L(labelKey)
+    local btn = Instance.new("TextButton", TabScroller); btn.Size = UDim2.new(1, -4, 0, 34); btn.BackgroundColor3 = Color3.fromRGB(25, 15, 18); btn.BackgroundTransparency = 0.3; btn.TextColor3 = Color3.fromRGB(200, 180, 185); btn.Font = Enum.Font.GothamMedium; btn.TextSize = 12; btn.TextXAlignment = Enum.TextXAlignment.Left; btn.Text = "  " .. icon .. "   " .. L(labelKey)
     Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
-    local Pill = Instance.new("Frame", btn); Pill.Size = UDim2.new(0, 3, 0, 20); Pill.Position = UDim2.new(0, 0, 0.5, -10); Pill.BackgroundColor3 = Color3.fromRGB(0, 210, 255); Pill.Visible = false; Instance.new("UICorner", Pill).CornerRadius = UDim.new(0, 2)
+    local Pill = Instance.new("Frame", btn); Pill.Size = UDim2.new(0, 3, 0, 20); Pill.Position = UDim2.new(0, 0, 0.5, -10); Pill.BackgroundColor3 = Color3.fromRGB(235, 50, 65); Pill.Visible = false; Instance.new("UICorner", Pill).CornerRadius = UDim.new(0, 2)
     
-    local page = Instance.new("ScrollingFrame", ContentContainer); page.Size = UDim2.new(1, 0, 1, 0); page.BackgroundTransparency = 1; page.BorderSizePixel = 0; page.ScrollBarThickness = 3; page.ScrollBarImageColor3 = Color3.fromRGB(0, 190, 255); page.AutomaticCanvasSize = Enum.AutomaticSize.Y; page.Visible = false
+    local page = Instance.new("ScrollingFrame", ContentContainer); page.Size = UDim2.new(1, 0, 1, 0); page.BackgroundTransparency = 1; page.BorderSizePixel = 0; page.ScrollBarThickness = 3; page.ScrollBarImageColor3 = Color3.fromRGB(235, 50, 65); page.AutomaticCanvasSize = Enum.AutomaticSize.Y; page.Visible = false
     local pl = Instance.new("UIListLayout", page); pl.Padding = UDim.new(0, 7); pl.HorizontalAlignment = Enum.HorizontalAlignment.Center
     Instance.new("UIPadding", page).PaddingTop = UDim.new(0, 12); Instance.new("UIPadding", page).PaddingBottom = UDim.new(0, 12)
 
@@ -185,8 +181,9 @@ local function createTab(nameKey, icon, labelKey)
     btn.MouseButton1Click:Connect(function()
         for tName, item in pairs(tabButtons) do
             local act = (tName == nameKey)
-            item.Button.BackgroundColor3 = act and Color3.fromRGB(0, 140, 230) or Color3.fromRGB(22, 28, 41)
-            item.Button.TextColor3 = act and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(165, 175, 195)
+            item.Button.BackgroundColor3 = act and Color3.fromRGB(210, 40, 55) or Color3.fromRGB(25, 15, 18)
+            item.Button.BackgroundTransparency = act and 0 or 0.3
+            item.Button.TextColor3 = act and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(200, 180, 185)
             item.Pill.Visible = act
         end
         for pName, p in pairs(tabPages) do p.Visible = (pName == nameKey) end
@@ -196,26 +193,26 @@ end
 
 local function createToggle(page, labelKey, defaultState, callback)
     local state = defaultState
-    local frame = Instance.new("Frame", page); frame.Size = UDim2.new(0.95, 0, 0, 36); frame.BackgroundColor3 = Color3.fromRGB(19, 25, 36); Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 6)
-    local stroke = Instance.new("UIStroke", frame); stroke.Color = Color3.fromRGB(35, 45, 65); stroke.Thickness = 1
+    local frame = Instance.new("Frame", page); frame.Size = UDim2.new(0.95, 0, 0, 36); frame.BackgroundColor3 = Color3.fromRGB(22, 14, 17); frame.BackgroundTransparency = 0.3; Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 6)
+    local stroke = Instance.new("UIStroke", frame); stroke.Color = Color3.fromRGB(55, 25, 32); stroke.Transparency = 0.2; stroke.Thickness = 1
     
-    local label = Instance.new("TextLabel", frame); label.Size = UDim2.new(1, -55, 1, 0); label.Position = UDim2.new(0, 12, 0, 0); label.BackgroundTransparency = 1; label.TextColor3 = Color3.fromRGB(230, 235, 245); label.Font = Enum.Font.GothamMedium; label.TextSize = 12; label.TextXAlignment = Enum.TextXAlignment.Left; label.Text = L(labelKey)
-    local switch = Instance.new("TextButton", frame); switch.Size = UDim2.new(0, 36, 0, 18); switch.Position = UDim2.new(1, -45, 0.5, -9); switch.BackgroundColor3 = state and Color3.fromRGB(0, 190, 255) or Color3.fromRGB(40, 48, 65); switch.Text = ""
+    local label = Instance.new("TextLabel", frame); label.Size = UDim2.new(1, -55, 1, 0); label.Position = UDim2.new(0, 12, 0, 0); label.BackgroundTransparency = 1; label.TextColor3 = Color3.fromRGB(240, 230, 235); label.Font = Enum.Font.GothamMedium; label.TextSize = 12; label.TextXAlignment = Enum.TextXAlignment.Left; label.Text = L(labelKey)
+    local switch = Instance.new("TextButton", frame); switch.Size = UDim2.new(0, 36, 0, 18); switch.Position = UDim2.new(1, -45, 0.5, -9); switch.BackgroundColor3 = state and Color3.fromRGB(235, 50, 65) or Color3.fromRGB(45, 25, 30); switch.Text = ""
     Instance.new("UICorner", switch).CornerRadius = UDim.new(1, 0)
     local circle = Instance.new("Frame", switch); circle.Size = UDim2.new(0, 14, 0, 14); circle.Position = state and UDim2.new(1, -16, 0.5, -7) or UDim2.new(0, 2, 0.5, -7); circle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     Instance.new("UICorner", circle).CornerRadius = UDim.new(1, 0)
     
     switch.MouseButton1Click:Connect(function()
-        state = not state; switch.BackgroundColor3 = state and Color3.fromRGB(0, 190, 255) or Color3.fromRGB(40, 48, 65)
+        state = not state; switch.BackgroundColor3 = state and Color3.fromRGB(235, 50, 65) or Color3.fromRGB(45, 25, 30)
         circle:TweenPosition(state and UDim2.new(1, -16, 0.5, -7) or UDim2.new(0, 2, 0.5, -7), "Out", "Quad", 0.15, true)
         if callback then callback(state) end
     end)
 end
 
 local function createButton(page, labelKey, callback)
-    local btn = Instance.new("TextButton", page); btn.Size = UDim2.new(0.95, 0, 0, 32); btn.BackgroundColor3 = Color3.fromRGB(22, 30, 45); Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
-    local stroke = Instance.new("UIStroke", btn); stroke.Color = Color3.fromRGB(0, 170, 230); stroke.Thickness = 1; stroke.Transparency = 0.3
-    btn.TextColor3 = Color3.fromRGB(0, 210, 255); btn.Font = Enum.Font.GothamMedium; btn.TextSize = 12; btn.Text = L(labelKey)
+    local btn = Instance.new("TextButton", page); btn.Size = UDim2.new(0.95, 0, 0, 32); btn.BackgroundColor3 = Color3.fromRGB(25, 15, 18); btn.BackgroundTransparency = 0.3; Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+    local stroke = Instance.new("UIStroke", btn); stroke.Color = Color3.fromRGB(235, 50, 65); stroke.Thickness = 1; stroke.Transparency = 0.4
+    btn.TextColor3 = Color3.fromRGB(255, 100, 115); btn.Font = Enum.Font.GothamMedium; btn.TextSize = 12; btn.Text = L(labelKey)
     btn.MouseButton1Click:Connect(function() if callback then callback() end end)
 end
 
@@ -230,17 +227,17 @@ local pTele = createTab("Teleport", "🚀", "Teleport")
 local pShop = createTab("Shop", "🛒", "Shop")
 local pMisc = createTab("Misc", "⚙️", "Misc")
 
-tabButtons["Farm"].Button.BackgroundColor3 = Color3.fromRGB(0, 140, 230); tabButtons["Farm"].Button.TextColor3 = Color3.fromRGB(255, 255, 255); tabButtons["Farm"].Pill.Visible = true; tabPages["Farm"].Visible = true
+tabButtons["Farm"].Button.BackgroundColor3 = Color3.fromRGB(210, 40, 55); tabButtons["Farm"].Button.BackgroundTransparency = 0; tabButtons["Farm"].Button.TextColor3 = Color3.fromRGB(255, 255, 255); tabButtons["Farm"].Pill.Visible = true; tabPages["Farm"].Visible = true
 
 -- [ TAB FARM ]
-local infoLabel = Instance.new("TextLabel", pFarm); infoLabel.Size = UDim2.new(0.95, 0, 0, 25); infoLabel.BackgroundTransparency = 1; infoLabel.TextColor3 = Color3.fromRGB(0, 255, 150); infoLabel.Font = Enum.Font.GothamBold; infoLabel.TextSize = 12; infoLabel.Text = L("StatusReady")
-local weaponSegment = Instance.new("Frame", pFarm); weaponSegment.Size = UDim2.new(0.95, 0, 0, 30); weaponSegment.BackgroundColor3 = Color3.fromRGB(16, 21, 31); Instance.new("UICorner", weaponSegment).CornerRadius = UDim.new(0, 6)
+local infoLabel = Instance.new("TextLabel", pFarm); infoLabel.Size = UDim2.new(0.95, 0, 0, 25); infoLabel.BackgroundTransparency = 1; infoLabel.TextColor3 = Color3.fromRGB(255, 100, 115); infoLabel.Font = Enum.Font.GothamBold; infoLabel.TextSize = 12; infoLabel.Text = L("StatusReady")
+local weaponSegment = Instance.new("Frame", pFarm); weaponSegment.Size = UDim2.new(0.95, 0, 0, 30); weaponSegment.BackgroundColor3 = Color3.fromRGB(22, 14, 17); weaponSegment.BackgroundTransparency = 0.3; Instance.new("UICorner", weaponSegment).CornerRadius = UDim.new(0, 6)
 local wsLayout = Instance.new("UIListLayout", weaponSegment); wsLayout.FillDirection = Enum.FillDirection.Horizontal; wsLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center; wsLayout.VerticalAlignment = Enum.VerticalAlignment.Center; wsLayout.Padding = UDim.new(0, 4)
 
 for _, wName in ipairs({"Melee", "Sword", "Blox Fruit"}) do
     local b = Instance.new("TextButton", weaponSegment)
-    b.Size = UDim2.new(0.3, 0, 0.78, 0); b.BackgroundColor3 = _G.SelectWeapon == wName and Color3.fromRGB(0, 160, 240) or Color3.fromRGB(28, 35, 48); b.TextColor3 = Color3.fromRGB(255, 255, 255); b.Font = Enum.Font.GothamMedium; b.TextSize = 10; b.Text = wName; Instance.new("UICorner", b).CornerRadius = UDim.new(0, 4)
-    b.MouseButton1Click:Connect(function() _G.SelectWeapon = wName; for _, btn in pairs(weaponSegment:GetChildren()) do if btn:IsA("TextButton") then btn.BackgroundColor3 = btn.Text == wName and Color3.fromRGB(0, 160, 240) or Color3.fromRGB(28, 35, 48) end end end)
+    b.Size = UDim2.new(0.3, 0, 0.78, 0); b.BackgroundColor3 = _G.SelectWeapon == wName and Color3.fromRGB(210, 40, 55) or Color3.fromRGB(35, 20, 25); b.TextColor3 = Color3.fromRGB(255, 255, 255); b.Font = Enum.Font.GothamMedium; b.TextSize = 10; b.Text = wName; Instance.new("UICorner", b).CornerRadius = UDim.new(0, 4)
+    b.MouseButton1Click:Connect(function() _G.SelectWeapon = wName; for _, btn in pairs(weaponSegment:GetChildren()) do if btn:IsA("TextButton") then btn.BackgroundColor3 = btn.Text == wName and Color3.fromRGB(210, 40, 55) or Color3.fromRGB(35, 20, 25) end end end)
 end
 
 createToggle(pFarm, "ToggleFarm", false, function(v) _G.AutoFarm = v end)
@@ -248,11 +245,11 @@ createToggle(pFarm, "ToggleQuest", true, function(v) _G.AutoQuest = v end)
 createToggle(pFarm, "ToggleBring", true, function(v) _G.BringMonster = v end)
 createToggle(pFarm, "ToggleFast", true, function(v) _G.FastAttack = v end)
 
--- [ TAB BOSS (Chọn Boss + Săn Toàn Bộ Boss Server) ]
+-- [ TAB BOSS ]
 createToggle(pBoss, "ToggleAutoBoss", false, function(v) _G.AutoBoss = v end)
 createToggle(pBoss, "ToggleAllBoss", false, function(v) _G.AllBossesFarm = v end)
 
-local bossSelectFrame = Instance.new("Frame", pBoss); bossSelectFrame.Size = UDim2.new(0.95, 0, 0, 36); bossSelectFrame.BackgroundColor3 = Color3.fromRGB(19, 25, 36); Instance.new("UICorner", bossSelectFrame).CornerRadius = UDim.new(0, 6)
+local bossSelectFrame = Instance.new("Frame", pBoss); bossSelectFrame.Size = UDim2.new(0.95, 0, 0, 36); bossSelectFrame.BackgroundColor3 = Color3.fromRGB(22, 14, 17); bossSelectFrame.BackgroundTransparency = 0.3; Instance.new("UICorner", bossSelectFrame).CornerRadius = UDim.new(0, 6)
 local bossSelectLbl = Instance.new("TextLabel", bossSelectFrame); bossSelectLbl.Size = UDim2.new(1, -16, 1, 0); bossSelectLbl.Position = UDim2.new(0, 8, 0, 0); bossSelectLbl.BackgroundTransparency = 1; bossSelectLbl.TextColor3 = Color3.fromRGB(255, 215, 0); bossSelectLbl.Font = Enum.Font.GothamBold; bossSelectLbl.TextSize = 11; bossSelectLbl.TextXAlignment = Enum.TextXAlignment.Left; bossSelectLbl.Text = "👑 Chọn Boss: [ Click để đổi ]"
 
 local currentBossIdx = 1
@@ -265,15 +262,15 @@ bossSelectFrame.InputBegan:Connect(function(input)
 end)
 
 local bossListLabel = Instance.new("TextLabel", pBoss)
-bossListLabel.Size = UDim2.new(0.95, 0, 0, 30); bossListLabel.BackgroundTransparency = 1; bossListLabel.TextColor3 = Color3.fromRGB(0, 255, 150); bossListLabel.Font = Enum.Font.GothamBold; bossListLabel.TextSize = 11; bossListLabel.Text = "👑 Boss Đang Sống: Quét..."
+bossListLabel.Size = UDim2.new(0.95, 0, 0, 30); bossListLabel.BackgroundTransparency = 1; bossListLabel.TextColor3 = Color3.fromRGB(255, 100, 115); bossListLabel.Font = Enum.Font.GothamBold; bossListLabel.TextSize = 11; bossListLabel.Text = "👑 Boss Đang Sống: Quét..."
 
--- [ TAB PVP (Silent Aim FOV + Accuracy Slider) ]
+-- [ TAB PVP ]
 createToggle(pPVP, "ToggleSilent", false, function(v) _G.SilentAim = v end)
 
-local fovFrame = Instance.new("Frame", pPVP); fovFrame.Size = UDim2.new(0.95, 0, 0, 40); fovFrame.BackgroundColor3 = Color3.fromRGB(16, 21, 31); Instance.new("UICorner", fovFrame).CornerRadius = UDim.new(0, 6)
-local fovLbl = Instance.new("TextLabel", fovFrame); fovLbl.Size = UDim2.new(1, -12, 0, 18); fovLbl.Position = UDim2.new(0, 8, 0, 4); fovLbl.BackgroundTransparency = 1; fovLbl.TextColor3 = Color3.fromRGB(220, 225, 235); fovLbl.Font = Enum.Font.Gotham; fovLbl.TextSize = 11; fovLbl.TextXAlignment = Enum.TextXAlignment.Left; fovLbl.Text = "FOV Silent: 120"
-local fovTrack = Instance.new("TextButton", fovFrame); fovTrack.Size = UDim2.new(0.9, 0, 0, 6); fovTrack.Position = UDim2.new(0.05, 0, 0, 26); fovTrack.BackgroundColor3 = Color3.fromRGB(35, 42, 58); fovTrack.AutoButtonColor = false; fovTrack.Text = ""; Instance.new("UICorner", fovTrack).CornerRadius = UDim.new(1, 0)
-local fovFill = Instance.new("Frame", fovTrack); fovFill.Size = UDim2.new(0.4, 0, 1, 0); fovFill.BackgroundColor3 = Color3.fromRGB(0, 190, 255); Instance.new("UICorner", fovFill).CornerRadius = UDim.new(1, 0)
+local fovFrame = Instance.new("Frame", pPVP); fovFrame.Size = UDim2.new(0.95, 0, 0, 40); fovFrame.BackgroundColor3 = Color3.fromRGB(22, 14, 17); fovFrame.BackgroundTransparency = 0.3; Instance.new("UICorner", fovFrame).CornerRadius = UDim.new(0, 6)
+local fovLbl = Instance.new("TextLabel", fovFrame); fovLbl.Size = UDim2.new(1, -12, 0, 18); fovLbl.Position = UDim2.new(0, 8, 0, 4); fovLbl.BackgroundTransparency = 1; fovLbl.TextColor3 = Color3.fromRGB(240, 230, 235); fovLbl.Font = Enum.Font.Gotham; fovLbl.TextSize = 11; fovLbl.TextXAlignment = Enum.TextXAlignment.Left; fovLbl.Text = "FOV Silent: 120"
+local fovTrack = Instance.new("TextButton", fovFrame); fovTrack.Size = UDim2.new(0.9, 0, 0, 6); fovTrack.Position = UDim2.new(0.05, 0, 0, 26); fovTrack.BackgroundColor3 = Color3.fromRGB(45, 25, 30); fovTrack.AutoButtonColor = false; fovTrack.Text = ""; Instance.new("UICorner", fovTrack).CornerRadius = UDim.new(1, 0)
+local fovFill = Instance.new("Frame", fovTrack); fovFill.Size = UDim2.new(0.4, 0, 1, 0); fovFill.BackgroundColor3 = Color3.fromRGB(235, 50, 65); Instance.new("UICorner", fovFill).CornerRadius = UDim.new(1, 0)
 
 local isDraggingFOV = false
 fovTrack.InputBegan:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then isDraggingFOV = true end end)
@@ -287,10 +284,10 @@ UserInputService.InputChanged:Connect(function(input)
     end
 end)
 
-local accFrame = Instance.new("Frame", pPVP); accFrame.Size = UDim2.new(0.95, 0, 0, 40); accFrame.BackgroundColor3 = Color3.fromRGB(16, 21, 31); Instance.new("UICorner", accFrame).CornerRadius = UDim.new(0, 6)
-local accLbl = Instance.new("TextLabel", accFrame); accLbl.Size = UDim2.new(1, -12, 0, 18); accLbl.Position = UDim2.new(0, 8, 0, 4); accLbl.BackgroundTransparency = 1; accLbl.TextColor3 = Color3.fromRGB(220, 225, 235); accLbl.Font = Enum.Font.Gotham; accLbl.TextSize = 11; accLbl.TextXAlignment = Enum.TextXAlignment.Left; accLbl.Text = "Độ Bám / Accuracy: 100%"
-local accTrack = Instance.new("TextButton", accFrame); accTrack.Size = UDim2.new(0.9, 0, 0, 6); accTrack.Position = UDim2.new(0.05, 0, 0, 26); accTrack.BackgroundColor3 = Color3.fromRGB(35, 42, 58); accTrack.AutoButtonColor = false; accTrack.Text = ""; Instance.new("UICorner", accTrack).CornerRadius = UDim.new(1, 0)
-local accFill = Instance.new("Frame", accTrack); accFill.Size = UDim2.new(1, 0, 1, 0); accFill.BackgroundColor3 = Color3.fromRGB(0, 190, 255); Instance.new("UICorner", accFill).CornerRadius = UDim.new(1, 0)
+local accFrame = Instance.new("Frame", pPVP); accFrame.Size = UDim2.new(0.95, 0, 0, 40); accFrame.BackgroundColor3 = Color3.fromRGB(22, 14, 17); accFrame.BackgroundTransparency = 0.3; Instance.new("UICorner", accFrame).CornerRadius = UDim.new(0, 6)
+local accLbl = Instance.new("TextLabel", accFrame); accLbl.Size = UDim2.new(1, -12, 0, 18); accLbl.Position = UDim2.new(0, 8, 0, 4); accLbl.BackgroundTransparency = 1; accLbl.TextColor3 = Color3.fromRGB(240, 230, 235); accLbl.Font = Enum.Font.Gotham; accLbl.TextSize = 11; accLbl.TextXAlignment = Enum.TextXAlignment.Left; accLbl.Text = "Độ Bám / Accuracy: 100%"
+local accTrack = Instance.new("TextButton", accFrame); accTrack.Size = UDim2.new(0.9, 0, 0, 6); accTrack.Position = UDim2.new(0.05, 0, 0, 26); accTrack.BackgroundColor3 = Color3.fromRGB(45, 25, 30); accTrack.AutoButtonColor = false; accTrack.Text = ""; Instance.new("UICorner", accTrack).CornerRadius = UDim.new(1, 0)
+local accFill = Instance.new("Frame", accTrack); accFill.Size = UDim2.new(1, 0, 1, 0); accFill.BackgroundColor3 = Color3.fromRGB(235, 50, 65); Instance.new("UICorner", accFill).CornerRadius = UDim.new(1, 0)
 
 local isDraggingAcc = false
 accTrack.InputBegan:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then isDraggingAcc = true end end)
@@ -304,19 +301,19 @@ UserInputService.InputChanged:Connect(function(input)
     end
 end)
 
--- [ TAB MOVE (Speed, Noclip, Super Jump, Pull Player + Keybinds) ]
+-- [ TAB MOVE ]
 local function createMovementControl(page, titleText, enabledVar, keyVar)
-    local frame = Instance.new("Frame", page); frame.Size = UDim2.new(0.95, 0, 0, 44); frame.BackgroundColor3 = Color3.fromRGB(19, 25, 36); Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 6)
-    local lbl = Instance.new("TextLabel", frame); lbl.Size = UDim2.new(1, -120, 1, 0); lbl.Position = UDim2.new(0, 12, 0, 0); lbl.BackgroundTransparency = 1; lbl.TextColor3 = Color3.fromRGB(230, 235, 245); lbl.Font = Enum.Font.GothamMedium; lbl.TextSize = 11; lbl.TextXAlignment = Enum.TextXAlignment.Left; lbl.Text = titleText
+    local frame = Instance.new("Frame", page); frame.Size = UDim2.new(0.95, 0, 0, 44); frame.BackgroundColor3 = Color3.fromRGB(22, 14, 17); frame.BackgroundTransparency = 0.3; Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 6)
+    local lbl = Instance.new("TextLabel", frame); lbl.Size = UDim2.new(1, -120, 1, 0); lbl.Position = UDim2.new(0, 12, 0, 0); lbl.BackgroundTransparency = 1; lbl.TextColor3 = Color3.fromRGB(240, 230, 235); lbl.Font = Enum.Font.GothamMedium; lbl.TextSize = 11; lbl.TextXAlignment = Enum.TextXAlignment.Left; lbl.Text = titleText
     
-    local switch = Instance.new("TextButton", frame); switch.Size = UDim2.new(0, 32, 0, 16); switch.Position = UDim2.new(1, -40, 0.5, -8); switch.BackgroundColor3 = _G[enabledVar] and Color3.fromRGB(0, 190, 255) or Color3.fromRGB(40, 48, 65); switch.Text = ""; Instance.new("UICorner", switch).CornerRadius = UDim.new(1, 0)
+    local switch = Instance.new("TextButton", frame); switch.Size = UDim2.new(0, 32, 0, 16); switch.Position = UDim2.new(1, -40, 0.5, -8); switch.BackgroundColor3 = _G[enabledVar] and Color3.fromRGB(235, 50, 65) or Color3.fromRGB(45, 25, 30); switch.Text = ""; Instance.new("UICorner", switch).CornerRadius = UDim.new(1, 0)
     local circ = Instance.new("Frame", switch); circ.Size = UDim2.new(0, 12, 0, 12); circ.Position = _G[enabledVar] and UDim2.new(1, -14, 0.5, -6) or UDim2.new(0, 2, 0.5, -6); circ.BackgroundColor3 = Color3.fromRGB(255, 255, 255); Instance.new("UICorner", circ).CornerRadius = UDim.new(1, 0)
     
-    local keyBtn = Instance.new("TextButton", frame); keyBtn.Size = UDim2.new(0, 45, 0, 20); keyBtn.Position = UDim2.new(1, -95, 0.5, -10); keyBtn.BackgroundColor3 = Color3.fromRGB(28, 35, 48); keyBtn.TextColor3 = Color3.fromRGB(0, 210, 255); keyBtn.Font = Enum.Font.GothamBold; keyBtn.TextSize = 10; keyBtn.Text = tostring(_G[keyVar].Name); Instance.new("UICorner", keyBtn).CornerRadius = UDim.new(0, 4)
+    local keyBtn = Instance.new("TextButton", frame); keyBtn.Size = UDim2.new(0, 45, 0, 20); keyBtn.Position = UDim2.new(1, -95, 0.5, -10); keyBtn.BackgroundColor3 = Color3.fromRGB(35, 20, 25); keyBtn.TextColor3 = Color3.fromRGB(255, 100, 115); keyBtn.Font = Enum.Font.GothamBold; keyBtn.TextSize = 10; keyBtn.Text = tostring(_G[keyVar].Name); Instance.new("UICorner", keyBtn).CornerRadius = UDim.new(0, 4)
     
     switch.MouseButton1Click:Connect(function()
         _G[enabledVar] = not _G[enabledVar]
-        switch.BackgroundColor3 = _G[enabledVar] and Color3.fromRGB(0, 190, 255) or Color3.fromRGB(40, 48, 65)
+        switch.BackgroundColor3 = _G[enabledVar] and Color3.fromRGB(235, 50, 65) or Color3.fromRGB(45, 25, 30)
         circ:TweenPosition(_G[enabledVar] and UDim2.new(1, -14, 0.5, -6) or UDim2.new(0, 2, 0.5, -6), "Out", "Quad", 0.15, true)
     end)
     
@@ -337,7 +334,7 @@ createMovementControl(pMove, L("ToggleNoclip"), "NoclipEnabled", "NoclipKey")
 createMovementControl(pMove, L("ToggleJump"), "JumpEnabled", "JumpKey")
 createMovementControl(pMove, L("TogglePull"), "PullEnabled", "PullKey")
 
--- [ TAB FRUIT & ESP GỘP CHUNG ]
+-- [ TAB FRUIT & ESP ]
 createToggle(pFruitEsp, "ToggleCollectFruit", false, function(v) _G.AutoCollectFruit = v end)
 createButton(pFruitEsp, "BtnGacha", function() if CommF then CommF:InvokeServer("Cousin", "Buy") end end)
 createButton(pFruitEsp, "BtnStore", function() for _, v in pairs(LocalPlayer.Backpack:GetChildren()) do if v:IsA("Tool") and string.find(v.Name, "Fruit") then CommF:InvokeServer("StoreFruit", string.split(v.Name, "-")[1], v) end end end)
@@ -349,15 +346,15 @@ createToggle(pFruitEsp, "ToggleESPIsland", false, function(v) _G.ESPIsland = v e
 
 -- [ TAB STATS ]
 createToggle(pStats, "ToggleStats", false, function(v) _G.AutoStats = v end)
-local statsAmtSeg = Instance.new("Frame", pStats); statsAmtSeg.Size = UDim2.new(0.95, 0, 0, 32); statsAmtSeg.BackgroundColor3 = Color3.fromRGB(16, 21, 31); Instance.new("UICorner", statsAmtSeg).CornerRadius = UDim.new(0, 6)
+local statsAmtSeg = Instance.new("Frame", pStats); statsAmtSeg.Size = UDim2.new(0.95, 0, 0, 32); statsAmtSeg.BackgroundColor3 = Color3.fromRGB(22, 14, 17); statsAmtSeg.BackgroundTransparency = 0.3; Instance.new("UICorner", statsAmtSeg).CornerRadius = UDim.new(0, 6)
 local saLayout = Instance.new("UIListLayout", statsAmtSeg); saLayout.FillDirection = Enum.FillDirection.Horizontal; saLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center; saLayout.VerticalAlignment = Enum.VerticalAlignment.Center; saLayout.Padding = UDim.new(0, 3)
 
 for _, amt in ipairs({1, 3, 10, 25, 50, 100}) do
     local ab = Instance.new("TextButton", statsAmtSeg)
-    ab.Size = UDim2.new(0.15, 0, 0.8, 0); ab.BackgroundColor3 = _G.StatsAmount == amt and Color3.fromRGB(0, 160, 240) or Color3.fromRGB(28, 35, 48); ab.TextColor3 = Color3.fromRGB(255, 255, 255); ab.Font = Enum.Font.GothamBold; ab.TextSize = 11; ab.Text = tostring(amt); Instance.new("UICorner", ab).CornerRadius = UDim.new(0, 4)
+    ab.Size = UDim2.new(0.15, 0, 0.8, 0); ab.BackgroundColor3 = _G.StatsAmount == amt and Color3.fromRGB(210, 40, 55) or Color3.fromRGB(35, 20, 25); ab.TextColor3 = Color3.fromRGB(255, 255, 255); ab.Font = Enum.Font.GothamBold; ab.TextSize = 11; ab.Text = tostring(amt); Instance.new("UICorner", ab).CornerRadius = UDim.new(0, 4)
     ab.MouseButton1Click:Connect(function()
         _G.StatsAmount = amt
-        for _, btn in pairs(statsAmtSeg:GetChildren()) do if btn:IsA("TextButton") then btn.BackgroundColor3 = (btn.Text == tostring(amt)) and Color3.fromRGB(0, 160, 240) or Color3.fromRGB(28, 35, 48) end end
+        for _, btn in pairs(statsAmtSeg:GetChildren()) do if btn:IsA("TextButton") then btn.BackgroundColor3 = (btn.Text == tostring(amt)) and Color3.fromRGB(210, 40, 55) or Color3.fromRGB(35, 20, 25) end end
     end)
 end
 
@@ -380,12 +377,12 @@ createButton(pShop, "BtnKen", function() if CommF then CommF:InvokeServer("BuyHa
 -- [ TAB MISC ]
 createButton(pMisc, "BtnDiscord", function() setclipboard("https://discord.gg/yourlink") end)
 
-local langSeg = Instance.new("Frame", pMisc); langSeg.Size = UDim2.new(0.95, 0, 0, 35); langSeg.BackgroundColor3 = Color3.fromRGB(16, 21, 31); Instance.new("UICorner", langSeg).CornerRadius = UDim.new(0, 6)
+local langSeg = Instance.new("Frame", pMisc); langSeg.Size = UDim2.new(0.95, 0, 0, 35); langSeg.BackgroundColor3 = Color3.fromRGB(22, 14, 17); langSeg.BackgroundTransparency = 0.3; Instance.new("UICorner", langSeg).CornerRadius = UDim.new(0, 6)
 local lgLayout = Instance.new("UIListLayout", langSeg); lgLayout.FillDirection = Enum.FillDirection.Horizontal; lgLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center; lgLayout.VerticalAlignment = Enum.VerticalAlignment.Center; lgLayout.Padding = UDim.new(0, 6)
-local langLabel = Instance.new("TextLabel", langSeg); langLabel.Size = UDim2.new(0.55, 0, 1, 0); langLabel.BackgroundTransparency = 1; langLabel.TextColor3 = Color3.fromRGB(220, 225, 235); langLabel.Font = Enum.Font.GothamMedium; langLabel.TextSize = 11; langLabel.Text = "🌐 Ngôn ngữ / Language:"
+local langLabel = Instance.new("TextLabel", langSeg); langLabel.Size = UDim2.new(0.55, 0, 1, 0); langLabel.BackgroundTransparency = 1; langLabel.TextColor3 = Color3.fromRGB(240, 230, 235); langLabel.Font = Enum.Font.GothamMedium; langLabel.TextSize = 11; langLabel.Text = "🌐 Ngôn ngữ / Language:"
 for _, lg in ipairs({"VN", "EN"}) do
     local lb = Instance.new("TextButton", langSeg)
-    lb.Size = UDim2.new(0.18, 0, 0.75, 0); lb.BackgroundColor3 = _G.Language == lg and Color3.fromRGB(0, 160, 240) or Color3.fromRGB(28, 35, 48); lb.TextColor3 = Color3.fromRGB(255, 255, 255); lb.Font = Enum.Font.GothamBold; lb.TextSize = 11; lb.Text = lg; Instance.new("UICorner", lb).CornerRadius = UDim.new(0, 4)
+    lb.Size = UDim2.new(0.18, 0, 0.75, 0); lb.BackgroundColor3 = _G.Language == lg and Color3.fromRGB(210, 40, 55) or Color3.fromRGB(35, 20, 25); lb.TextColor3 = Color3.fromRGB(255, 255, 255); lb.Font = Enum.Font.GothamBold; lb.TextSize = 11; lb.Text = lg; Instance.new("UICorner", lb).CornerRadius = UDim.new(0, 4)
     lb.MouseButton1Click:Connect(function()
         _G.Language = lg
         Title.Text = L("Title")
@@ -395,7 +392,7 @@ for _, lg in ipairs({"VN", "EN"}) do
                 tabButtons[tabKey].Button.Text = "  " .. icon .. "   " .. L(tabButtons[tabKey].Key)
             end
         end
-        for _, btn in pairs(langSeg:GetChildren()) do if btn:IsA("TextButton") then btn.BackgroundColor3 = (btn.Text == lg) and Color3.fromRGB(0, 160, 240) or Color3.fromRGB(28, 35, 48) end end
+        for _, btn in pairs(langSeg:GetChildren()) do if btn:IsA("TextButton") then btn.BackgroundColor3 = (btn.Text == lg) and Color3.fromRGB(210, 40, 55) or Color3.fromRGB(35, 20, 25) end end
     end)
 end
 
@@ -404,7 +401,7 @@ createToggle(pMisc, "ToggleLag", false, function(v) Lighting.GlobalShadows = not
 createButton(pMisc, "BtnRejoin", function() TeleportService:Teleport(game.PlaceId, LocalPlayer) end)
 
 -- =========================================================
--- LOGIC TÍNH NĂNG TOÀN DIỆN (TWEEN FLIGHT, BOSS, ESP, PULL)
+-- LOGIC TÍNH NĂNG TOÀN DIỆN (FIX KHỬ LÓA, ESP, SPEED, JUMP, FAST ATTACK MAX)
 -- =========================================================
 local currentTween = nil
 function topos(targetCFrame)
@@ -426,7 +423,7 @@ function topos(targetCFrame)
     end
 end
 
--- Keybinds Handling & Status HUD Update
+-- Keybinds Handling
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if not gameProcessed and input.UserInputType == Enum.UserInputType.Keyboard then
         if input.KeyCode == _G.SpeedKey then _G.SpeedEnabled = not _G.SpeedEnabled end
@@ -451,16 +448,22 @@ RunService.RenderStepped:Connect(function()
         local hum = char and char:FindFirstChildOfClass("Humanoid")
         
         if hum then
-            hum.WalkSpeed = _G.SpeedEnabled and 30 or 16
-            hum.JumpPower = _G.JumpEnabled and 150 or 50
+            hum.WalkSpeed = _G.SpeedEnabled and _G.SpeedVal or 16
+            hum.JumpPower = _G.JumpEnabled and _G.JumpVal or 50
         end
         if _G.NoclipEnabled and char then
             for _, part in ipairs(char:GetDescendants()) do if part:IsA("BasePart") then part.CanCollide = false end end
         end
         
-        -- Cập nhật Status HUD chỉ hiện khi có phím/tính năng bật
+        -- Khử hiệu ứng chớp sáng lóa màn hình sau khi giết quái
+        for _, obj in pairs(Workspace:GetDescendants()) do
+            if obj:IsA("ParticleEmitter") and (string.find(obj.Name, "Explosion") or string.find(obj.Name, "Flash") or string.find(obj.Name, "Effect")) then
+                obj.Rate = 0
+            end
+        end
+
+        -- Cập nhật Status HUD
         local activeList = {}
-        if _G.AutoFarm then table.insert(activeList, "⚡ Auto Farm: ON") end
         if _G.SpeedEnabled then table.insert(activeList, "🏃 Speed ["..tostring(_G.SpeedKey.Name).."]: ON") end
         if _G.NoclipEnabled then table.insert(activeList, "👻 Noclip ["..tostring(_G.NoclipKey.Name).."]: ON") end
         if _G.JumpEnabled then table.insert(activeList, "🦘 Jump ["..tostring(_G.JumpKey.Name).."]: ON") end
@@ -478,7 +481,7 @@ end)
 -- Vòng tròn FOV cố định giữa màn hình Silent Aim
 local FOVCircle = Drawing.new("Circle")
 FOVCircle.Visible = false
-FOVCircle.Color = Color3.fromRGB(0, 210, 255)
+FOVCircle.Color = Color3.fromRGB(235, 50, 65)
 FOVCircle.Thickness = 1.5
 FOVCircle.Filled = false
 
@@ -510,7 +513,88 @@ RunService.RenderStepped:Connect(function()
 end)
 
 -- =========================================================
--- LOGIC AUTO FARM, BOSS SCANNER & AUTO COLLECT FRUIT
+-- LOGIC ESP TOÀN DIỆN (PLAYERS, CHESTS, FRUITS, NPCS, ISLANDS)
+-- =========================================================
+task.spawn(function()
+    while task.wait(1) do
+        if _G.ESPPlayer then
+            for _, p in ipairs(Players:GetPlayers()) do
+                if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("Head") then
+                    local head = p.Character.Head
+                    if not head:FindFirstChild("Z_ESP_Plr") then
+                        local gui = Instance.new("BillboardGui", head); gui.Name = "Z_ESP_Plr"; gui.Size = UDim2.new(0, 200, 0, 40); gui.AlwaysOnTop = true; gui.StudsOffset = Vector3.new(0, 3, 0)
+                        local txt = Instance.new("TextLabel", gui); txt.Size = UDim2.new(1,0,1,0); txt.BackgroundTransparency = 1; txt.TextSize = 12; txt.TextColor3 = Color3.fromRGB(235, 50, 65); txt.Font = Enum.Font.GothamBold; txt.TextStrokeTransparency = 0
+                    end
+                    local dist = math.floor((head.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude)
+                    head.Z_ESP_Plr.TextLabel.Text = p.Name .. " [" .. dist .. "m]"
+                end
+            end
+        else
+            for _, p in ipairs(Players:GetPlayers()) do if p.Character and p.Character:FindFirstChild("Head") and p.Character.Head:FindFirstChild("Z_ESP_Plr") then p.Character.Head.Z_ESP_Plr:Destroy() end end
+        end
+
+        if _G.ESPChest then
+            for _, chest in ipairs(game:GetService("CollectionService"):GetTagged("_ChestTagged")) do
+                if not chest:GetAttribute("IsDisabled") then
+                    if not chest:FindFirstChild("Z_ESP_Chest") then
+                        local gui = Instance.new("BillboardGui", chest); gui.Name = "Z_ESP_Chest"; gui.Size = UDim2.new(0, 200, 0, 40); gui.AlwaysOnTop = true; gui.StudsOffset = Vector3.new(0, 2, 0)
+                        local txt = Instance.new("TextLabel", gui); txt.Size = UDim2.new(1,0,1,0); txt.BackgroundTransparency = 1; txt.TextSize = 12; txt.TextColor3 = Color3.fromRGB(255, 215, 0); txt.Font = Enum.Font.GothamBold; txt.TextStrokeTransparency = 0
+                    end
+                    local dist = math.floor((chest:GetPivot().Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude)
+                    chest.Z_ESP_Chest.TextLabel.Text = "Chest [" .. dist .. "m]"
+                elseif chest:FindFirstChild("Z_ESP_Chest") then chest.Z_ESP_Chest:Destroy() end
+            end
+        else
+            for _, chest in ipairs(game:GetService("CollectionService"):GetTagged("_ChestTagged")) do if chest:FindFirstChild("Z_ESP_Chest") then chest.Z_ESP_Chest:Destroy() end end
+        end
+
+        if _G.ESPFruit then
+            for _, v in pairs(Workspace:GetChildren()) do
+                if v:IsA("Tool") and string.find(v.Name, "Fruit") and v:FindFirstChild("Handle") then
+                    local handle = v.Handle
+                    if not handle:FindFirstChild("Z_ESP_Fruit") then
+                        local gui = Instance.new("BillboardGui", handle); gui.Name = "Z_ESP_Fruit"; gui.Size = UDim2.new(0, 200, 0, 40); gui.AlwaysOnTop = true; gui.StudsOffset = Vector3.new(0, 2, 0)
+                        local txt = Instance.new("TextLabel", gui); txt.Size = UDim2.new(1,0,1,0); txt.BackgroundTransparency = 1; txt.TextSize = 12; txt.TextColor3 = Color3.fromRGB(255, 50, 50); txt.Font = Enum.Font.GothamBold; txt.TextStrokeTransparency = 0
+                    end
+                    local dist = math.floor((handle.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude)
+                    handle.Z_ESP_Fruit.TextLabel.Text = "🍎 " .. v.Name .. " [" .. dist .. "m]"
+                end
+            end
+        else
+            for _, v in pairs(Workspace:GetChildren()) do if v:IsA("Tool") and string.find(v.Name, "Fruit") and v:FindFirstChild("Handle") and v.Handle:FindFirstChild("Z_ESP_Fruit") then v.Handle.Z_ESP_Fruit:Destroy() end end
+        end
+
+        if _G.ESPNPC then
+            for _, npc in pairs(Workspace:GetChildren()) do
+                if npc:FindFirstChild("HumanoidRootPart") and not Players:GetPlayerFromCharacter(npc) then
+                    local hrp = npc.HumanoidRootPart
+                    if not hrp:FindFirstChild("Z_ESP_NPC") then
+                        local gui = Instance.new("BillboardGui", hrp); gui.Name = "Z_ESP_NPC"; gui.Size = UDim2.new(0, 200, 0, 40); gui.AlwaysOnTop = true; gui.StudsOffset = Vector3.new(0, 3, 0)
+                        local txt = Instance.new("TextLabel", gui); txt.Size = UDim2.new(1,0,1,0); txt.BackgroundTransparency = 1; txt.TextSize = 11; txt.TextColor3 = Color3.fromRGB(0, 255, 100); txt.Font = Enum.Font.GothamBold; txt.TextStrokeTransparency = 0
+                    end
+                    hrp.Z_ESP_NPC.TextLabel.Text = "👤 " .. npc.Name
+                end
+            end
+        end
+
+        if _G.ESPIsland then
+            local map = Workspace:FindFirstChild("_WorldOrigin") and Workspace._WorldOrigin:FindFirstChild("Locations")
+            if map then
+                for _, loc in pairs(map:GetChildren()) do
+                    if not loc:FindFirstChild("Z_ESP_Island") then
+                        local gui = Instance.new("BillboardGui", loc); gui.Name = "Z_ESP_Island"; gui.Size = UDim2.new(0, 200, 0, 40); gui.AlwaysOnTop = true; gui.StudsOffset = Vector3.new(0, 10, 0)
+                        local txt = Instance.new("TextLabel", gui); txt.Size = UDim2.new(1,0,1,0); txt.BackgroundTransparency = 1; txt.TextSize = 13; txt.TextColor3 = Color3.fromRGB(200, 100, 255); txt.Font = Enum.Font.GothamBold; txt.TextStrokeTransparency = 0
+                    end
+                    local dist = math.floor((loc.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude)
+                    loc.Z_ESP_Island.TextLabel.Text = "🏝️ " .. loc.Name .. " [" .. dist .. "m]"
+                end
+            end
+        end
+    end
+end)
+
+-- =========================================================
+-- LOGIC AUTO FARM, BOSS & AUTO COLLECT FRUIT
 -- =========================================================
 function EquipWeapon(weaponType)
     pcall(function()
@@ -589,7 +673,7 @@ spawn(function()
     end
 end)
 
--- Auto Boss & All Bosses in Server Scanner
+-- Auto Boss & All Bosses
 task.spawn(function()
     while task.wait(1) do
         pcall(function()
@@ -630,7 +714,7 @@ task.spawn(function()
     end
 end)
 
--- Auto Collect Fruit (Bay đi nhặt trái ác quỷ)
+-- Auto Collect Fruit
 task.spawn(function()
     while task.wait(0.5) do
         if _G.AutoCollectFruit then
@@ -670,7 +754,7 @@ spawn(function()
     end
 end)
 
--- Fast Attack 120m
+-- Fast Attack Siêu Tốc (Turbo Max Speed)
 local v1 = next; local v2 = {ReplicatedStorage.Util, ReplicatedStorage.Common, ReplicatedStorage.Remotes, ReplicatedStorage.Assets, ReplicatedStorage.FX}; local v3, u4, u5 = nil, nil, nil
 task.spawn(function()
     while true do
@@ -687,7 +771,7 @@ task.spawn(function()
 end)
 
 task.spawn(function()
-    while task.wait(0.00001) do
+    while task.wait() do
         if (_G.AutoFarm or _G.GlobalFarmActive) and _G.FastAttack then
             pcall(function()
                 local _Character = LocalPlayer.Character; local v13 = _Character and _Character:FindFirstChild('HumanoidRootPart'); if not v13 then return end
