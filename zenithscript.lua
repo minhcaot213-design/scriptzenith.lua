@@ -1,5 +1,5 @@
--- [[ ZENITH BLOX FRUIT - V24.0 (TRUE GROUND FARM + 4X ATTACK CORE)
---    FIX LỖI TẦM ĐÁNH - SÁT THƯƠNG NỔ 100% TRÊN MỌI EXECUTOR
+-- [[ ZENITH BLOX FRUIT - V25.0 (TRUE HACKER SKY MAGNET)
+--    HÚT QUÁI LÊN TRỜI CAO 35M - BẤT TỬ - CHÉM AURA KHÔNG VUNG TAY
 -- ]] --
 
 task.wait(0.5)
@@ -73,7 +73,7 @@ local IslandPositions = {
 -- =========================================================
 -- GIAO DIỆN HIỆN ĐẠI (CHỐNG LỖI HIỂN THỊ)
 -- =========================================================
-local UI_NAME = "ZenithTrueHub_V24"
+local UI_NAME = "ZenithTrueHub_V25"
 local function GetSafeParent()
     local success, parent = pcall(function() return gethui() end)
     if success and parent then return parent end
@@ -121,7 +121,7 @@ local TopBar = Instance.new("Frame", MainFrame)
 TopBar.Size = UDim2.new(1, 0, 0, 38); TopBar.BackgroundColor3 = Color3.fromRGB(14, 18, 27); TopBar.BorderSizePixel = 0
 local Title = Instance.new("TextLabel", TopBar)
 Title.Size = UDim2.new(0, 240, 1, 0); Title.Position = UDim2.new(0, 15, 0, 0); Title.BackgroundTransparency = 1; Title.RichText = true; Title.TextColor3 = Color3.fromRGB(255, 255, 255); Title.Font = Enum.Font.GothamBold; Title.TextSize = 12; Title.TextXAlignment = Enum.TextXAlignment.Left
-Title.Text = "ZYROX VN <font color='#00d2ff'>• V24 (TRUE GROUND FARM)</font>"
+Title.Text = "ZYROX VN <font color='#00d2ff'>• V25 (SKY MAGNET HACK)</font>"
 
 local CloseBtn = Instance.new("TextButton", TopBar); CloseBtn.Size = UDim2.new(0, 24, 0, 24); CloseBtn.Position = UDim2.new(1, -28, 0.5, -12); CloseBtn.BackgroundColor3 = Color3.fromRGB(255, 60, 90); CloseBtn.Text = "✕"; CloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255); CloseBtn.Font = Enum.Font.GothamBold; CloseBtn.TextSize = 10; Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(0, 5)
 local MinBtn = Instance.new("TextButton", TopBar); MinBtn.Size = UDim2.new(0, 24, 0, 24); MinBtn.Position = UDim2.new(1, -56, 0.5, -12); MinBtn.BackgroundColor3 = Color3.fromRGB(22, 26, 38); MinBtn.Text = "−"; MinBtn.TextColor3 = Color3.fromRGB(160, 170, 190); MinBtn.Font = Enum.Font.GothamBold; MinBtn.TextSize = 13; Instance.new("UICorner", MinBtn).CornerRadius = UDim.new(0, 5)
@@ -205,12 +205,12 @@ for _, wData in ipairs(weaponList) do
     end)
 end
 
-createToggle(farmPage, "⚡ Kích Hoạt Auto Farm (Bypass)", false, function(v) AutoFarmLevel = v end)
+createToggle(farmPage, "⚡ Kích Hoạt Auto Farm (VIP)", false, function(v) AutoFarmLevel = v end)
 createToggle(farmPage, "📜 Tự Nhận Nhiệm Vụ", true, function(v) AutoQuest = v end)
-createToggle(farmPage, "🧲 Gom Quái (Cự Ly 7 Mét Chuẩn)", true, function(v) BringMob = v end)
+createToggle(farmPage, "🧲 Hút Quái Lên Trời (Sky Magnet)", true, function(v) BringMob = v end)
 
 -- =========================================================
--- ĐỔI VŨ KHÍ TỰ ĐỘNG NATIVE
+-- ĐỔI VŨ KHÍ TỰ ĐỘNG
 -- =========================================================
 task.spawn(function()
     while task.wait(0.5) do
@@ -235,7 +235,6 @@ task.spawn(function()
                     end
                 end
                 
-                -- TỰ ĐỘNG BẬT HAKI
                 if not char:FindFirstChild("HasBuso") and CommF then
                     CommF:InvokeServer("Buso")
                 end
@@ -245,7 +244,7 @@ task.spawn(function()
 end)
 
 -- =========================================================
--- ĐỘNG CƠ BAY (C-FRAME TIMESTEP) - CHỐNG RƠI 100%
+-- ĐỘNG CƠ BAY C-FRAME TIMESTEP
 -- =========================================================
 local FlyTarget = nil
 
@@ -255,11 +254,17 @@ RunService.Heartbeat:Connect(function(deltaTime)
             local hrp = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
             local hum = LocalPlayer.Character:FindFirstChild("Humanoid")
             if hrp and hum then
-                -- Xóa vật lý chống kẹt
                 for _, part in ipairs(LocalPlayer.Character:GetDescendants()) do
                     if part:IsA("BasePart") then part.CanCollide = false end
                 end
                 hum.Sit = false
+
+                -- Giữ chân người chơi không bị rơi
+                local bv = hrp:FindFirstChild("GodMode_BV")
+                if not bv then
+                    bv = Instance.new("BodyVelocity")
+                    bv.Name = "GodMode_BV"; bv.MaxForce = Vector3.new(0, math.huge, 0); bv.Velocity = Vector3.new(0, 0, 0); bv.Parent = hrp
+                end
 
                 local dist = (hrp.Position - FlyTarget.Position).Magnitude
                 if dist > 3 then
@@ -275,61 +280,54 @@ RunService.Heartbeat:Connect(function(deltaTime)
                 end
                 hrp.AssemblyLinearVelocity = Vector3.zero
             end
+        else
+            local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+            if hrp and hrp:FindFirstChild("GodMode_BV") then hrp.GodMode_BV:Destroy() end
         end
     end)
 end)
 
 -- =========================================================
--- LÕI TẤN CÔNG 4 TẦNG (100% NỔ SÁT THƯƠNG TRÊN MỌI APP)
+-- LÕI TẤN CÔNG (TRUE AURA SLASH - KHÔNG VUNG TAY NHƯ HACK XỊN)
 -- =========================================================
+local function GetActiveControllerSafe()
+    local success, result = pcall(function()
+        local CbFw = require(LocalPlayer.PlayerScripts.CombatFramework)
+        if CbFw.activeController then return CbFw.activeController end
+        local getupvals = debug.getupvalues or getupvalues
+        if getupvals then
+            for _, v in pairs(getupvals(CbFw)) do
+                if type(v) == "table" and v.activeController then return v.activeController end
+            end
+        end
+        return nil
+    end)
+    if success then return result else return nil end
+end
+
 task.spawn(function()
-    while task.wait(0.05) do
+    while task.wait() do
         if AutoFarmLevel and FlyTarget then
             pcall(function()
                 local myHRP = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
                 if myHRP then
                     local dist = (myHRP.Position - FlyTarget.Position).Magnitude
-                    -- CHỈ CHÉM KHI KHOẢNG CÁCH BAY < 5 MÉT (ĐÃ ĐẾN NƠI)
-                    if dist <= 5 then
-                        -- TẦNG 1: VIRTUAL INPUT (CHUỘT ẢO NATIVE CỦA ROBLOX - VÔ ĐỐNG CƠ)
-                        pcall(function()
-                            VirtualInputManager:SendMouseButtonEvent(Camera.ViewportSize.X/2, Camera.ViewportSize.Y/2, 0, true, game, 1)
-                            VirtualInputManager:SendMouseButtonEvent(Camera.ViewportSize.X/2, Camera.ViewportSize.Y/2, 0, false, game, 1)
-                        end)
-                        
-                        -- TẦNG 2: MOUSE1CLICK (DÀNH CHO DELTA/FLUXUS VIP)
-                        if mouse1click then pcall(mouse1click) end
-                        
-                        -- TẦNG 3: COMBAT FRAMEWORK MEMORY HOOK
-                        pcall(function()
-                            local CbFw = require(LocalPlayer.PlayerScripts.CombatFramework)
-                            local ac = CbFw.activeController
-                            if not ac then
-                                local get_upv = getupvalues or getupvalue or debug.getupvalues
-                                if get_upv then
-                                    for _, v in pairs(get_upv(CbFw)) do
-                                        if type(v) == "table" and v.activeController then ac = v.activeController break end
-                                    end
-                                end
-                            end
-                            
-                            if ac and ac.equipped then
-                                ac.hitboxLimiter = 0
-                                ac.timeToNextAttack = 0
-                                ac.timeToNextBlock = 0
-                                ac.increment = 3
-                                ac.attacking = false
-                                ac.blocking = false
-                                ac.hasCombatState = false
-                                ac:attack()
-                            end
-                        end)
-                        
-                        -- TẦNG 4: ACTIVATE TRỰC TIẾP VŨ KHÍ
-                        pcall(function()
-                            local tool = LocalPlayer.Character:FindFirstChildOfClass("Tool")
-                            if tool then tool:Activate() end
-                        end)
+                    if dist <= 10 then
+                        -- CHÉM AURA BẰNG LÕI MEMORY (GAME TỰ GỬI RPC)
+                        local controller = GetActiveControllerSafe()
+                        if controller then
+                            controller.hitboxLimiter = 0
+                            controller.timeToNextAttack = 0
+                            controller.timeToNextBlock = 0
+                            controller.increment = 3
+                            controller.attacking = false
+                            controller.blocking = false
+                            controller:attack()
+                        end
+
+                        -- NẾU LÕI MEMORY BỊ EXECUTOR CHẶN, XÀI CHUỘT ẢO BACKUP (NHƯNG KHÔNG DÙNG TOOL:ACTIVATE ĐỂ KHÔNG VUNG TAY)
+                        VirtualUser:CaptureController()
+                        VirtualUser:ClickButton1(Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y/2))
                     end
                 end
             end)
@@ -337,8 +335,28 @@ task.spawn(function()
     end
 end)
 
+-- ÉP TẮT ANIMATION TAY ĐỂ RA DÁNG HACKER PRO
+RunService.Stepped:Connect(function()
+    pcall(function()
+        if AutoFarmLevel and LocalPlayer.Character then
+            local hum = LocalPlayer.Character:FindFirstChild("Humanoid")
+            if hum then
+                local animator = hum:FindFirstChild("Animator")
+                if animator then
+                    for _, anim in ipairs(animator:GetPlayingAnimationTracks()) do
+                        local name = anim.Name:lower()
+                        if name:match("attack") or name:match("punch") or name:match("slash") or name:match("swing") or name:match("m1") then
+                            anim:Stop()
+                        end
+                    end
+                end
+            end
+        end
+    end)
+end)
+
 -- =========================================================
--- LOGIC NHIỆM VỤ & GPS MAP
+-- LOGIC NHIỆM VỤ & SKY MAGNET (HÚT QUÁI LÊN TRỜI CAO)
 -- =========================================================
 local IslandPositions = {
     ["Bandit"] = Vector3.new(1057, 16, 1378),
@@ -435,22 +453,23 @@ task.spawn(function()
                     local targetMob = getClosestMob(mobName)
                     local targetPos = nil
 
+                    -- TÌM BÃI QUÁI
                     if targetMob and targetMob:FindFirstChild("HumanoidRootPart") then
                         local primaryHRP = targetMob.HumanoidRootPart
                         if not lockedFarmPosition or (lockedFarmPosition.Position - primaryHRP.Position).Magnitude > 300 then
                             lockedFarmPosition = primaryHRP.CFrame
                         end
-                        -- CỰ LY VÀNG: BẠN SẼ LƠ LỬNG CAO ĐÚNG 7 MÉT SO VỚI GỐC BÃI QUÁI
-                        targetPos = CFrame.new(lockedFarmPosition.Position.X, lockedFarmPosition.Position.Y + 7, lockedFarmPosition.Position.Z)
+                        -- BẠN TÀNG HÌNH TRÊN TRỜI CAO 35 MÉT SO VỚI GỐC BÃI QUÁI
+                        targetPos = CFrame.new(lockedFarmPosition.Position.X, lockedFarmPosition.Position.Y + 35, lockedFarmPosition.Position.Z)
                     else
                         lockedFarmPosition = nil
                         local spawnCFrame = GetMobSpawn(mobName)
                         if spawnCFrame then
                             lockedFarmPosition = spawnCFrame
-                            targetPos = CFrame.new(spawnCFrame.Position.X, spawnCFrame.Position.Y + 7, spawnCFrame.Position.Z)
+                            targetPos = CFrame.new(spawnCFrame.Position.X, spawnCFrame.Position.Y + 35, spawnCFrame.Position.Z)
                         elseif IslandPositions[mobName] then
                             lockedFarmPosition = CFrame.new(IslandPositions[mobName])
-                            targetPos = CFrame.new(IslandPositions[mobName] + Vector3.new(0, 7, 0))
+                            targetPos = CFrame.new(IslandPositions[mobName] + Vector3.new(0, 35, 0))
                         end
                     end
 
@@ -461,8 +480,8 @@ task.spawn(function()
                         local dist = (myHRP.Position - targetPos.Position).Magnitude
                         
                         if dist <= 5 then
-                            -- ÉP NHÌN VÀO TỌA ĐỘ GỐC CỦA QUÁI Ở DƯỚI MẶT ĐẤT
-                            myHRP.CFrame = CFrame.lookAt(targetPos.Position, lockedFarmPosition.Position)
+                            -- Ép nhìn về phía trước
+                            myHRP.CFrame = CFrame.lookAt(targetPos.Position, targetPos.Position + Vector3.new(1, 0, 0))
 
                             if BringMob then
                                 for _, mob in ipairs(Workspace.Enemies:GetChildren()) do
@@ -470,17 +489,28 @@ task.spawn(function()
                                         local oHRP = mob:FindFirstChild("HumanoidRootPart")
                                         local oHum = mob:FindFirstChildOfClass("Humanoid")
                                         if oHRP and oHum and oHum.Health > 0 then
-                                            -- ĐƯA QUÁI VỀ CHÍNH XÁC MẶT ĐẤT (CÁCH BẠN 7 MÉT DỌC). 100% TRÚNG HITBOX.
-                                            oHRP.CFrame = lockedFarmPosition
-                                            oHRP.Size = Vector3.new(10, 10, 10)
+                                            -- ĐEM QUÁI LÊN TẬN TRỜI, ĐẶT NGAY TRƯỚC MẶT BẠN (CÁCH 5 MÉT, THẤP HƠN 5 MÉT)
+                                            oHRP.CFrame = targetPos * CFrame.new(0, -5, -5)
+                                            -- HITBOX KHỔNG LỒ 60 MÉT ĐỂ 100% NHẬN SÁT THƯƠNG AURA
+                                            oHRP.Size = Vector3.new(60, 60, 60)
                                             oHRP.Transparency = 1
                                             oHRP.CanCollide = false
-                                            oHRP.AssemblyLinearVelocity = Vector3.zero
                                             
+                                            -- KHÓA CỨNG QUÁI TRÊN KHÔNG (CHỐNG RỚT CHỐNG CHẠY)
+                                            oHRP.AssemblyLinearVelocity = Vector3.zero
+                                            local mobBv = oHRP:FindFirstChild("MobAntiFall")
+                                            if not mobBv then
+                                                mobBv = Instance.new("BodyVelocity")
+                                                mobBv.Name = "MobAntiFall"
+                                                mobBv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+                                                mobBv.Velocity = Vector3.zero
+                                                mobBv.Parent = oHRP
+                                            end
+
                                             oHum.WalkSpeed = 0
                                             oHum.JumpPower = 0
                                             oHum.Sit = true
-                                            oHum:ChangeState(11) -- Tắt AI vật lý
+                                            oHum:ChangeState(11) -- Tắt AI
                                         end
                                     end
                                 end
