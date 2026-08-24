@@ -51,6 +51,7 @@ _G.AutoFarmBone = false; _G.AutoFarmTakakuri = false; _G.TakakuriCount = 0
 _G.AutoBoss = false; _G.AllBossesFarm = false; _G.SelectedBossName = "None"
 _G.AutoSeaBeast = false; _G.AutoGhostShip = false
 _G.BoatSpeedEnabled = false; _G.BoatSpeedVal = 1.5; _G.BoatFlyHeight = 30
+_G.AutoLeaveAdmin = false -- BIẾN MỚI CHỐNG ADMIN
 
 local World1 = game.PlaceId == 2753915549 or game.PlaceId == 85211729168715
 local World2 = game.PlaceId == 4442272183 or game.PlaceId == 79091703265657
@@ -69,9 +70,9 @@ local Loc = {
     VN = {
         Title = "Zyrox | <font color='#ff3344'>Blox Fruit v3.6</font>",
         Farm = "Cày Cấp", FarmItem = "Farm Item", Boss = "Săn Boss", PVP = "PVP & Aim", FruitEsp = "Trái & ESP", Stats = "Nâng Điểm", Teleport = "Dịch Chuyển", Shop = "Cửa Hàng", Misc = "Cài Đặt", SeaQuest = "Nhiệm Vụ Biển",
-        StatusReady = "Trạng thái: REDZ LOGIC - FIX FULL LỖI KHỰNG & HUD!",
-        ToggleFarm = "⚡ Auto Farm Level", ToggleQuest = "📜 Tự Nhận Nhiệm Vụ", ToggleBring = "🧲 Kéo Quái (Bring Mob)", ToggleFast = "⚔️ Fast Attack (ULTRA MAX)",
-        ToggleAutoClick = "⚔️ Auto Click (Tự Động Đánh Tại Chỗ)",
+        StatusReady = "Trạng thái: ĐÃ FIX ĐỨNG IM CỐ ĐỊNH & THÊM ANTI-ADMIN!",
+        ToggleFarm = "⚡ Auto Farm Level", ToggleQuest = "📜 Tự Nhận Nhiệm Vụ", ToggleBring = "🧲 Kéo Quái (Mặt Đất)", ToggleFast = "⚔️ Fast Attack (ULTRA MAX)",
+        ToggleAutoClick = "⚔️ Auto Click (Tự Động Đánh)",
         ToggleItemFarm = "🦴 Auto Farm Item / Vật Phẩm", ToggleAutoBoss = "👑 Auto Farm Boss Đã Chọn", ToggleAllBoss = "🔥 Đánh Toàn Bộ Boss Trong Server",
         ToggleSilent = "🎯 Silent Aim (Legit FOV)", ToggleSpeed = "🏃 Chạy Nhanh (Speed)", ToggleNoclip = "👻 Đi Xuyên Tường (Noclip)", ToggleJump = "🦘 Nhảy Cao (Super Jump)", TogglePull = "🧲 Kéo Địch (Pull Player)",
         ToggleCollectFruit = "🍎 Auto Bay Nhặt Trái Ác Quỷ", ToggleESPPlr = "👁️ ESP Người Chơi", ToggleESPChest = "📦 ESP Rương Kho Báu", ToggleESPFruit = "🍎 ESP Trái Ác Quỷ", ToggleESPNPC = "👤 ESP NPC", ToggleESPIsland = "🏝️ ESP Đảo",
@@ -80,19 +81,19 @@ local Loc = {
         BtnGeppo = "🦵 Mua Geppo (10k)", BtnBuso = "🛡️ Mua Buso Haki (25k)", BtnSoru = "🏃 Mua Soru (100k)", BtnKen = "👁️ Mua Ken Haki (750k)",
         BtnBuySword = "⚔️ Mua Kiếm / Mua Vũ Khí", BtnBuyGun = "🔫 Mua Súng", BtnBuyStyle = "🥊 Mua Võ (Fighting Style)",
         BtnDiscord = "💬 Mở Link Discord Của Tôi", BtnCode = "🎁 Nhập Tất Cả Giftcode", ToggleLag = "🚀 Chống Lag / Khử Lóa", BtnRejoin = "🔄 Vào Lại Server", ToggleHUD = "📊 Hiện Bảng Status HUD",
+        ToggleAutoLeaveAdmin = "🛡️ Tự Động Thoát Khi Có Admin Vào (Anti Ban)",
         ToggleAutoFarmBone = "🦴 Auto Farm Bone (Rải Rác)", ToggleAutoFarmTakakuri = "🐉 Auto Farm Takakuri", LabelBoneCount = "🦴 Số Bone: ", LabelTakakuriCount = "🐉 Takakuri còn lại: ",
         ToggleBoatSpeed = "🚤 Tăng Tốc Thuyền", BoatSpeedLabel = "⚡ Tốc độ thuyền: ", BoatFlyHeightLabel = "🚀 Độ Bay Cao Thuyền: ",
         ToggleAutoSeaBeast = "🐋 Auto Farm Sea Beast", ToggleAutoGhostShip = "👻 Auto Farm Thuyền Ma",
-        CloseAll = "❌ Đóng Tất Cả",
         SelectStyle = "🥊 Chọn Võ Cần Mua:",
         BtnBuySelectedStyle = "🥊 Mua Võ Đã Chọn"
     },
     EN = {
         Title = "Zyrox | <font color='#ff3344'>Blox Fruit v3.6</font>",
         Farm = "Auto Farm", FarmItem = "Farm Item", Boss = "Boss Hunt", PVP = "PVP & Aim", FruitEsp = "Fruit & ESP", Stats = "Stats", Teleport = "Teleport", Shop = "Shop", Misc = "Settings", SeaQuest = "Sea Quest",
-        StatusReady = "Status: REDZ LOGIC - STUTTER & HUD FIXED 100%!",
-        ToggleFarm = "⚡ Auto Farm Level", ToggleQuest = "📜 Auto Quest", ToggleBring = "🧲 Bring Mob (Ground Magnet)", ToggleFast = "⚔️ Fast Attack (ULTRA MAX)",
-        ToggleAutoClick = "⚔️ Auto Click (Attack in place)",
+        StatusReady = "Status: AFK STATIC LOCK & ANTI-ADMIN ADDED!",
+        ToggleFarm = "⚡ Auto Farm Level", ToggleQuest = "📜 Auto Quest", ToggleBring = "🧲 Bring Mob (Ground Lock)", ToggleFast = "⚔️ Fast Attack (ULTRA MAX)",
+        ToggleAutoClick = "⚔️ Auto Click (Attack)",
         ToggleItemFarm = "🦴 Auto Farm Items / Materials", ToggleAutoBoss = "👑 Auto Farm Selected Boss", ToggleAllBoss = "🔥 Farm All Bosses In Server",
         ToggleSilent = "🎯 Silent Aim (Legit FOV)", ToggleSpeed = "🏃 Enable Speed", ToggleNoclip = "👻 Enable Noclip", ToggleJump = "🦘 Super Jump", TogglePull = "🧲 Pull Player",
         ToggleCollectFruit = "🍎 Auto Collect Fruits", ToggleESPPlr = "👁️ ESP Players", ToggleESPChest = "📦 ESP Chests", ToggleESPFruit = "🍎 ESP Fruits", ToggleESPNPC = "👤 ESP NPCs", ToggleESPIsland = "🏝️ ESP Islands",
@@ -101,10 +102,10 @@ local Loc = {
         BtnGeppo = "🦵 Buy Geppo (10k)", BtnBuso = "🛡️ Buy Buso Haki (25k)", BtnSoru = "🏃 Buy Soru (100k)", BtnKen = "👁️ Buy Ken Haki (750k)",
         BtnBuySword = "⚔️ Buy Swords", BtnBuyGun = "🔫 Buy Guns", BtnBuyStyle = "🥊 Buy Fighting Styles",
         BtnDiscord = "💬 Open My Discord Link", BtnCode = "🎁 Redeem All Codes", ToggleLag = "🚀 Anti-Lag / Reduce Flash", BtnRejoin = "🔄 Rejoin Server", ToggleHUD = "📊 Show Status HUD",
+        ToggleAutoLeaveAdmin = "🛡️ Auto Leave when Admin Joins (Anti Ban)",
         ToggleAutoFarmBone = "🦴 Auto Farm Bone (Scattered)", ToggleAutoFarmTakakuri = "🐉 Auto Farm Takakuri", LabelBoneCount = "🦴 Bone Count: ", LabelTakakuriCount = "🐉 Takakuri remaining: ",
         ToggleBoatSpeed = "🚤 Boat Speed Boost", BoatSpeedLabel = "⚡ Boat Speed: ", BoatFlyHeightLabel = "🚀 Boat Fly Height: ",
         ToggleAutoSeaBeast = "🐋 Auto Farm Sea Beast", ToggleAutoGhostShip = "👻 Auto Farm Ghost Ship",
-        CloseAll = "❌ Close All",
         SelectStyle = "🥊 Select Fighting Style to Buy:",
         BtnBuySelectedStyle = "🥊 Buy Selected Style"
     }
@@ -123,7 +124,7 @@ local s, p = pcall(function() return gethui() end)
 if s and p then ScreenGui.Parent = p else ScreenGui.Parent = CoreGui end
 
 -- =========================================
--- STATUS HUD (ĐÃ SỬA LỖI ĐƠ)
+-- STATUS HUD (ĐÃ FIX LỖI TEXT)
 -- =========================================
 local StatusHUD = Instance.new("Frame", ScreenGui)
 StatusHUD.Size = UDim2.new(0, 220, 0, 180)
@@ -164,24 +165,29 @@ hudContent.TextYAlignment = Enum.TextYAlignment.Top
 hudContent.RichText = true
 hudContent.TextStrokeTransparency = 0
 hudContent.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
-hudContent.Text = "Đang khởi tạo..."
+hudContent.Text = "Đang kết nối..."
+_G.HUDContentText = hudContent -- LƯU BIẾN TOÀN CỤC ĐỂ KHÔNG BỊ MẤT
 
+-- =========================================
+-- NÚT ẨN Z
+-- =========================================
 local FloatingButton = Instance.new("TextButton", ScreenGui)
-FloatingButton.Size = UDim2.new(0, 50, 0, 50)
+FloatingButton.Size = UDim2.new(0, 55, 0, 55)
 FloatingButton.Position = UDim2.new(0.05, 0, 0.4, 0)
 FloatingButton.BackgroundColor3 = Color3.fromRGB(25, 10, 14)
-FloatingButton.BackgroundTransparency = 0.3
+FloatingButton.BackgroundTransparency = 0.2
 FloatingButton.Visible = false
 FloatingButton.Text = "Z"
 FloatingButton.TextColor3 = Color3.fromRGB(255, 50, 70)
 FloatingButton.Font = Enum.Font.GothamBlack
-FloatingButton.TextSize = 22
+FloatingButton.TextSize = 26
 FloatingButton.ZIndex = 999
+FloatingButton.Active = true
 local FloatCorner = Instance.new("UICorner", FloatingButton)
 FloatCorner.CornerRadius = UDim.new(0, 14)
 local FloatStroke = Instance.new("UIStroke", FloatingButton)
 FloatStroke.Color = Color3.fromRGB(235, 50, 65)
-FloatStroke.Thickness = 2
+FloatStroke.Thickness = 2.5
 
 local dragToggleBtn, dragStartBtn, startPosBtn
 FloatingButton.InputBegan:Connect(function(input)
@@ -199,6 +205,9 @@ UserInputService.InputChanged:Connect(function(input)
     end
 end)
 
+-- =========================================
+-- KHUNG GIAO DIỆN CHÍNH (MAIN FRAME)
+-- =========================================
 local MainFrame = Instance.new("Frame", ScreenGui)
 MainFrame.Size = UDim2.new(0, 680, 0, 460)
 MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -248,49 +257,40 @@ Title.TextSize = 13
 Title.TextXAlignment = Enum.TextXAlignment.Left
 Title.Text = L("Title")
 
-local CloseAllBtn = Instance.new("TextButton", TopBar)
-CloseAllBtn.Size = UDim2.new(0, 60, 0, 26)
-CloseAllBtn.Position = UDim2.new(1, -110, 0.5, -13)
-CloseAllBtn.BackgroundColor3 = Color3.fromRGB(180, 40, 60)
-CloseAllBtn.BackgroundTransparency = 0.3
-CloseAllBtn.Text = L("CloseAll")
-CloseAllBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-CloseAllBtn.Font = Enum.Font.GothamBold
-CloseAllBtn.TextSize = 10
-local CloseAllCorner = Instance.new("UICorner", CloseAllBtn)
-CloseAllCorner.CornerRadius = UDim.new(0, 6)
-CloseAllBtn.MouseButton1Click:Connect(function() MainFrame.Visible = false; FloatingButton.Visible = false end)
+local XBtn = Instance.new("TextButton", TopBar)
+XBtn.Size = UDim2.new(0, 26, 0, 26)
+XBtn.Position = UDim2.new(1, -34, 0.5, -13)
+XBtn.BackgroundColor3 = Color3.fromRGB(235, 59, 90)
+XBtn.BackgroundTransparency = 0.2
+XBtn.Text = "X"
+XBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+XBtn.Font = Enum.Font.GothamBold
+XBtn.TextSize = 12
+local XBtnCorner = Instance.new("UICorner", XBtn)
+XBtnCorner.CornerRadius = UDim.new(0, 6)
 
-local CloseBtn = Instance.new("TextButton", TopBar)
-CloseBtn.Size = UDim2.new(0, 26, 0, 26)
-CloseBtn.Position = UDim2.new(1, -32, 0.5, -13)
-CloseBtn.BackgroundColor3 = Color3.fromRGB(235, 59, 90)
-CloseBtn.BackgroundTransparency = 0.3
-CloseBtn.Text = "✕"
-CloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-CloseBtn.Font = Enum.Font.GothamBold
-CloseBtn.TextSize = 11
-local CloseCorner = Instance.new("UICorner", CloseBtn)
-CloseCorner.CornerRadius = UDim.new(0, 6)
-CloseBtn.MouseButton1Click:Connect(function() MainFrame.Visible = false; FloatingButton.Visible = true end)
+local ClosePanelBtn = Instance.new("TextButton", TopBar)
+ClosePanelBtn.Size = UDim2.new(0, 90, 0, 26)
+ClosePanelBtn.Position = UDim2.new(1, -130, 0.5, -13)
+ClosePanelBtn.BackgroundColor3 = Color3.fromRGB(180, 40, 60)
+ClosePanelBtn.BackgroundTransparency = 0.2
+ClosePanelBtn.Text = "Close Panel"
+ClosePanelBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+ClosePanelBtn.Font = Enum.Font.GothamBold
+ClosePanelBtn.TextSize = 11
+local ClosePanelCorner = Instance.new("UICorner", ClosePanelBtn)
+ClosePanelCorner.CornerRadius = UDim.new(0, 6)
 
-local MinBtn = Instance.new("TextButton", TopBar)
-MinBtn.Size = UDim2.new(0, 26, 0, 26)
-MinBtn.Position = UDim2.new(1, -66, 0.5, -13)
-MinBtn.BackgroundColor3 = Color3.fromRGB(50, 18, 25)
-MinBtn.BackgroundTransparency = 0.3
-MinBtn.Text = "−"
-MinBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-MinBtn.Font = Enum.Font.GothamBold
-MinBtn.TextSize = 14
-local MinCorner = Instance.new("UICorner", MinBtn)
-MinCorner.CornerRadius = UDim.new(0, 6)
+local function HidePanel()
+    MainFrame.Visible = false
+    FloatingButton.Visible = true
+end
+XBtn.MouseButton1Click:Connect(HidePanel)
+ClosePanelBtn.MouseButton1Click:Connect(HidePanel)
 
-local isMin = false
-MinBtn.MouseButton1Click:Connect(function()
-    isMin = not isMin
-    if isMin then MainFrame:TweenSize(UDim2.new(0, 680, 0, 42), "Out", "Quart", 0.25, true)
-    else MainFrame:TweenSize(UDim2.new(0, 680, 0, 460), "Out", "Quart", 0.25, true) end
+FloatingButton.MouseButton1Click:Connect(function() 
+    MainFrame.Visible = true
+    FloatingButton.Visible = false 
 end)
 
 local Sidebar = Instance.new("Frame", MainFrame)
@@ -526,7 +526,7 @@ createToggle(pFarm, "ToggleBring", true, function(v) _G.BringMonster = v end)
 createToggle(pFarm, "ToggleFast", true, function(v) _G.FastAttack = v end)
 createToggle(pFarm, "ToggleAutoClick", false, function(v) _G.AutoClick = v end)
 
--- [ CÁC TAB CÒN LẠI HOÀN TOÀN GIỮ NGUYÊN ]
+-- [ CÁC TAB CÒN LẠI HOÀN TOÀN GIỮ NGUYÊN UI ]
 createToggle(pItem, "ToggleItemFarm", false, function(v) _G.AutoItemFarm = v end)
 createToggle(pItem, "ToggleAutoFarmBone", false, function(v) _G.AutoFarmBone = v end)
 createToggle(pItem, "ToggleAutoFarmTakakuri", false, function(v) _G.AutoFarmTakakuri = v end)
@@ -673,6 +673,7 @@ bossSelectFrame.InputBegan:Connect(function(input)
         bossSelectLbl.Text = "👑 Chọn Boss: " .. _G.SelectedBossName
     end
 end)
+
 local bossListLabel = Instance.new("TextLabel", pBoss)
 bossListLabel.Size = UDim2.new(0.95, 0, 0, 30)
 bossListLabel.BackgroundTransparency = 1
@@ -857,6 +858,45 @@ createToggle(pFruitEsp, "ToggleESPNPC", false, function(v) _G.ESPNPC = v end)
 createToggle(pFruitEsp, "ToggleESPIsland", false, function(v) _G.ESPIsland = v end)
 
 createToggle(pStats, "ToggleStats", false, function(v) _G.AutoStats = v end)
+local statsAmtSeg = Instance.new("Frame", pStats)
+statsAmtSeg.Size = UDim2.new(0.95, 0, 0, 32)
+statsAmtSeg.BackgroundColor3 = Color3.fromRGB(22, 12, 15)
+statsAmtSeg.BackgroundTransparency = 0.3
+local sasC = Instance.new("UICorner", statsAmtSeg)
+sasC.CornerRadius = UDim.new(0, 6)
+local sasS = Instance.new("UIStroke", statsAmtSeg)
+sasS.Color = Color3.fromRGB(75, 25, 35)
+sasS.Thickness = 1
+
+local saLayout = Instance.new("UIListLayout", statsAmtSeg)
+saLayout.FillDirection = Enum.FillDirection.Horizontal
+saLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+saLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+saLayout.Padding = UDim.new(0, 3)
+
+for _, amt in ipairs({1, 3, 10, 25, 50, 100}) do
+    local ab = Instance.new("TextButton", statsAmtSeg)
+    ab.Size = UDim2.new(0.15, 0, 0.8, 0)
+    if _G.StatsAmount == amt then ab.BackgroundColor3 = Color3.fromRGB(220, 35, 50)
+    else ab.BackgroundColor3 = Color3.fromRGB(35, 18, 22) end
+    ab.TextColor3 = Color3.fromRGB(255, 255, 255)
+    ab.Font = Enum.Font.GothamBold
+    ab.TextSize = 11
+    ab.Text = tostring(amt)
+    local abC = Instance.new("UICorner", ab)
+    abC.CornerRadius = UDim.new(0, 4)
+    
+    ab.MouseButton1Click:Connect(function()
+        _G.StatsAmount = amt
+        for _, btn in pairs(statsAmtSeg:GetChildren()) do 
+            if btn:IsA("TextButton") then 
+                if btn.Text == tostring(amt) then btn.BackgroundColor3 = Color3.fromRGB(220, 35, 50)
+                else btn.BackgroundColor3 = Color3.fromRGB(35, 18, 22) end
+            end 
+        end
+    end)
+end
+
 createToggle(pStats, "🥊 Melee", false, function(v) _G.StatsMelee = v end)
 createToggle(pStats, "🛡️ Defense", false, function(v) _G.StatsDefense = v end)
 createToggle(pStats, "⚔️ Sword", false, function(v) _G.StatsSword = v end)
@@ -938,6 +978,9 @@ end)
 
 createButton(pMisc, "BtnDiscord", function() setclipboard("https://discord.gg/yourlink") end)
 
+-- NÚT THOÁT KHI CÓ ADMIN (ANTI BAN)
+createToggle(pMisc, "ToggleAutoLeaveAdmin", false, function(v) _G.AutoLeaveAdmin = v end)
+
 local langSeg = Instance.new("Frame", pMisc)
 langSeg.Size = UDim2.new(0.95, 0, 0, 35)
 langSeg.BackgroundColor3 = Color3.fromRGB(22, 12, 15)
@@ -989,11 +1032,6 @@ for _, lg in ipairs({"VN", "EN"}) do
                 else btn.BackgroundColor3 = Color3.fromRGB(35, 18, 22) end
             end 
         end
-        boneLabel.Text = L("LabelBoneCount") .. tostring(CountBone())
-        takakuriLabel.Text = L("LabelTakakuriCount") .. tostring(CountTakakuri())
-        CloseAllBtn.Text = L("CloseAll")
-        styleSelectLabel.Text = L("SelectStyle")
-        buyStyleBtn.Text = L("BtnBuySelectedStyle")
     end)
 end
 
@@ -1011,44 +1049,133 @@ createToggle(pMisc, "ToggleLag", false, function(v)
     end
 end)
 createButton(pMisc, "BtnRejoin", function() TeleportService:Teleport(game.PlaceId, LocalPlayer) end)
--- [[ ZENITH HUB - V800.PERFECTED - PHẦN 2: LOGIC THỰC THI ]] --
+-- [[ ZYROX | BLOX FRUIT V3.6 - PHẦN 2: LOGIC THỰC THI (REDZ STYLE) ]] --
 
 -- =========================================================
--- UPDATE CẬP NHẬT HUD VÀ STATUS
+-- VÒNG FOV SCREEN GUI DÀNH CHO GIẢ LẬP/MOBILE (CHỐNG TÀNG HÌNH)
 -- =========================================================
-task.spawn(function()
-    while task.wait(0.5) do
-        pcall(function()
-            local ui = CoreGui:FindFirstChild("ZyroxHub_CrimsonMain") or LocalPlayer.PlayerGui:FindFirstChild("ZyroxHub_CrimsonMain")
-            if ui then
-                local StatusHUD = ui:FindFirstChild("Frame")
-                if StatusHUD and _G.StatusHUDVisible then
-                    local hudContent = StatusHUD:FindFirstChild("TextLabel", true)
-                    if hudContent then
-                        local lvl = LocalPlayer.Data.Level.Value
-                        local target = "None"
-                        if _G.GlobalFarmActive then
-                            target = NameMon or "Target"
-                        end
-                        
-                        local activeStr = ""
-                        if _G.AutoFarm then activeStr = activeStr .. "⚡ Auto Farm: ON\n" end
-                        if _G.AutoClick then activeStr = activeStr .. "⚔️ Auto Click: ON\n" end
-                        if _G.SpeedEnabled then activeStr = activeStr .. "🏃 Speed: " .. tostring(_G.SpeedVal) .. "\n" end
-                        
-                        hudContent.Text = string.format("Level: %d\n", lvl) .. activeStr .. "🎯 Target: " .. target
-                        StatusHUD.Visible = true
-                    end
-                elseif StatusHUD then
-                    StatusHUD.Visible = false
+local FOVGui = Instance.new("ScreenGui")
+FOVGui.Name = "ZenithFOVCircle_P2"
+FOVGui.ResetOnSpawn = false
+local sFOV, pFOV = pcall(function() return gethui() end)
+if sFOV and pFOV then FOVGui.Parent = pFOV else FOVGui.Parent = CoreGui end
+
+for _, v in pairs(FOVGui.Parent:GetChildren()) do
+    if v.Name == "ZenithFOVCircle_P2" and v ~= FOVGui then pcall(function() v:Destroy() end) end
+end
+
+local FOVFrame = Instance.new("Frame", FOVGui)
+FOVFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+FOVFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+FOVFrame.BackgroundTransparency = 1
+FOVFrame.Visible = false
+Instance.new("UICorner", FOVFrame).CornerRadius = UDim.new(1, 0)
+local FOVStroke = Instance.new("UIStroke", FOVFrame)
+FOVStroke.Thickness = 1.5
+FOVStroke.Color = Color3.fromRGB(235, 50, 65)
+
+RunService.RenderStepped:Connect(function()
+    if _G.SilentAim then
+        FOVFrame.Visible = true
+        FOVFrame.Size = UDim2.new(0, _G.FOVSize * 2, 0, _G.FOVSize * 2)
+        FOVStroke.Color = _G.FOVColor
+        
+        local closestPlayer = nil; local shortestDist = _G.FOVSize
+        for _, p in ipairs(Players:GetPlayers()) do
+            if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("Head") then
+                local screenPos, onScreen = Workspace.CurrentCamera:WorldToViewportPoint(p.Character.Head.Position)
+                if onScreen then
+                    local center = Vector2.new(Workspace.CurrentCamera.ViewportSize.X / 2, Workspace.CurrentCamera.ViewportSize.Y / 2)
+                    local dist = (Vector2.new(screenPos.X, screenPos.Y) - center).Magnitude
+                    if dist < shortestDist then shortestDist = dist; closestPlayer = p end
                 end
+            end
+        end
+        if closestPlayer and closestPlayer.Character and closestPlayer.Character:FindFirstChild("Head") then
+            if math.random(1, 100) <= _G.HitAccuracy then
+                Workspace.CurrentCamera.CFrame = CFrame.lookAt(Workspace.CurrentCamera.CFrame.Position, closestPlayer.Character.Head.Position)
+            end
+        end
+    else
+        FOVFrame.Visible = false
+    end
+end)
+
+-- =========================================================
+-- LOGIC TỰ ĐỘNG THOÁT KHI CÓ ADMIN VÀO SERVER (ANTI BAN)
+-- =========================================================
+Players.PlayerAdded:Connect(function(plr)
+    if _G.AutoLeaveAdmin then
+        pcall(function()
+            -- 4328109 là ID Group của Game Blox Fruits. 
+            -- Rank >= 200 thường là role Staff, Admin, Owner.
+            if plr:GetRankInGroup(4328109) >= 200 then
+                LocalPlayer:Kick("🛡️ HỆ THỐNG ANTI-BAN KÍCH HOẠT: Phát hiện Admin/Staff [" .. plr.Name .. "] vừa tham gia Server! Đã tự động ngắt kết nối để bảo vệ tài khoản.")
             end
         end)
     end
 end)
 
+-- Khởi động quét những người đang có sẵn trong server khi vừa bật script
+for _, plr in ipairs(Players:GetPlayers()) do
+    if _G.AutoLeaveAdmin and plr ~= LocalPlayer then
+        pcall(function()
+            if plr:GetRankInGroup(4328109) >= 200 then
+                LocalPlayer:Kick("🛡️ HỆ THỐNG ANTI-BAN KÍCH HOẠT: Server này đang có Admin/Staff [" .. plr.Name .. "]. Hãy đổi Server khác!")
+            end
+        end)
+    end
+end
+
+
 -- =========================================================
--- BẬT NOCLIP CHỐNG KẸT TƯỜNG 100%
+-- CẬP NHẬT HUD (ĐÃ FIX LỖI KẸT CHỮ)
+-- =========================================================
+RunService.RenderStepped:Connect(function()
+    pcall(function()
+        for _, obj in pairs(Workspace:GetDescendants()) do
+            if obj:IsA("ParticleEmitter") and (string.find(obj.Name, "Explosion") or string.find(obj.Name, "Flash") or string.find(obj.Name, "Effect")) then
+                obj.Rate = 0
+            end
+        end
+
+        local ui = CoreGui:FindFirstChild("ZyroxHub_CrimsonMain") or LocalPlayer.PlayerGui:FindFirstChild("ZyroxHub_CrimsonMain")
+        if ui then
+            local StatusHUD = ui:FindFirstChild("Frame")
+            if StatusHUD and _G.StatusHUDVisible then
+                if _G.HUDContentText then
+                    local activeList = {}
+                    if _G.SpeedEnabled then table.insert(activeList, "🏃 Speed ["..tostring(_G.SpeedKey.Name).."]: " .. tostring(_G.SpeedVal)) end
+                    if _G.NoclipEnabled then table.insert(activeList, "👻 Noclip ["..tostring(_G.NoclipKey.Name).."]: ON") end
+                    if _G.JumpEnabled then table.insert(activeList, "🦘 Jump ["..tostring(_G.JumpKey.Name).."]: " .. tostring(_G.JumpVal)) end
+                    if _G.SilentAim then table.insert(activeList, "🎯 Silent Aim: ON") end
+                    if _G.AutoClick then table.insert(activeList, "⚔️ Auto Click: ON") end
+                    if _G.AutoFarm then table.insert(activeList, "⚡ Auto Farm: ON") end
+                    if _G.AutoItemFarm then table.insert(activeList, "🦴 Auto Item: ON") end
+                    
+                    local currentTarget = "None"
+                    if _G.GlobalFarmActive then 
+                        if _G.AutoBoss or _G.AllBossesFarm then currentTarget = _G.SelectedBossName
+                        else currentTarget = NameMon end
+                    end
+                    table.insert(activeList, "🎯 Target: " .. tostring(currentTarget))
+                    
+                    StatusHUD.Visible = true
+                    local lvl = 0
+                    if LocalPlayer:FindFirstChild("Data") and LocalPlayer.Data:FindFirstChild("Level") then
+                        lvl = LocalPlayer.Data.Level.Value
+                    end
+                    _G.HUDContentText.Text = string.format("Level: %d\n", lvl) .. table.concat(activeList, "\n")
+                end
+            elseif StatusHUD then
+                StatusHUD.Visible = false
+            end
+        end
+    end)
+end)
+
+-- =========================================================
+-- VÒNG LẶP NOCLIP TUYỆT ĐỐI (XUYÊN TƯỜNG & BIỂN LIÊN TỤC)
 -- =========================================================
 RunService.Stepped:Connect(function()
     pcall(function()
@@ -1056,7 +1183,7 @@ RunService.Stepped:Connect(function()
             local char = LocalPlayer.Character
             if char then
                 for _, v in pairs(char:GetDescendants()) do
-                    if v:IsA("BasePart") then
+                    if v:IsA("BasePart") and v.CanCollide == true then
                         v.CanCollide = false
                     end
                 end
@@ -1065,36 +1192,9 @@ RunService.Stepped:Connect(function()
     end)
 end)
 
-local currentTween = nil
-function topos(targetCFrame)
-    pcall(function()
-        local char = LocalPlayer.Character
-        local hrp = char and char:FindFirstChild("HumanoidRootPart")
-        if not hrp then return end
-        
-        if not hrp:FindFirstChild("BodyVelocity1") then
-            local bv = Instance.new("BodyVelocity")
-            bv.Name = "BodyVelocity1"
-            bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-            bv.Velocity = Vector3.zero
-            bv.Parent = hrp
-        end
-        
-        local dist = (targetCFrame.Position - hrp.Position).Magnitude
-        if dist < 10 then 
-            if currentTween then currentTween:Cancel(); currentTween = nil end
-            hrp.CFrame = targetCFrame
-            return 
-        end
-
-        if currentTween then currentTween:Cancel(); currentTween = nil end
-        local speed = 300
-        local tweenInfo = TweenInfo.new(dist / speed, Enum.EasingStyle.Linear)
-        currentTween = TweenService:Create(hrp, tweenInfo, {CFrame = targetCFrame})
-        currentTween:Play()
-    end)
-end
-
+-- =========================================================
+-- TRANG BỊ VŨ KHÍ & BAY TWEEN MƯỢT XUYÊN VẬT THỂ
+-- =========================================================
 function EquipWeapon(weaponType)
     pcall(function()
         if not LocalPlayer.Character:FindFirstChild("HasBuso") then
@@ -1105,9 +1205,13 @@ function EquipWeapon(weaponType)
         
         local function isValidWeapon(tool)
             if not tool:IsA("Tool") then return false end
-            if weaponType == "Melee" then return tool.ToolTip == "Melee" or tool.Name == "Combat" or tool:GetAttribute("WeaponType") == "Melee"
-            elseif weaponType == "Sword" then return tool.ToolTip == "Sword" or tool:GetAttribute("WeaponType") == "Sword"
-            elseif weaponType == "Blox Fruit" then return tool.ToolTip == "Blox Fruit" or string.find(tool.Name, "Fruit") end
+            if weaponType == "Melee" then
+                return tool.ToolTip == "Melee" or tool.Name == "Combat" or tool.Name == "Võ Tân Binh" or tool:GetAttribute("WeaponType") == "Melee"
+            elseif weaponType == "Sword" then
+                return tool.ToolTip == "Sword" or tool:GetAttribute("WeaponType") == "Sword"
+            elseif weaponType == "Blox Fruit" then
+                return tool.ToolTip == "Blox Fruit" or tool:GetAttribute("WeaponType") == "Blox Fruit" or string.find(tool.Name, "Fruit")
+            end
             return false
         end
 
@@ -1118,12 +1222,48 @@ function EquipWeapon(weaponType)
         for _, tool in ipairs(backpack:GetChildren()) do
             if isValidWeapon(tool) then
                 char.Humanoid:EquipTool(tool)
+                task.wait(0.05)
+                if tool.Parent ~= char then tool.Parent = char end
                 break
             end
         end
     end)
 end
 
+local currentTween = nil
+function topos(targetCFrame)
+    if not LocalPlayer.Character or not LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then return end
+    local hrp = LocalPlayer.Character.HumanoidRootPart
+    
+    if not hrp:FindFirstChild("BodyVelocity1") then
+        local bv = Instance.new("BodyVelocity")
+        bv.Name = "BodyVelocity1"
+        bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+        bv.Velocity = Vector3.zero
+        bv.Parent = hrp
+    end
+    
+    for _, v in pairs(LocalPlayer.Character:GetDescendants()) do 
+        if v:IsA("BasePart") then v.CanCollide = false end 
+    end
+
+    local dist = (targetCFrame.Position - hrp.Position).Magnitude
+    
+    if dist < 10 then 
+        if currentTween then currentTween:Cancel(); currentTween = nil end
+        hrp.CFrame = targetCFrame
+        return 
+    end
+
+    if currentTween then currentTween:Cancel(); currentTween = nil end
+    local tweenInfo = TweenInfo.new(dist / 320, Enum.EasingStyle.Linear)
+    currentTween = TweenService:Create(hrp, tweenInfo, {CFrame = targetCFrame})
+    currentTween:Play()
+end
+
+-- =========================================================
+-- LOGIC KIỂM TRA NHIỆM VỤ
+-- =========================================================
 local Mon, LevelQuest, NameQuest, NameMon, CFrameQuest, CFrameMon = "", 1, "", "", CFrame.new(), CFrame.new()
 function CheckQuest()
     local MyLevel = 0
@@ -1184,10 +1324,8 @@ local function completeQuest()
     pcall(function() CommF:InvokeServer("ClaimQuestReward", NameQuest) end)
 end
 
-local StartBring = false
-
 -- =========================================================
--- VÒNG LẶP KIỂM TRA NHIỆM VỤ VÀ DI CHUYỂN ĐẾN ĐÚNG BÃI
+-- LOGIC REDZ HUB: ĐỨNG IM CHỐT TỌA ĐỘ BÃI QUÁI GỐC CFrameMon
 -- =========================================================
 spawn(function()
     while task.wait() do
@@ -1197,7 +1335,6 @@ spawn(function()
                 local questGui = LocalPlayer.PlayerGui:FindFirstChild("Main") and LocalPlayer.PlayerGui.Main:FindFirstChild("Quest")
                 
                 if not questGui or not questGui.Visible then
-                    StartBring = false
                     _G.GlobalFarmActive = false
                     if (LocalPlayer.Character.HumanoidRootPart.Position - CFrameQuest.Position).Magnitude > 20 then 
                         topos(CFrameQuest)
@@ -1208,56 +1345,40 @@ spawn(function()
                     if isQuestCompleted() then
                         if CommF then completeQuest() end
                         task.wait(0.5)
-                        StartBring = false
                         _G.GlobalFarmActive = false
                     else
-                        local targetMob = nil
-                        local shortestDist = math.huge
+                        _G.GlobalFarmActive = true
+                        
                         local hrp = LocalPlayer.Character.HumanoidRootPart
-                        local enemies = Workspace:FindFirstChild("Enemies") or Workspace
-
-                        for _, v in pairs(enemies:GetChildren()) do
-                            if v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
-                                if v.Name:lower() == NameMon:lower() or string.find(v.Name:lower(), NameMon:lower()) then
-                                    local d = (v.HumanoidRootPart.Position - hrp.Position).Magnitude
-                                    if d < shortestDist then
-                                        shortestDist = d
-                                        targetMob = v
-                                    end
-                                end
-                            end
-                        end
-
-                        if targetMob then
-                            StartBring = true
-                            _G.GlobalFarmActive = true
-                            
-                            -- BAY LÊN TRÊN ĐẦU QUÁI ĐÚNG 20M, KHÓA TRỤC Y SONG SONG VỚI MẶT ĐẤT
-                            local farmPos = targetMob.HumanoidRootPart.CFrame * CFrame.new(0, 20, 0)
-                            
-                            if (hrp.Position - farmPos.Position).Magnitude > 15 then
-                                topos(farmPos)
-                            else
-                                if currentTween then currentTween:Cancel(); currentTween = nil end
-                                
-                                -- ĐỨNG IM NHƯ TƯỢNG VÀ KHÔNG NGHIÊNG XUỐNG ĐẤT
-                                hrp.CFrame = CFrame.new(farmPos.Position, farmPos.Position + Vector3.new(targetMob.HumanoidRootPart.CFrame.LookVector.X, 0, targetMob.HumanoidRootPart.CFrame.LookVector.Z))
-                                hrp.Velocity = Vector3.new(0,0,0)
-                                hrp.RotVelocity = Vector3.new(0,0,0)
-                            end
+                        
+                        -- TỌA ĐỘ ĐỨNG CỐ ĐỊNH: Trên đỉnh bãi quái đúng 30 mét
+                        local flyPos = CFrame.new(CFrameMon.Position.X, CFrameMon.Position.Y + 30, CFrameMon.Position.Z)
+                        
+                        if (hrp.Position - flyPos.Position).Magnitude > 15 then
+                            topos(flyPos)
                         else
-                            StartBring = false
-                            _G.GlobalFarmActive = false
-                            if (hrp.Position - CFrameMon.Position).Magnitude > 20 then
-                                topos(CFrameMon)
+                            if currentTween then currentTween:Cancel(); currentTween = nil end
+                            
+                            if not hrp:FindFirstChild("BodyVelocity1") then
+                                local bv = Instance.new("BodyVelocity")
+                                bv.Name = "BodyVelocity1"
+                                bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+                                bv.Velocity = Vector3.zero
+                                bv.Parent = hrp
                             end
+
+                            -- ÉP ĐỨNG THẲNG TẮP KHÔNG NGHIÊNG ĐẦU XUỐNG MẶT ĐẤT
+                            hrp.CFrame = CFrame.new(flyPos.Position, Vector3.new(CFrameMon.Position.X, flyPos.Position.Y, CFrameMon.Position.Z + 1))
+                            hrp.Velocity = Vector3.zero
+                            hrp.RotVelocity = Vector3.zero
+                            
+                            EquipWeapon(_G.SelectWeapon)
                         end
                     end
                 end
             end)
         else
             if not (_G.AutoBoss or _G.AllBossesFarm) then
-                StartBring = false
                 _G.GlobalFarmActive = false
                 local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
                 if hrp and hrp:FindFirstChild("BodyVelocity1") then hrp.BodyVelocity1:Destroy() end
@@ -1268,24 +1389,27 @@ spawn(function()
 end)
 
 -- =========================================================
--- VÒNG LẶP GOM QUÁI (HÚT CHẶT QUÁI DƯỚI CHÂN)
+-- VÒNG LẶP GOM QUÁI (HÚT CHẶT QUÁI DƯỚI MẶT ĐẤT)
 -- =========================================================
 spawn(function()
     while task.wait() do
         pcall(function()
-            if (_G.AutoFarm or _G.AutoItemFarm) and _G.BringMonster and StartBring then
-                local hrp = LocalPlayer.Character.HumanoidRootPart
+            if (_G.AutoFarm or _G.AutoItemFarm) and _G.BringMonster and _G.GlobalFarmActive then
                 local enemies = Workspace:FindFirstChild("Enemies") or Workspace
+                local hrp = LocalPlayer.Character.HumanoidRootPart
+                
+                -- GOM TẤT CẢ VÀO 1 ĐIỂM CHÍNH GIỮA CỦA BÃI (DƯỚI ĐẤT)
+                local mobLockPos = CFrame.new(CFrameMon.Position.X, CFrameMon.Position.Y, CFrameMon.Position.Z)
                 
                 for _, v in pairs(enemies:GetChildren()) do
                     if v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v.Humanoid.Health > 0 then
                         if v.Name:lower() == NameMon:lower() or string.find(v.Name:lower(), NameMon:lower()) then
                             if (v.HumanoidRootPart.Position - hrp.Position).Magnitude <= 350 then
                                 v.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
-                                -- Đem quái lại ngay trước mặt dưới chân người chơi
-                                v.HumanoidRootPart.CFrame = hrp.CFrame * CFrame.new(0, -15, -5)
+                                v.HumanoidRootPart.CFrame = mobLockPos
                                 v.HumanoidRootPart.CanCollide = false
                                 if v:FindFirstChild("Head") then v.Head.CanCollide = false end
+                                if v.Humanoid:FindFirstChild("Animator") then v.Humanoid.Animator:Destroy() end
                                 v.Humanoid.WalkSpeed = 0
                                 v.Humanoid.JumpPower = 0
                                 v.Humanoid:ChangeState(11)
@@ -1300,27 +1424,30 @@ spawn(function()
 end)
 
 -- =========================================================
--- VÒNG LẶP AUTO CLICK & ĐÁNH LIÊN TỤC KHÔNG DỪNG
+-- VÒNG LẶP AUTO CLICK CHUẨN XÁC CHỐNG MISS (24/24)
 -- =========================================================
-spawn(function()
+task.spawn(function()
     while task.wait(0.05) do
         if _G.GlobalFarmActive or _G.AutoClick then
             pcall(function()
-                EquipWeapon(_G.SelectWeapon)
                 VirtualUser:CaptureController()
                 VirtualUser:Button1Down(Vector2.new(1280, 672))
                 
                 local char = LocalPlayer.Character
                 if char then
                     local tool = char:FindFirstChildOfClass("Tool")
-                    if tool then tool:Activate() end
+                    if tool then
+                        tool:Activate()
+                    end
                 end
             end)
         end
     end
 end)
 
--- LÕI FAST ATTACK ULTRA MAX
+-- =========================================================
+-- LÕI FAST ATTACK ULTRA MAX (ĐÁNH LIÊN HOÀN 24/24)
+-- =========================================================
 local v1 = next; local v2 = {ReplicatedStorage.Util, ReplicatedStorage.Common, ReplicatedStorage.Remotes, ReplicatedStorage.Assets, ReplicatedStorage.FX}; local v3, u4, u5 = nil, nil, nil
 task.spawn(function()
     while true do
@@ -1373,90 +1500,6 @@ task.spawn(function()
                     end)
                 end
             end)
-        end
-    end
-end)
-
--- CÁC TAB CÒN LẠI ĐƯỢC GIỮ NGUYÊN HOÀN TOÀN
-task.spawn(function()
-    while task.wait(1) do
-        pcall(function()
-            local ui = CoreGui:FindFirstChild("ZyroxHub_CrimsonMain") or LocalPlayer.PlayerGui:FindFirstChild("ZyroxHub_CrimsonMain")
-            if ui then
-                local pItem = ui:FindFirstChild("FarmItem", true)
-                if pItem then
-                    local boneLabel = pItem:FindFirstChild("TextLabel", true)
-                    local takakuriLabel = pItem:FindFirstChild("TextLabel", true)
-                end
-            end
-        end)
-    end
-end)
-
-task.spawn(function()
-    while task.wait(0.5) do
-        if _G.AutoStats and CommF then
-            pcall(function()
-                if LocalPlayer.Data.Points.Value > 0 then
-                    local amt = _G.StatsAmount or 1
-                    if _G.StatsMelee then CommF:InvokeServer("AddPoint", "Melee", amt) end
-                    if _G.StatsDefense then CommF:InvokeServer("AddPoint", "Defense", amt) end
-                    if _G.StatsSword then CommF:InvokeServer("AddPoint", "Sword", amt) end
-                    if _G.StatsFruit then CommF:InvokeServer("AddPoint", "Demon Fruit", amt) end
-                end
-            end)
-        end
-    end
-end)
-
--- ESP Toàn Diện Đã Khắc Phục
-task.spawn(function()
-    while task.wait(1) do
-        if _G.ESPPlayer then
-            for _, p in ipairs(Players:GetPlayers()) do
-                if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("Head") then
-                    local head = p.Character.Head
-                    if not head:FindFirstChild("Z_ESP_Plr") then
-                        local gui = Instance.new("BillboardGui", head); gui.Name = "Z_ESP_Plr"; gui.Size = UDim2.new(0, 200, 0, 40); gui.AlwaysOnTop = true; gui.StudsOffset = Vector3.new(0, 3, 0)
-                        local txt = Instance.new("TextLabel", gui); txt.Size = UDim2.new(1,0,1,0); txt.BackgroundTransparency = 1; txt.TextSize = 12; txt.TextColor3 = Color3.fromRGB(235, 50, 65); txt.Font = Enum.Font.GothamBold; txt.TextStrokeTransparency = 0
-                    end
-                    local dist = math.floor((head.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude)
-                    head.Z_ESP_Plr.TextLabel.Text = p.Name .. " [" .. dist .. "m]"
-                end
-            end
-        else
-            for _, p in ipairs(Players:GetPlayers()) do if p.Character and p.Character:FindFirstChild("Head") and p.Character.Head:FindFirstChild("Z_ESP_Plr") then p.Character.Head.Z_ESP_Plr:Destroy() end end
-        end
-
-        if _G.ESPChest then
-            for _, chest in ipairs(CollectionService:GetTagged("_ChestTagged")) do
-                if not chest:GetAttribute("IsDisabled") then
-                    if not chest:FindFirstChild("Z_ESP_Chest") then
-                        local gui = Instance.new("BillboardGui", chest); gui.Name = "Z_ESP_Chest"; gui.Size = UDim2.new(0, 200, 0, 40); gui.AlwaysOnTop = true; gui.StudsOffset = Vector3.new(0, 2, 0)
-                        local txt = Instance.new("TextLabel", gui); txt.Size = UDim2.new(1,0,1,0); txt.BackgroundTransparency = 1; txt.TextSize = 12; txt.TextColor3 = Color3.fromRGB(255, 215, 0); txt.Font = Enum.Font.GothamBold; txt.TextStrokeTransparency = 0
-                    end
-                    local dist = math.floor((chest:GetPivot().Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude)
-                    chest.Z_ESP_Chest.TextLabel.Text = "Chest [" .. dist .. "m]"
-                elseif chest:FindFirstChild("Z_ESP_Chest") then chest.Z_ESP_Chest:Destroy() end
-            end
-        else
-            for _, chest in ipairs(CollectionService:GetTagged("_ChestTagged")) do if chest:FindFirstChild("Z_ESP_Chest") then chest.Z_ESP_Chest:Destroy() end end
-        end
-
-        if _G.ESPFruit then
-            for _, v in pairs(Workspace:GetChildren()) do
-                if v:IsA("Tool") and string.find(v.Name, "Fruit") and v:FindFirstChild("Handle") then
-                    local handle = v.Handle
-                    if not handle:FindFirstChild("Z_ESP_Fruit") then
-                        local gui = Instance.new("BillboardGui", handle); gui.Name = "Z_ESP_Fruit"; gui.Size = UDim2.new(0, 200, 0, 40); gui.AlwaysOnTop = true; gui.StudsOffset = Vector3.new(0, 2, 0)
-                        local txt = Instance.new("TextLabel", gui); txt.Size = UDim2.new(1,0,1,0); txt.BackgroundTransparency = 1; txt.TextSize = 12; txt.TextColor3 = Color3.fromRGB(255, 50, 50); txt.Font = Enum.Font.GothamBold; txt.TextStrokeTransparency = 0
-                    end
-                    local dist = math.floor((handle.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude)
-                    handle.Z_ESP_Fruit.TextLabel.Text = "🍎 " .. v.Name .. " [" .. dist .. "m]"
-                end
-            end
-        else
-            for _, v in pairs(Workspace:GetChildren()) do if v:IsA("Tool") and string.find(v.Name, "Fruit") and v:FindFirstChild("Handle") and v.Handle:FindFirstChild("Z_ESP_Fruit") then v.Handle.Z_ESP_Fruit:Destroy() end end
         end
     end
 end)
