@@ -22,7 +22,7 @@ pcall(function() for _, v in pairs(getconnections(LocalPlayer.Idled)) do v:Disab
 LocalPlayer.Idled:Connect(function() pcall(function() VirtualUser:CaptureController(); VirtualUser:ClickButton2(Vector2.new()) end) end)
 
 -- =========================================
--- TOÀN BỘ BIẾN (GIỮ NGUYÊN KHÔNG XÓA)
+-- TOÀN BỘ BIẾN (GIỮ NGUYÊN)
 -- =========================================
 _G.AutoFarm = false; _G.AutoQuest = true; _G.BringMonster = true; _G.FastAttack = true
 _G.SelectWeapon = "Melee"; _G.GlobalFarmActive = false 
@@ -72,7 +72,7 @@ local Loc = {
     VN = {
         Title = "ZENITH HUB <font color='#ff3344'>• V500 OMNIPOTENT</font>",
         Farm = "Cày Cấp", FarmItem = "Farm Item", Boss = "Săn Boss", PVP = "PVP & Aim", FruitEsp = "Trái & ESP", Stats = "Nâng Điểm", Teleport = "Dịch Chuyển", Shop = "Cửa Hàng", Misc = "Cài Đặt", SeaQuest = "Nhiệm Vụ Biển",
-        StatusReady = "Trạng thái: Crimson UI & Auto Farm Sẵn Sàng!",
+        StatusReady = "Trạng thái: Crimson UI & Auto Equip Sẵn Sàng!",
         ToggleFarm = "⚡ Auto Farm Level", ToggleQuest = "📜 Tự Nhận Nhiệm Vụ", ToggleBring = "🧲 Kéo Quái (Bring Mob)", ToggleFast = "⚔️ Fast Attack (ULTRA MAX)",
         ToggleAutoClick = "⚔️ Auto Click (Tự Động Đánh Tại Chỗ)",
         ToggleItemFarm = "🦴 Auto Farm Item / Vật Phẩm", ToggleAutoBoss = "👑 Auto Farm Boss Đã Chọn", ToggleAllBoss = "🔥 Đánh Toàn Bộ Boss Trong Server",
@@ -93,7 +93,7 @@ local Loc = {
     EN = {
         Title = "ZENITH HUB <font color='#ff3344'>• V500 OMNIPOTENT</font>",
         Farm = "Auto Farm", FarmItem = "Farm Item", Boss = "Boss Hunt", PVP = "PVP & Aim", FruitEsp = "Fruit & ESP", Stats = "Stats", Teleport = "Teleport", Shop = "Shop", Misc = "Settings", SeaQuest = "Sea Quest",
-        StatusReady = "Status: Crimson UI & Auto Farm Active!",
+        StatusReady = "Status: Crimson UI & Auto Equip Active!",
         ToggleFarm = "⚡ Auto Farm Level", ToggleQuest = "📜 Auto Quest", ToggleBring = "🧲 Bring Mob (Ground Magnet)", ToggleFast = "⚔️ Fast Attack (ULTRA MAX)",
         ToggleAutoClick = "⚔️ Auto Click (Attack in place)",
         ToggleItemFarm = "🦴 Auto Farm Items / Materials", ToggleAutoBoss = "👑 Auto Farm Selected Boss", ToggleAllBoss = "🔥 Farm All Bosses In Server",
@@ -119,7 +119,7 @@ local function L(key)
 end
 
 -- =========================================
--- UI GIAO DIỆN CHÍNH (FIX GÓC NHỌN)
+-- UI GIAO DIỆN CHÍNH
 -- =========================================
 local UI_NAME = "ZenithHub_V500_Crimson"
 pcall(function() if CoreGui:FindFirstChild(UI_NAME) then CoreGui[UI_NAME]:Destroy() end end)
@@ -130,7 +130,6 @@ ScreenGui.Name = UI_NAME; ScreenGui.ResetOnSpawn = false
 local s, p = pcall(function() return gethui() end)
 if s and p then ScreenGui.Parent = p else ScreenGui.Parent = CoreGui end
 
--- StatusHUD
 local StatusHUD = Instance.new("Frame", ScreenGui)
 StatusHUD.Size = UDim2.new(0, 220, 0, 180); StatusHUD.Position = UDim2.new(1, -235, 0.4, 0); StatusHUD.BackgroundColor3 = Color3.fromRGB(15, 10, 12); StatusHUD.BackgroundTransparency = 0.3; StatusHUD.BorderSizePixel = 0; StatusHUD.ZIndex = 800; StatusHUD.Visible = _G.StatusHUDVisible
 Instance.new("UICorner", StatusHUD).CornerRadius = UDim.new(0, 10)
@@ -186,10 +185,9 @@ UserInputService.InputChanged:Connect(function(input)
     end
 end)
 
--- BO TRÒN TOPBAR
 local TopBar = Instance.new("Frame", MainFrame)
 TopBar.Size = UDim2.new(1, 0, 0, 42); TopBar.BackgroundColor3 = Color3.fromRGB(30, 12, 17); TopBar.BackgroundTransparency = 0.3; TopBar.BorderSizePixel = 0
-Instance.new("UICorner", TopBar).CornerRadius = UDim.new(0, 10) -- Đã fix bo tròn góc nhọn
+Instance.new("UICorner", TopBar).CornerRadius = UDim.new(0, 10)
 local Title = Instance.new("TextLabel", TopBar)
 Title.Size = UDim2.new(0, 350, 1, 0); Title.Position = UDim2.new(0, 16, 0, 0); Title.BackgroundTransparency = 1; Title.RichText = true; Title.TextColor3 = Color3.fromRGB(255, 255, 255); Title.Font = Enum.Font.GothamBold; Title.TextSize = 13; Title.TextXAlignment = Enum.TextXAlignment.Left
 Title.Text = L("Title")
@@ -376,6 +374,7 @@ Instance.new("UIStroke", silentToggleFrame).Color = Color3.fromRGB(75, 25, 35); 
 local silentLbl = Instance.new("TextLabel", silentToggleFrame); silentLbl.Size = UDim2.new(1, -55, 1, 0); silentLbl.Position = UDim2.new(0, 12, 0, 0); silentLbl.BackgroundTransparency = 1; silentLbl.TextColor3 = Color3.fromRGB(255, 240, 245); silentLbl.Font = Enum.Font.GothamMedium; silentLbl.TextSize = 12; silentLbl.TextXAlignment = Enum.TextXAlignment.Left; silentLbl.Text = L("ToggleSilent")
 local silentSwitch = Instance.new("TextButton", silentToggleFrame); silentSwitch.Size = UDim2.new(0, 36, 0, 18); silentSwitch.Position = UDim2.new(1, -45, 0.5, -9); silentSwitch.BackgroundColor3 = Color3.fromRGB(50, 20, 26); silentSwitch.Text = ""; Instance.new("UICorner", silentSwitch).CornerRadius = UDim.new(1, 0)
 local silentCircle = Instance.new("Frame", silentSwitch); silentCircle.Size = UDim2.new(0, 14, 0, 14); silentCircle.Position = UDim2.new(0, 2, 0.5, -7); silentCircle.BackgroundColor3 = Color3.fromRGB(255, 255, 255); Instance.new("UICorner", silentCircle).CornerRadius = UDim.new(1, 0)
+
 local silentSubContainer = Instance.new("Frame", pvpContainer); silentSubContainer.Size = UDim2.new(0.95, 0, 0, 110); silentSubContainer.BackgroundTransparency = 1; silentSubContainer.Visible = false
 local subList = Instance.new("UIListLayout", silentSubContainer); subList.Padding = UDim.new(0, 6); subList.HorizontalAlignment = Enum.HorizontalAlignment.Center
 local fovFrame = Instance.new("Frame", silentSubContainer); fovFrame.Size = UDim2.new(1, 0, 0, 34); fovFrame.BackgroundColor3 = Color3.fromRGB(22, 12, 15); fovFrame.BackgroundTransparency = 0.4; Instance.new("UICorner", fovFrame).CornerRadius = UDim.new(0, 6)
@@ -604,7 +603,7 @@ createToggle(pMisc, "ToggleLag", false, function(v)
     end
 end)
 createButton(pMisc, "BtnRejoin", function() TeleportService:Teleport(game.PlaceId, LocalPlayer) end)
--- [[ ZENITH HUB - V500.1 PART 2: LOGIC EXECUTION ]] --
+-- [[ ZENITH HUB - V500.FINAL PART 2: LOGIC EXECUTION ]] --
 
 -- =========================================================
 -- HÀM GOM QUÁI (ĐÃ SỬA: ÉP CFRAME TRỰC TIẾP DƯỚI CHÂN)
@@ -613,7 +612,6 @@ local function pullMonsterToGround(monster, targetPos)
     if not monster or not monster:FindFirstChild("HumanoidRootPart") then return end
     local root = monster.HumanoidRootPart
     
-    -- Dùng CFrame ép trực tiếp thay vì BodyPosition lề mề
     root.CFrame = CFrame.new(targetPos)
     root.Size = Vector3.new(60, 60, 60)
     root.CanCollide = false
@@ -630,7 +628,7 @@ local function pullMonsterToGround(monster, targetPos)
 end
 
 local function cleanupBodyPositions()
-    -- Hàm này giữ lại phòng khi người dùng vẫn đang gọi, nhưng ruột đã vô hiệu hoá BodyPosition cũ
+    
 end
 
 -- =========================================================
@@ -663,7 +661,6 @@ function EquipWeapon(weaponType)
             if isValidWeapon(tool) then
                 char.Humanoid:EquipTool(tool)
                 task.wait(0.05)
-                -- Ép buộc vũ khí nhảy vào tay nếu game bị lag EquipTool
                 if tool.Parent ~= char then
                     tool.Parent = char
                 end
@@ -794,7 +791,7 @@ spawn(function()
                         local foundMob = false
                         local enemies = Workspace:FindFirstChild("Enemies") or Workspace
                         for _, v512 in pairs(enemies:GetChildren()) do
-                            if v512:FindFirstChild("HumanoidRootPart") and v512:FindFirstChild("Humanoid") and v512.Humanoid.Health > 0 and v512.Name:lower() == monsterName:lower() then
+                            if v512:FindFirstChild("HumanoidRootPart") and v512:FindFirstChild("Humanoid") and v512.Humanoid.Health > 0 and (v512.Name:lower() == monsterName:lower() or string.find(v512.Name:lower(), monsterName:lower())) then
                                 foundMob = true
                                 local targetPos = v512.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0)
                                 if (LocalPlayer.Character.HumanoidRootPart.Position - targetPos.Position).Magnitude > 10 then
