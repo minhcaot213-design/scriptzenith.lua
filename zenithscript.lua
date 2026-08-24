@@ -871,7 +871,7 @@ task.spawn(function()
 end)
 
 -- =========================================================
--- LOGIC AUTO FARM (SỬA LỖI BAY LÊN, BẬT HAKI)
+-- LOGIC AUTO FARM (SỬA LỖI KÉO QUÁI XUỐNG ĐẤT)
 -- =========================================================
 function EquipWeapon(weaponType)
     pcall(function()
@@ -934,7 +934,7 @@ function CheckQuest()
     end
 end
 
--- Vòng lặp Auto Farm Level & Item Farm (kéo quái lên trời, bật Haki)
+-- Vòng lặp Auto Farm Level & Item Farm (kéo quái xuống đất, không bay lên)
 spawn(function()
     while task.wait() do
         if _G.AutoFarm or _G.AutoItemFarm then
@@ -964,9 +964,9 @@ spawn(function()
                                 EquipWeapon(_G.SelectWeapon)
                                 local hrp = LocalPlayer.Character.HumanoidRootPart
                                 hrp.CFrame = CFrame.lookAt(hrp.Position, v512.HumanoidRootPart.Position)
-                                -- Kéo quái lên trời (bay lên)
+                                -- Kéo quái xuống đất (Y = 0), không kéo lên trời
                                 if _G.BringMonster then
-                                    v512.HumanoidRootPart.CFrame = CFrame.new(hrp.Position.X, hrp.Position.Y + 15, hrp.Position.Z)
+                                    v512.HumanoidRootPart.CFrame = CFrame.new(hrp.Position.X, 0, hrp.Position.Z)
                                 end
                                 v512.HumanoidRootPart.CanCollide = false
                                 v512.Humanoid.WalkSpeed = 0
@@ -1006,7 +1006,7 @@ spawn(function()
     end
 end)
 
--- Bring Mob (gom quái về 1 chỗ, kéo lên trời)
+-- Bring Mob (gom quái về 1 chỗ, kéo xuống đất)
 spawn(function()
     while task.wait() do
         pcall(function()
@@ -1017,7 +1017,7 @@ spawn(function()
                     if v1167.Name == Mon and v1167:FindFirstChild("Humanoid") and v1167:FindFirstChild("HumanoidRootPart") and v1167.Humanoid.Health > 0 then
                         if (v1167.HumanoidRootPart.Position - hrp.Position).Magnitude <= 320 then
                             v1167.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
-                            v1167.HumanoidRootPart.CFrame = CFrame.new(hrp.Position.X, hrp.Position.Y + 15, hrp.Position.Z)
+                            v1167.HumanoidRootPart.CFrame = CFrame.new(hrp.Position.X, 0, hrp.Position.Z)
                             v1167.HumanoidRootPart.CanCollide = false
                             v1167.Head.CanCollide = false
                             if v1167.Humanoid:FindFirstChild("Animator") then v1167.Humanoid.Animator:Destroy() end
@@ -1031,7 +1031,7 @@ spawn(function()
     end
 end)
 
--- Boss Farm (kéo lên trời)
+-- Boss Farm (kéo xuống đất)
 task.spawn(function()
     while task.wait(1) do
         pcall(function()
@@ -1058,7 +1058,7 @@ task.spawn(function()
                                 local hrp = LocalPlayer.Character.HumanoidRootPart
                                 hrp.CFrame = CFrame.lookAt(hrp.Position, v.HumanoidRootPart.Position)
                                 if _G.BringMonster then
-                                    v.HumanoidRootPart.CFrame = CFrame.new(hrp.Position.X, hrp.Position.Y + 15, hrp.Position.Z)
+                                    v.HumanoidRootPart.CFrame = CFrame.new(hrp.Position.X, 0, hrp.Position.Z)
                                 end
                                 v.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
                                 v.HumanoidRootPart.CanCollide = false
@@ -1166,7 +1166,7 @@ task.spawn(function()
     end
 end)
 
--- Auto Farm Bone (kéo lên trời)
+-- Auto Farm Bone (kéo xuống đất)
 task.spawn(function()
     while task.wait() do
         if _G.AutoFarmBone then
@@ -1186,7 +1186,7 @@ task.spawn(function()
                                 local hrp = LocalPlayer.Character.HumanoidRootPart
                                 hrp.CFrame = CFrame.lookAt(hrp.Position, v.HumanoidRootPart.Position)
                                 if _G.BringMonster then
-                                    v.HumanoidRootPart.CFrame = CFrame.new(hrp.Position.X, hrp.Position.Y + 15, hrp.Position.Z)
+                                    v.HumanoidRootPart.CFrame = CFrame.new(hrp.Position.X, 0, hrp.Position.Z)
                                 end
                                 v.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
                                 v.HumanoidRootPart.CanCollide = false
@@ -1203,7 +1203,7 @@ task.spawn(function()
     end
 end)
 
--- Auto Farm Takakuri (kéo lên trời)
+-- Auto Farm Takakuri (kéo xuống đất)
 task.spawn(function()
     while task.wait() do
         if _G.AutoFarmTakakuri then
@@ -1223,7 +1223,7 @@ task.spawn(function()
                                 local hrp = LocalPlayer.Character.HumanoidRootPart
                                 hrp.CFrame = CFrame.lookAt(hrp.Position, v.HumanoidRootPart.Position)
                                 if _G.BringMonster then
-                                    v.HumanoidRootPart.CFrame = CFrame.new(hrp.Position.X, hrp.Position.Y + 15, hrp.Position.Z)
+                                    v.HumanoidRootPart.CFrame = CFrame.new(hrp.Position.X, 0, hrp.Position.Z)
                                 end
                                 v.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
                                 v.HumanoidRootPart.CanCollide = false
@@ -1245,7 +1245,7 @@ task.spawn(function()
     end
 end)
 
--- Auto Sea Beast (kéo lên trời)
+-- Auto Sea Beast (kéo xuống đất)
 task.spawn(function()
     while task.wait() do
         if _G.AutoSeaBeast then
@@ -1263,7 +1263,7 @@ task.spawn(function()
                             local hrp = LocalPlayer.Character.HumanoidRootPart
                             hrp.CFrame = CFrame.lookAt(hrp.Position, v.HumanoidRootPart.Position)
                             if _G.BringMonster then
-                                v.HumanoidRootPart.CFrame = CFrame.new(hrp.Position.X, hrp.Position.Y + 15, hrp.Position.Z)
+                                v.HumanoidRootPart.CFrame = CFrame.new(hrp.Position.X, 0, hrp.Position.Z)
                             end
                             v.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
                             v.HumanoidRootPart.CanCollide = false
@@ -1279,7 +1279,7 @@ task.spawn(function()
     end
 end)
 
--- Auto Ghost Ship (kéo lên trời)
+-- Auto Ghost Ship (kéo xuống đất)
 task.spawn(function()
     while task.wait() do
         if _G.AutoGhostShip then
@@ -1297,7 +1297,7 @@ task.spawn(function()
                             local hrp = LocalPlayer.Character.HumanoidRootPart
                             hrp.CFrame = CFrame.lookAt(hrp.Position, v.HumanoidRootPart.Position)
                             if _G.BringMonster then
-                                v.HumanoidRootPart.CFrame = CFrame.new(hrp.Position.X, hrp.Position.Y + 15, hrp.Position.Z)
+                                v.HumanoidRootPart.CFrame = CFrame.new(hrp.Position.X, 0, hrp.Position.Z)
                             end
                             v.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
                             v.HumanoidRootPart.CanCollide = false
