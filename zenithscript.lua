@@ -1210,16 +1210,232 @@ createToggle(pMisc, "ToggleLag", false, function(v)
     end
 end)
 createButton(pMisc, "BtnRejoin", function() TeleportService:Teleport(game.PlaceId, LocalPlayer) end)
--- [[ ZYROX | BLOX FRUIT V3.6 - PHẦN 2A: LOGIC BAY VÀ TỰ ĐỘNG NHẬN NHIỆM VỤ ]] --
+-- [[ ZYROX | BLOX FRUIT V3.6 - PHẦN 2A: LOGIC DI CHUYỂN & FARM (FIX GIẬT 100%) ]] --
+
+-- =========================================================
+-- VÒNG FOV SCREEN GUI & ANTI ADMIN
+-- =========================================================
+local FOVGui = Instance.new("ScreenGui")
+FOVGui.Name = "ZenithFOVCircle_P2"
+FOVGui.ResetOnSpawn = false
+local sFOV, pFOV = pcall(function() return gethui() end)
+if sFOV and pFOV then FOVGui.Parent = pFOV else FOVGui.Parent = CoreGui end
+
+for _, v in pairs(FOVGui.Parent:GetChildren()) do
+    if v.Name == "ZenithFOVCircle_P2" and v ~= FOVGui then pcall(function() v:Destroy() end) end
+end
+
+local FOVFrame = Instance.new("Frame", FOVGui)
+FOVFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+FOVFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+FOVFrame.BackgroundTransparency = 1
+FOVFrame.Visible = false
+Instance.new("UICorner", FOVFrame).CornerRadius = UDim.new(1, 0)
+local FOVStroke = Instance.new("UIStroke", FOVFrame)
+FOVStroke.Thickness = 1.5
+FOVStroke.Color = Color3.fromRGB(235, 50, 65)
+
+RunService.RenderStepped:Connect(function()
+    if _G.SilentAim then
+        FOVFrame.Visible = true
+        FOVFrame.Size = UDim2.new(0, _G.FOVSize * 2, 0, _G.FOVSize * 2)
+        FOVStroke.Color = _G.FOVColor
+        
+        local closestPlayer = nil; local shortestDist = _G.FOVSize
+        for _, p in ipairs(Players:GetPlayers()) do
+            if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("Head") then
+                local screenPos, onScreen = Workspace.CurrentCamera:WorldToViewportPoint(p.Character.Head.Position)
+                if onScreen then
+                    local center = Vector2.new(Workspace.CurrentCamera.ViewportSize.X / 2, Workspace.CurrentCamera.ViewportSize.Y / 2)
+                    local dist = (Vector2.new(screenPos.X, screenPos.Y) - center).Magnitude
+                    if dist < shortestDist then shortestDist = dist; closestPlayer = p end
+                end
+            end
+        end
+        if closestPlayer and closestPlayer.Character and closestPlayer.Character:FindFirstChild("Head") then
+            if math.random(1, 100) <= _G.HitAccuracy then
+                Workspace.CurrentCamera.CFrame = CFrame.lookAt(Workspace.CurrentCamera.CFrame.Position, closestPlayer.Character.Head.Position)
+            end
+        end
+    else
+        FOVFrame.Visible = false
+    end
+end)
+
+Players.PlayerAdded:Connect(function(plr)
+    if _G.AutoLeaveAdmin then
+        pcall(function()
+            if plr:GetRankInGroup(4328109) >= 200 then
+                LocalPlayer:Kick("🛡️ ANTI-BAN: Phát hiện Admin/Staff [" .. plr.Name .. "] vừa vào Server!")
+            end
+        end)
+    end
+end)
+
+for _, plr in ipairs(Players:GetPlayers()) do
+    if _G.AutoLeaveAdmin and plr ~= LocalPlayer then
+        pcall(function()
+            if plr:GetRankInGroup(4328109) >= 200 then
+                LocalPlayer:Kick("🛡️ ANTI-BAN: Server này đang có Admin/Staff [" .. plr.Name .. "]!")
+            end
+        end)
+    end
+end
+
+-- =========================================================
+-- HUD CẬP NHẬT VÀ NOCLIP MƯỢT CỐ ĐỊNH (KHÔNG ÉP STATE LIÊN TỤC)
+-- =========================================================
+RunService.RenderStepped:Connect(function()
+    pcall(function()
+        for _, obj in pairs(Workspace:GetDescendants()) do
+            if obj:IsA("ParticleEmitter") and (string.find(obj.Name, "Explosion") or string.find(obj.Name, "Flash") or string.find(obj.Name, "Effect")) then
+                obj.Rate = 0
+            end
+        end
+
+        local ui = CoreGui:FindFirstChild("ZyroxHub_CrimsonMain") or LocalPlayer.PlayerGui:FindFirstChild("ZyroxHub_CrimsonMain")
+        if ui then
+            local StatusHUD = ui:FindFirstChild("Frame")
+            if StatusHUD and _G.StatusHUDVisible then
+                if _G.HUDContentText then
+                    local activeList = {}
+                    if _G.SpeedEnabled then table.insert(activeList, "🏃 Speed ["..tostring(_G.SpeedKey.Name).."]: " .. tostring(_G.SpeedVal)) end
+                    if _G.NoclipEnabled then table.insert(activeList, "👻 Noclip ["..tostring(_G.NoclipKey.Name).."]: ON") end
+                    if _G.JumpEnabled then table.insert(activeList, "🦘 Jump ["..tostring(_G.JumpKey.Name).."]: " .. tostring(_G.JumpVal)) end
+                    if _G.SilentAim then table.insert(activeList, "🎯 Silent Aim: ON") end
+                    if _G.AutoClick then table.insert(activeList, "⚔️ Auto Click: ON") end
+                    if _G.AutoFarm then table.insert(activeList, "⚡ Auto Farm: ON") end
+                    if _G.AutoItemFarm then table.insert(activeList, "🦴 Auto Item: ON") end
+                    
+                    local currentTarget = "None"
+                    if _G.GlobalFarmActive then 
+                        if _G.AutoBoss or _G.AllBossesFarm then currentTarget = _G.SelectedBossName
+                        else currentTarget = NameMon end
+                    end
+                    table.insert(activeList, "🎯 Target: " .. tostring(currentTarget))
+                    
+                    StatusHUD.Visible = true
+                    local lvl = 0
+                    if LocalPlayer:FindFirstChild("Data") and LocalPlayer.Data:FindFirstChild("Level") then
+                        lvl = LocalPlayer.Data.Level.Value
+                    end
+                    _G.HUDContentText.Text = string.format("Level: %d\n", lvl) .. table.concat(activeList, "\n")
+                end
+            elseif StatusHUD then
+                StatusHUD.Visible = false
+            end
+        end
+    end)
+end)
+
+RunService.Stepped:Connect(function()
+    pcall(function()
+        local char = LocalPlayer.Character
+        if char and char:FindFirstChild("Humanoid") then
+            if _G.SpeedEnabled then char.Humanoid.WalkSpeed = _G.SpeedVal end
+            if _G.JumpEnabled then char.Humanoid.JumpPower = _G.JumpVal end
+        end
+        
+        if _G.AutoFarm or _G.AutoItemFarm or _G.AutoBoss or _G.NoclipEnabled then
+            if char then
+                for _, v in pairs(char:GetDescendants()) do
+                    if v:IsA("BasePart") and v.CanCollide == true then 
+                        v.CanCollide = false 
+                    end
+                end
+                -- Xóa bỏ lệnh ChangeState(11) ở đây để CHẤM DỨT TRIỆT ĐỂ LỖI ĐỘNG KINH
+            end
+        end
+    end)
+end)
+
+UserInputService.InputBegan:Connect(function(input, gpe)
+    if gpe then return end
+    if _G.PullEnabled and input.KeyCode == _G.PullKey then
+        pcall(function()
+            local closest = nil; local dist = math.huge
+            for _, p in ipairs(Players:GetPlayers()) do
+                if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                    local d = (p.Character.HumanoidRootPart.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
+                    if d < dist then dist = d; closest = p end
+                end
+            end
+            if closest then closest.Character.HumanoidRootPart.CFrame = LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0,0,-5) end
+        end)
+    end
+end)
+
+-- =========================================================
+-- HÀM BAY BYPASS KHOẢNG CÁCH (XÓA BỎ LỖI GIẬT LÙI CỦA ANTI-CHEAT)
+-- =========================================================
+function EquipWeapon(weaponType)
+    pcall(function()
+        if not LocalPlayer.Character:FindFirstChild("HasBuso") then CommF:InvokeServer("Buso") end
+        local char = LocalPlayer.Character
+        local backpack = LocalPlayer:WaitForChild("Backpack")
+        
+        local function isValidWeapon(tool)
+            if not tool:IsA("Tool") then return false end
+            if weaponType == "Melee" then return tool.ToolTip == "Melee" or tool.Name == "Combat" or tool:GetAttribute("WeaponType") == "Melee"
+            elseif weaponType == "Sword" then return tool.ToolTip == "Sword" or tool:GetAttribute("WeaponType") == "Sword"
+            elseif weaponType == "Blox Fruit" then return tool.ToolTip == "Blox Fruit" or string.find(tool.Name, "Fruit") end
+            return false
+        end
+
+        local currentTool = char:FindFirstChildOfClass("Tool")
+        if currentTool and isValidWeapon(currentTool) then return end
+        if currentTool then currentTool.Parent = backpack end
+        
+        for _, tool in ipairs(backpack:GetChildren()) do
+            if isValidWeapon(tool) then
+                char.Humanoid:EquipTool(tool); break
+            end
+        end
+    end)
+end
 
 local currentTween = nil
 local currentTargetPos = nil
-
 function topos(targetCFrame)
     pcall(function()
         local char = LocalPlayer.Character
         local hrp = char and char:FindFirstChild("HumanoidRootPart")
         if not hrp then return end
+        
+        -- TỰ ĐỘNG CHUI CỔNG VƯỢT ĐẢO NGƯỜI CÁ & BẦU TRỜI
+        if World1 then
+            if targetCFrame.Position.X > 50000 and hrp.Position.X < 50000 then
+                local portalIn = CFrame.new(3865, 7, -1926) -- Xoáy nước
+                if (hrp.Position - portalIn.Position).Magnitude > 25 then
+                    targetCFrame = portalIn
+                else
+                    hrp.CFrame = CFrame.new(61164, 12, 1820); task.wait(0.2); return
+                end
+            elseif targetCFrame.Position.X < 50000 and hrp.Position.X > 50000 then
+                local portalOut = CFrame.new(61164, 12, 1820)
+                if (hrp.Position - portalOut.Position).Magnitude > 25 then
+                    targetCFrame = portalOut
+                else
+                    hrp.CFrame = CFrame.new(3865, 7, -1926); task.wait(0.2); return
+                end
+            end
+            
+            if targetCFrame.Position.Y > 4000 and hrp.Position.Y < 3000 then
+                local portalIn = CFrame.new(-4608, 873, -1668) -- Cửa Mây Sky
+                if (hrp.Position - portalIn.Position).Magnitude > 25 then
+                    targetCFrame = portalIn
+                else
+                    hrp.CFrame = CFrame.new(-7895, 5547, -380); task.wait(0.2); return
+                end
+            elseif targetCFrame.Position.Y < 3000 and hrp.Position.Y > 4000 then
+                local portalOut = CFrame.new(-7895, 5547, -380)
+                if (hrp.Position - portalOut.Position).Magnitude > 25 then
+                    targetCFrame = portalOut
+                else
+                    hrp.CFrame = CFrame.new(-4608, 873, -1668); task.wait(0.2); return
+                end
+            end
+        end
 
         if not hrp:FindFirstChild("BodyVelocity1") then
             local bv = Instance.new("BodyVelocity")
@@ -1231,7 +1447,7 @@ function topos(targetCFrame)
 
         local dist = (targetCFrame.Position - hrp.Position).Magnitude
         
-        -- DỊCH CHUYỂN TỨC THỜI BYPASS NẾU KHOẢNG CÁCH QUÁ XA (Chống lỗi kẹt cổng bơi lặp vòng)
+        -- DỊCH CHUYỂN TỨC THỜI NẾU QUÁ XA ĐỂ TRÁNH KẸT VÀ LỖI ANTI-CHEAT
         if dist > 3000 then
             if currentTween then currentTween:Cancel(); currentTween = nil end
             hrp.CFrame = targetCFrame
@@ -1239,22 +1455,22 @@ function topos(targetCFrame)
             return
         end
 
-        if dist < 15 then 
+        if dist < 10 then 
             if currentTween then currentTween:Cancel(); currentTween = nil end
             hrp.CFrame = targetCFrame
             return 
         end
 
-        -- THUẬT TOÁN CHỐNG GIẬT (Nếu điểm đến không bị lệch quá 10 Stud thì không cần reset Tween)
-        if currentTargetPos and (currentTargetPos - targetCFrame.Position).Magnitude < 10 then
+        -- THUẬT TOÁN CHỐNG GIẬT (Chỉ Tween lại nếu khoảng cách lệch hơn 15 Studs)
+        if currentTargetPos and (currentTargetPos - targetCFrame.Position).Magnitude < 15 then
             if currentTween and currentTween.PlaybackState == Enum.PlaybackState.Playing then return end
         end
 
         currentTargetPos = targetCFrame.Position
         if currentTween then currentTween:Cancel(); currentTween = nil end
         
-        -- Bay cực mượt, xuyên thấu không giới hạn
-        local tweenInfo = TweenInfo.new(dist / 350, Enum.EasingStyle.Linear)
+        -- TỐC ĐỘ 300 CHUẨN AN TOÀN - CHỐNG BỊ GIẬT LÙI (RUBBERBAND)
+        local tweenInfo = TweenInfo.new(dist / 300, Enum.EasingStyle.Linear)
         currentTween = TweenService:Create(hrp, tweenInfo, {CFrame = targetCFrame})
         currentTween:Play()
     end)
@@ -1315,7 +1531,7 @@ local function isQuestCompleted()
 end
 
 -- =========================================================
--- LOGIC AUTO FARM ĐỨNG IM CỐ ĐỊNH, KHÔNG BỊ TRỄ NHỊP
+-- LOGIC AUTO FARM ĐỨNG IM CỐ ĐỊNH, CHỐNG NGHIÊNG, ĐÁNH TỰ DO
 -- =========================================================
 local LockedFarmCFrame = nil 
 
@@ -1336,7 +1552,7 @@ spawn(function()
                     end
                 else
                     if isQuestCompleted() then
-                        -- Tự động hoàn thành Quest ngay lập tức, không dùng delay
+                        -- Tự động hoàn thành Quest ngay lập tức
                         task.spawn(function()
                             if CommF then 
                                 pcall(function() CommF:InvokeServer("FinishQuest", NameQuest) end)
@@ -1366,6 +1582,7 @@ spawn(function()
                             end
                             
                             local hrp = LocalPlayer.Character.HumanoidRootPart
+                            -- CHIỀU CAO CHUẨN 30M THEO YÊU CẦU ĐỂ KHÔNG BỊ MISS HIT
                             local flyPos = LockedFarmCFrame * CFrame.new(0, 30, 0)
                             
                             if (hrp.Position - flyPos.Position).Magnitude > 15 then
@@ -1410,7 +1627,7 @@ spawn(function()
     end
 end)
 
--- VÒNG LẶP GOM QUÁI (HÚT CHẶT VÀO DƯỚI ĐẤT)
+-- VÒNG LẶP GOM QUÁI CHUẨN (ÉP CHẶT DƯỚI ĐẤT)
 spawn(function()
     while task.wait() do
         pcall(function()
@@ -1466,7 +1683,7 @@ task.spawn(function()
     end
 end)
 
--- LÕI FAST ATTACK ULTRA MAX
+-- LÕI FAST ATTACK ULTRA MAX TỐI ƯU
 local v1 = next; local v2 = {ReplicatedStorage.Util, ReplicatedStorage.Common, ReplicatedStorage.Remotes, ReplicatedStorage.Assets, ReplicatedStorage.FX}; local v3, u4, u5 = nil, nil, nil
 task.spawn(function()
     while true do
@@ -1488,6 +1705,7 @@ task.spawn(function()
             pcall(function()
                 local _Character = LocalPlayer.Character; local v13 = _Character and _Character:FindFirstChild('HumanoidRootPart'); if not v13 then return end
                 local u17 = {}
+                -- Tối ưu chỉ quét Workspace.Enemies để đỡ lag
                 for _, v22 in ipairs(Workspace.Enemies:GetChildren()) do
                     local _HumanoidRootPart = v22:FindFirstChild('HumanoidRootPart'); local _Humanoid = v22:FindFirstChild('Humanoid')
                     if _HumanoidRootPart and _Humanoid and _Humanoid.Health > 0 and (_HumanoidRootPart.Position - v13.Position).Magnitude <= 120 then
@@ -1517,7 +1735,7 @@ task.spawn(function()
     end
 end)
 
--- CÁC TAB CÒN LẠI VÀ CHỨC NĂNG PHỤ
+-- CÁC TAB CÒN LẠI VÀ CHỨC NĂNG PHỤ KHÔNG THỂ XÓA
 task.spawn(function()
     while task.wait(1) do
         pcall(function()
@@ -1565,7 +1783,7 @@ task.spawn(function()
     end
 end)
 
--- ESP Toàn Diện Đã Khắc Phục
+-- ESP TOÀN DIỆN ĐẦY ĐỦ NHẤT
 task.spawn(function()
     while task.wait(1) do
         if _G.ESPPlayer then
