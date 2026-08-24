@@ -605,7 +605,9 @@ createToggle(pMisc, "ToggleLag", false, function(v)
 end)
 createButton(pMisc, "BtnRejoin", function() TeleportService:Teleport(game.PlaceId, LocalPlayer) end)
 
--- [[ LOGIC EXECUTION ]] --
+-- =========================================================
+-- LOGIC EXECUTION
+-- =========================================================
 local currentTween = nil
 function topos(targetCFrame)
     if not LocalPlayer.Character or not LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then return end
@@ -686,7 +688,7 @@ task.spawn(function()
     end
 end)
 
--- Tự động bật Haki liên tục
+-- Tự động bật Haki
 task.spawn(function()
     while task.wait(0.5) do
         pcall(function()
@@ -871,11 +873,10 @@ task.spawn(function()
 end)
 
 -- =========================================================
--- LOGIC AUTO FARM (SỬA LỖI KÉO QUÁI XUỐNG ĐẤT)
+-- LOGIC AUTO FARM (BẬT HAKI, KÉO QUÁI LÊN TRỜI, TỐC ĐỘ CAO)
 -- =========================================================
 function EquipWeapon(weaponType)
     pcall(function()
-        -- Bật Haki nếu chưa có
         if not LocalPlayer.Character:FindFirstChild("HasBuso") then
             CommF:InvokeServer("Buso")
         end
@@ -934,55 +935,143 @@ function CheckQuest()
     end
 end
 
--- Vòng lặp Auto Farm Level & Item Farm (kéo quái xuống đất, không bay lên)
+-- Hàm lấy tên quái từ UI nhiệm vụ
+local function getQuestMonsterName()
+    local questGui = LocalPlayer.PlayerGui:FindFirstChild("Main") and LocalPlayer.PlayerGui.Main:FindFirstChild("Quest")
+    if not questGui or not questGui.Visible then return nil end
+    local title = questGui:FindFirstChild("Container") and questGui.Container:FindFirstChild("QuestTitle") and questGui.Container.QuestTitle:FindFirstChild("Title")
+    if not title then return nil end
+    local text = title.Text
+    local monster = text:match("Đánh%b*%s*%d+%s*(.-)%s*%((%d+)/(%d+)%)")
+    if not monster then
+        monster = text:match("Đánh%b*%s*%d+%s*(.*)")
+    end
+    return monster and monster:gsub("^%s+", ""):gsub("%s+$", "") or nil
+end
+
+local function isQuestCompleted()
+    local questGui = LocalPlayer.PlayerGui:FindFirstChild("Main") and LocalPlayer.PlayerGui.Main:FindFirstChild("Quest")
+    if not questGui or not questGui.Visible then return false end
+    local track = questGui:FindFirstChild("Container") and questGui.Container:FindFirstChild("QuestTitle") and questGui.Container.QuestTitle:FindFirstChild("QuestTrack")
+    if not track then return false end
+    local text = track.Text
+    local current, required = text:match("(%d+)/(%d+)")
+    if current and required then
+        return tonumber(current) >= tonumber(required)
+    end
+    return false
+end
+
+local function completeQuest()
+    if not CommF then return false end
+    local success = pcall(function() CommF:InvokeServer("FinishQuest", NameQuest) end)
+    if success then return true end
+    success = pcall(function() CommF:InvokeServer("CompleteQuest", NameQuest) end)
+    if success then return true end
+    success = pcall(function() CommF:InvokeServer("ClaimQuestReward", NameQuest) end)
+    return success
+end
+
+-- Vòng lặp Auto Farm Level & Item Farm (kéo quái lên trời, bật Haki, tốc độ cao)
 spawn(function()
     while task.wait() do
         if _G.AutoFarm or _G.AutoItemFarm then
             pcall(function()
                 CheckQuest()
-                local questGui = LocalPlayer.PlayerGui.Main.Quest
-                local questText = questGui.Container.QuestTitle.Title.Text
-                if not questGui.Visible then
+                local questGui = LocalPlayer.PlayerGui:FindFirstChild("Main") and LocalPlayer.PlayerGui.Main:FindFirstChild("Quest")
+                if not questGui or not questGui.Visible then
+                    -- Không có nhiệm vụ -> nhận nhiệm vụ
                     StartBring = false; _G.GlobalFarmActive = false
                     if (LocalPlayer.Character.HumanoidRootPart.Position - CFrameQuest.Position).Magnitude > 20 then topos(CFrameQuest)
                     else if _G.AutoQuest and CommF then CommF:InvokeServer("StartQuest", NameQuest, LevelQuest) end end
-                elseif not string.find(questText, NameMon) then
-                    StartBring = false; _G.GlobalFarmActive = false; if CommF then CommF:InvokeServer("AbandonQuest") end
                 else
-                    local foundMob = false
-                    local enemies = Workspace:FindFirstChild("Enemies") or Workspace
-                    for _, v512 in pairs(enemies:GetChildren()) do
-                        if v512:FindFirstChild("HumanoidRootPart") and v512:FindFirstChild("Humanoid") and v512.Humanoid.Health > 0 and v512.Name == Mon then
-                            foundMob = true
-                            -- Di chuyển đến vị trí quái
-                            local targetPos = v512.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0)
-                            if (LocalPlayer.Character.HumanoidRootPart.Position - targetPos.Position).Magnitude > 10 then
-                                topos(targetPos)
-                            end
-                            repeat
-                                task.wait()
-                                EquipWeapon(_G.SelectWeapon)
-                                local hrp = LocalPlayer.Character.HumanoidRootPart
-                                hrp.CFrame = CFrame.lookAt(hrp.Position, v512.HumanoidRootPart.Position)
-                                -- Kéo quái xuống đất (Y = 0), không kéo lên trời
-                                if _G.BringMonster then
-                                    v512.HumanoidRootPart.CFrame = CFrame.new(hrp.Position.X, 0, hrp.Position.Z)
-                                end
-                                v512.HumanoidRootPart.CanCollide = false
-                                v512.Humanoid.WalkSpeed = 0
-                                v512.Head.CanCollide = false
-                                v512.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
-                                StartBring = true
-                                _G.GlobalFarmActive = true
-                                VirtualUser:CaptureController()
-                                VirtualUser:Button1Down(Vector2.new(1280, 672))
-                            until not (_G.AutoFarm or _G.AutoItemFarm) or v512.Humanoid.Health <= 0 or not v512.Parent or questGui.Visible == false
+                    -- Có nhiệm vụ hiển thị
+                    local questCompleted = isQuestCompleted()
+                    if questCompleted then
+                        -- Hoàn thành nhiệm vụ
+                        if CommF then
+                            completeQuest()
                         end
-                    end
-                    if not foundMob then
+                        task.wait(0.5)
+                        -- Nhận nhiệm vụ mới
+                        if (LocalPlayer.Character.HumanoidRootPart.Position - CFrameQuest.Position).Magnitude > 20 then topos(CFrameQuest)
+                        else if _G.AutoQuest and CommF then CommF:InvokeServer("StartQuest", NameQuest, LevelQuest) end end
                         StartBring = false; _G.GlobalFarmActive = false
-                        if (LocalPlayer.Character.HumanoidRootPart.Position - CFrameMon.Position).Magnitude > 15 then
-                            topos(CFrameMon)
+                    else
+                        -- Nhiệm vụ chưa hoàn thành, tìm quái
+                        local questMonster = getQuestMonsterName()
+                        if questMonster and questMonster ~= "" then
+                            local foundMob = false
+                            local enemies = Workspace:FindFirstChild("Enemies") or Workspace
+                            for _, v512 in pairs(enemies:GetChildren()) do
+                                if v512:FindFirstChild("HumanoidRootPart") and v512:FindFirstChild("Humanoid") and v512.Humanoid.Health > 0 and v512.Name:lower() == questMonster:lower() then
+                                    foundMob = true
+                                    local targetPos = v512.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0)
+                                    if (LocalPlayer.Character.HumanoidRootPart.Position - targetPos.Position).Magnitude > 10 then
+                                        topos(targetPos)
+                                    end
+                                    repeat
+                                        task.wait()
+                                        EquipWeapon(_G.SelectWeapon)
+                                        local hrp = LocalPlayer.Character.HumanoidRootPart
+                                        hrp.CFrame = CFrame.lookAt(hrp.Position, v512.HumanoidRootPart.Position)
+                                        -- Kéo quái lên trời
+                                        if _G.BringMonster then
+                                            v512.HumanoidRootPart.CFrame = CFrame.new(hrp.Position.X, hrp.Position.Y + 15, hrp.Position.Z)
+                                        end
+                                        v512.HumanoidRootPart.CanCollide = false
+                                        v512.Humanoid.WalkSpeed = 0
+                                        v512.Head.CanCollide = false
+                                        v512.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
+                                        StartBring = true
+                                        _G.GlobalFarmActive = true
+                                        VirtualUser:CaptureController()
+                                        VirtualUser:Button1Down(Vector2.new(1280, 672))
+                                    until not (_G.AutoFarm or _G.AutoItemFarm) or v512.Humanoid.Health <= 0 or not v512.Parent or not questGui.Visible
+                                end
+                            end
+                            if not foundMob then
+                                StartBring = false; _G.GlobalFarmActive = false
+                                if (LocalPlayer.Character.HumanoidRootPart.Position - CFrameMon.Position).Magnitude > 15 then
+                                    topos(CFrameMon)
+                                end
+                            end
+                        else
+                            -- Dùng NameMon
+                            local foundMob = false
+                            local enemies = Workspace:FindFirstChild("Enemies") or Workspace
+                            for _, v512 in pairs(enemies:GetChildren()) do
+                                if v512:FindFirstChild("HumanoidRootPart") and v512:FindFirstChild("Humanoid") and v512.Humanoid.Health > 0 and v512.Name == NameMon then
+                                    foundMob = true
+                                    local targetPos = v512.HumanoidRootPart.CFrame * CFrame.new(0, 15, 0)
+                                    if (LocalPlayer.Character.HumanoidRootPart.Position - targetPos.Position).Magnitude > 10 then
+                                        topos(targetPos)
+                                    end
+                                    repeat
+                                        task.wait()
+                                        EquipWeapon(_G.SelectWeapon)
+                                        local hrp = LocalPlayer.Character.HumanoidRootPart
+                                        hrp.CFrame = CFrame.lookAt(hrp.Position, v512.HumanoidRootPart.Position)
+                                        if _G.BringMonster then
+                                            v512.HumanoidRootPart.CFrame = CFrame.new(hrp.Position.X, hrp.Position.Y + 15, hrp.Position.Z)
+                                        end
+                                        v512.HumanoidRootPart.CanCollide = false
+                                        v512.Humanoid.WalkSpeed = 0
+                                        v512.Head.CanCollide = false
+                                        v512.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
+                                        StartBring = true
+                                        _G.GlobalFarmActive = true
+                                        VirtualUser:CaptureController()
+                                        VirtualUser:Button1Down(Vector2.new(1280, 672))
+                                    until not (_G.AutoFarm or _G.AutoItemFarm) or v512.Humanoid.Health <= 0 or not v512.Parent or not questGui.Visible
+                                end
+                            end
+                            if not foundMob then
+                                StartBring = false; _G.GlobalFarmActive = false
+                                if (LocalPlayer.Character.HumanoidRootPart.Position - CFrameMon.Position).Magnitude > 15 then
+                                    topos(CFrameMon)
+                                end
+                            end
                         end
                     end
                 end
@@ -1006,7 +1095,7 @@ spawn(function()
     end
 end)
 
--- Bring Mob (gom quái về 1 chỗ, kéo xuống đất)
+-- Bring Mob (kéo lên trời)
 spawn(function()
     while task.wait() do
         pcall(function()
@@ -1017,7 +1106,7 @@ spawn(function()
                     if v1167.Name == Mon and v1167:FindFirstChild("Humanoid") and v1167:FindFirstChild("HumanoidRootPart") and v1167.Humanoid.Health > 0 then
                         if (v1167.HumanoidRootPart.Position - hrp.Position).Magnitude <= 320 then
                             v1167.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
-                            v1167.HumanoidRootPart.CFrame = CFrame.new(hrp.Position.X, 0, hrp.Position.Z)
+                            v1167.HumanoidRootPart.CFrame = CFrame.new(hrp.Position.X, hrp.Position.Y + 15, hrp.Position.Z)
                             v1167.HumanoidRootPart.CanCollide = false
                             v1167.Head.CanCollide = false
                             if v1167.Humanoid:FindFirstChild("Animator") then v1167.Humanoid.Animator:Destroy() end
@@ -1031,7 +1120,7 @@ spawn(function()
     end
 end)
 
--- Boss Farm (kéo xuống đất)
+-- Boss Farm (kéo lên trời)
 task.spawn(function()
     while task.wait(1) do
         pcall(function()
@@ -1058,7 +1147,7 @@ task.spawn(function()
                                 local hrp = LocalPlayer.Character.HumanoidRootPart
                                 hrp.CFrame = CFrame.lookAt(hrp.Position, v.HumanoidRootPart.Position)
                                 if _G.BringMonster then
-                                    v.HumanoidRootPart.CFrame = CFrame.new(hrp.Position.X, 0, hrp.Position.Z)
+                                    v.HumanoidRootPart.CFrame = CFrame.new(hrp.Position.X, hrp.Position.Y + 15, hrp.Position.Z)
                                 end
                                 v.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
                                 v.HumanoidRootPart.CanCollide = false
@@ -1092,7 +1181,7 @@ task.spawn(function()
     end
 end)
 
--- Fast Attack
+-- Fast Attack với tốc độ cực cao (gửi nhiều lần)
 local v1 = next; local v2 = {ReplicatedStorage.Util, ReplicatedStorage.Common, ReplicatedStorage.Remotes, ReplicatedStorage.Assets, ReplicatedStorage.FX}; local v3, u4, u5 = nil, nil, nil
 task.spawn(function()
     while true do
@@ -1136,7 +1225,8 @@ task.spawn(function()
                         ReplicatedStorage.Modules.Net['RE/RegisterAttack']:FireServer()
                         local _Head = u17[1][1]:FindFirstChild('Head')
                         if _Head then
-                            for _ = 1, 3 do
+                            -- Tăng số lần gửi lên 15 để tốc độ cực nhanh
+                            for _ = 1, 15 do
                                 ReplicatedStorage.Modules.Net['RE/RegisterHit']:FireServer(_Head, u17, {}, tostring(LocalPlayer.UserId):sub(2, 4) .. tostring(coroutine.running()):sub(11, 15))
                                 local r_u4 = (typeof(cloneref) == "function" and cloneref(u4)) or u4
                                 if r_u4 then r_u4:FireServer(string.gsub('RE/RegisterHit', '.', function(p31) return string.char(bit32.bxor(string.byte(p31), math.floor(Workspace:GetServerTimeNow() / 10 % 10) + 1)) end), bit32.bxor(u5 + 909090, ReplicatedStorage.Modules.Net.seed:InvokeServer() * 2), _Head, u17) end
@@ -1166,7 +1256,7 @@ task.spawn(function()
     end
 end)
 
--- Auto Farm Bone (kéo xuống đất)
+-- Auto Farm Bone (kéo lên trời)
 task.spawn(function()
     while task.wait() do
         if _G.AutoFarmBone then
@@ -1186,7 +1276,7 @@ task.spawn(function()
                                 local hrp = LocalPlayer.Character.HumanoidRootPart
                                 hrp.CFrame = CFrame.lookAt(hrp.Position, v.HumanoidRootPart.Position)
                                 if _G.BringMonster then
-                                    v.HumanoidRootPart.CFrame = CFrame.new(hrp.Position.X, 0, hrp.Position.Z)
+                                    v.HumanoidRootPart.CFrame = CFrame.new(hrp.Position.X, hrp.Position.Y + 15, hrp.Position.Z)
                                 end
                                 v.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
                                 v.HumanoidRootPart.CanCollide = false
@@ -1203,7 +1293,7 @@ task.spawn(function()
     end
 end)
 
--- Auto Farm Takakuri (kéo xuống đất)
+-- Auto Farm Takakuri (kéo lên trời)
 task.spawn(function()
     while task.wait() do
         if _G.AutoFarmTakakuri then
@@ -1223,7 +1313,7 @@ task.spawn(function()
                                 local hrp = LocalPlayer.Character.HumanoidRootPart
                                 hrp.CFrame = CFrame.lookAt(hrp.Position, v.HumanoidRootPart.Position)
                                 if _G.BringMonster then
-                                    v.HumanoidRootPart.CFrame = CFrame.new(hrp.Position.X, 0, hrp.Position.Z)
+                                    v.HumanoidRootPart.CFrame = CFrame.new(hrp.Position.X, hrp.Position.Y + 15, hrp.Position.Z)
                                 end
                                 v.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
                                 v.HumanoidRootPart.CanCollide = false
@@ -1245,7 +1335,7 @@ task.spawn(function()
     end
 end)
 
--- Auto Sea Beast (kéo xuống đất)
+-- Auto Sea Beast (kéo lên trời)
 task.spawn(function()
     while task.wait() do
         if _G.AutoSeaBeast then
@@ -1263,7 +1353,7 @@ task.spawn(function()
                             local hrp = LocalPlayer.Character.HumanoidRootPart
                             hrp.CFrame = CFrame.lookAt(hrp.Position, v.HumanoidRootPart.Position)
                             if _G.BringMonster then
-                                v.HumanoidRootPart.CFrame = CFrame.new(hrp.Position.X, 0, hrp.Position.Z)
+                                v.HumanoidRootPart.CFrame = CFrame.new(hrp.Position.X, hrp.Position.Y + 15, hrp.Position.Z)
                             end
                             v.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
                             v.HumanoidRootPart.CanCollide = false
@@ -1279,7 +1369,7 @@ task.spawn(function()
     end
 end)
 
--- Auto Ghost Ship (kéo xuống đất)
+-- Auto Ghost Ship (kéo lên trời)
 task.spawn(function()
     while task.wait() do
         if _G.AutoGhostShip then
@@ -1297,7 +1387,7 @@ task.spawn(function()
                             local hrp = LocalPlayer.Character.HumanoidRootPart
                             hrp.CFrame = CFrame.lookAt(hrp.Position, v.HumanoidRootPart.Position)
                             if _G.BringMonster then
-                                v.HumanoidRootPart.CFrame = CFrame.new(hrp.Position.X, 0, hrp.Position.Z)
+                                v.HumanoidRootPart.CFrame = CFrame.new(hrp.Position.X, hrp.Position.Y + 15, hrp.Position.Z)
                             end
                             v.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
                             v.HumanoidRootPart.CanCollide = false
