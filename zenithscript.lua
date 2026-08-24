@@ -1,4 +1,4 @@
--- [[ ZENITH HUB - V700.FINAL PART 1: UI & COMPONENTS ]] --
+-- [[ ZENITH HUB - V800.FINAL PART 1: UI & COMPONENTS ]] --
 task.wait(0.5)
 if not game:IsLoaded() then game.Loaded:Wait() end
 
@@ -70,9 +70,9 @@ local AllStyles = {"Dark Step", "Electro", "Fishman Karate", "Dragon Breath", "S
 
 local Loc = {
     VN = {
-        Title = "ZENITH HUB <font color='#ff3344'>• V600 OMNIPOTENT</font>",
+        Title = "ZENITH HUB <font color='#ff3344'>• V800 OMNIPOTENT</font>",
         Farm = "Cày Cấp", FarmItem = "Farm Item", Boss = "Săn Boss", PVP = "PVP & Aim", FruitEsp = "Trái & ESP", Stats = "Nâng Điểm", Teleport = "Dịch Chuyển", Shop = "Cửa Hàng", Misc = "Cài Đặt", SeaQuest = "Nhiệm Vụ Biển",
-        StatusReady = "Trạng thái: Đã sửa Gom Quái & Khóa Đứng Im!",
+        StatusReady = "Trạng thái: Đã sửa hiển thị FOV 100% cho Giả Lập!",
         ToggleFarm = "⚡ Auto Farm Level", ToggleQuest = "📜 Tự Nhận Nhiệm Vụ", ToggleBring = "🧲 Kéo Quái (Bring Mob)", ToggleFast = "⚔️ Fast Attack (ULTRA MAX)",
         ToggleAutoClick = "⚔️ Auto Click (Tự Động Đánh Tại Chỗ)",
         ToggleItemFarm = "🦴 Auto Farm Item / Vật Phẩm", ToggleAutoBoss = "👑 Auto Farm Boss Đã Chọn", ToggleAllBoss = "🔥 Đánh Toàn Bộ Boss Trong Server",
@@ -91,9 +91,9 @@ local Loc = {
         BtnBuySelectedStyle = "🥊 Mua Võ Đã Chọn"
     },
     EN = {
-        Title = "ZENITH HUB <font color='#ff3344'>• V600 OMNIPOTENT</font>",
+        Title = "ZENITH HUB <font color='#ff3344'>• V800 OMNIPOTENT</font>",
         Farm = "Auto Farm", FarmItem = "Farm Item", Boss = "Boss Hunt", PVP = "PVP & Aim", FruitEsp = "Fruit & ESP", Stats = "Stats", Teleport = "Teleport", Shop = "Shop", Misc = "Settings", SeaQuest = "Sea Quest",
-        StatusReady = "Status: Bring Mob & Stand Still Fixed!",
+        StatusReady = "Status: Emulator FOV fixed 100%!",
         ToggleFarm = "⚡ Auto Farm Level", ToggleQuest = "📜 Auto Quest", ToggleBring = "🧲 Bring Mob (Ground Magnet)", ToggleFast = "⚔️ Fast Attack (ULTRA MAX)",
         ToggleAutoClick = "⚔️ Auto Click (Attack in place)",
         ToggleItemFarm = "🦴 Auto Farm Items / Materials", ToggleAutoBoss = "👑 Auto Farm Selected Boss", ToggleAllBoss = "🔥 Farm All Bosses In Server",
@@ -121,7 +121,7 @@ end
 -- =========================================
 -- UI GIAO DIỆN CHÍNH
 -- =========================================
-local UI_NAME = "ZenithHub_V600_Crimson"
+local UI_NAME = "ZenithHub_V800_Crimson"
 pcall(function() if CoreGui:FindFirstChild(UI_NAME) then CoreGui[UI_NAME]:Destroy() end end)
 pcall(function() if LocalPlayer.PlayerGui:FindFirstChild(UI_NAME) then LocalPlayer.PlayerGui[UI_NAME]:Destroy() end end)
 
@@ -130,6 +130,7 @@ ScreenGui.Name = UI_NAME; ScreenGui.ResetOnSpawn = false
 local s, p = pcall(function() return gethui() end)
 if s and p then ScreenGui.Parent = p else ScreenGui.Parent = CoreGui end
 
+-- StatusHUD (Giữ nguyên viền nét chữ đen, nền đỏ trong suốt)
 local StatusHUD = Instance.new("Frame", ScreenGui)
 StatusHUD.Size = UDim2.new(0, 220, 0, 180); StatusHUD.Position = UDim2.new(1, -235, 0.4, 0); StatusHUD.BackgroundColor3 = Color3.fromRGB(15, 10, 12); StatusHUD.BackgroundTransparency = 0.3; StatusHUD.BorderSizePixel = 0; StatusHUD.ZIndex = 800; StatusHUD.Visible = _G.StatusHUDVisible
 Instance.new("UICorner", StatusHUD).CornerRadius = UDim.new(0, 10)
@@ -368,15 +369,17 @@ bossSelectFrame.InputBegan:Connect(function(input)
 end)
 local bossListLabel = Instance.new("TextLabel", pBoss); bossListLabel.Size = UDim2.new(0.95, 0, 0, 30); bossListLabel.BackgroundTransparency = 1; bossListLabel.TextColor3 = Color3.fromRGB(255, 100, 115); bossListLabel.Font = Enum.Font.GothamBold; bossListLabel.TextSize = 11; bossListLabel.Text = "👑 Boss Đang Sống: Quét..."
 
--- [ TAB PVP ]
+-- [ TAB PVP (FIX HOÀN TOÀN LỖI ẨN FOV SCREEN GUI MỚI 100%) ]
 local pvpContainer = pPVP
 local silentToggleFrame = Instance.new("Frame", pvpContainer); silentToggleFrame.Size = UDim2.new(0.95, 0, 0, 36); silentToggleFrame.BackgroundColor3 = Color3.fromRGB(22, 12, 15); silentToggleFrame.BackgroundTransparency = 0.3; Instance.new("UICorner", silentToggleFrame).CornerRadius = UDim.new(0, 6)
 Instance.new("UIStroke", silentToggleFrame).Color = Color3.fromRGB(75, 25, 35); Instance.new("UIStroke", silentToggleFrame).Thickness = 1
 local silentLbl = Instance.new("TextLabel", silentToggleFrame); silentLbl.Size = UDim2.new(1, -55, 1, 0); silentLbl.Position = UDim2.new(0, 12, 0, 0); silentLbl.BackgroundTransparency = 1; silentLbl.TextColor3 = Color3.fromRGB(255, 240, 245); silentLbl.Font = Enum.Font.GothamMedium; silentLbl.TextSize = 12; silentLbl.TextXAlignment = Enum.TextXAlignment.Left; silentLbl.Text = L("ToggleSilent")
 local silentSwitch = Instance.new("TextButton", silentToggleFrame); silentSwitch.Size = UDim2.new(0, 36, 0, 18); silentSwitch.Position = UDim2.new(1, -45, 0.5, -9); silentSwitch.BackgroundColor3 = Color3.fromRGB(50, 20, 26); silentSwitch.Text = ""; Instance.new("UICorner", silentSwitch).CornerRadius = UDim.new(1, 0)
 local silentCircle = Instance.new("Frame", silentSwitch); silentCircle.Size = UDim2.new(0, 14, 0, 14); silentCircle.Position = UDim2.new(0, 2, 0.5, -7); silentCircle.BackgroundColor3 = Color3.fromRGB(255, 255, 255); Instance.new("UICorner", silentCircle).CornerRadius = UDim.new(1, 0)
+
 local silentSubContainer = Instance.new("Frame", pvpContainer); silentSubContainer.Size = UDim2.new(0.95, 0, 0, 110); silentSubContainer.BackgroundTransparency = 1; silentSubContainer.Visible = false
 local subList = Instance.new("UIListLayout", silentSubContainer); subList.Padding = UDim.new(0, 6); subList.HorizontalAlignment = Enum.HorizontalAlignment.Center
+
 local fovFrame = Instance.new("Frame", silentSubContainer); fovFrame.Size = UDim2.new(1, 0, 0, 34); fovFrame.BackgroundColor3 = Color3.fromRGB(22, 12, 15); fovFrame.BackgroundTransparency = 0.4; Instance.new("UICorner", fovFrame).CornerRadius = UDim.new(0, 6)
 Instance.new("UIStroke", fovFrame).Color = Color3.fromRGB(75, 25, 35); Instance.new("UIStroke", fovFrame).Thickness = 1
 local fovLbl = Instance.new("TextLabel", fovFrame); fovLbl.Size = UDim2.new(0.7, 0, 1, 0); fovLbl.Position = UDim2.new(0, 10, 0, 0); fovLbl.BackgroundTransparency = 1; fovLbl.TextColor3 = Color3.fromRGB(240, 230, 235); fovLbl.Font = Enum.Font.Gotham; fovLbl.TextSize = 11; fovLbl.TextXAlignment = Enum.TextXAlignment.Left; fovLbl.Text = "FOV Silent: 120"
@@ -384,6 +387,7 @@ local fovColorBtn = Instance.new("TextButton", fovFrame); fovColorBtn.Size = UDi
 local colorsList = {Color3.fromRGB(235, 50, 65), Color3.fromRGB(0, 210, 255), Color3.fromRGB(0, 255, 100), Color3.fromRGB(255, 215, 0)}
 local colorIdx = 1
 fovColorBtn.MouseButton1Click:Connect(function() colorIdx = colorIdx % #colorsList + 1; _G.FOVColor = colorsList[colorIdx]; fovColorBtn.BackgroundColor3 = _G.FOVColor end)
+
 local fovTrack = Instance.new("TextButton", fovFrame); fovTrack.Size = UDim2.new(0.9, 0, 0, 6); fovTrack.Position = UDim2.new(0.05, 0, 0, 26); fovTrack.BackgroundColor3 = Color3.fromRGB(45, 20, 26); fovTrack.AutoButtonColor = false; fovTrack.Text = ""; Instance.new("UICorner", fovTrack).CornerRadius = UDim.new(1, 0)
 local fovFill = Instance.new("Frame", fovTrack); fovFill.Size = UDim2.new(0.4, 0, 1, 0); fovFill.BackgroundColor3 = Color3.fromRGB(235, 50, 65); Instance.new("UICorner", fovFill).CornerRadius = UDim.new(1, 0)
 local isDraggingFOV = false
@@ -394,6 +398,7 @@ UserInputService.InputChanged:Connect(function(input)
         local pos = math.clamp((UserInputService:GetMouseLocation().X - fovTrack.AbsolutePosition.X) / fovTrack.AbsoluteSize.X, 0, 1); fovFill.Size = UDim2.new(pos, 0, 1, 0); _G.FOVSize = math.floor(50 + 350 * pos); fovLbl.Text = "FOV Silent: " .. tostring(_G.FOVSize)
     end
 end)
+
 local accFrame = Instance.new("Frame", silentSubContainer); accFrame.Size = UDim2.new(1, 0, 0, 34); accFrame.BackgroundColor3 = Color3.fromRGB(22, 12, 15); accFrame.BackgroundTransparency = 0.4; Instance.new("UICorner", accFrame).CornerRadius = UDim.new(0, 6)
 Instance.new("UIStroke", accFrame).Color = Color3.fromRGB(75, 25, 35); Instance.new("UIStroke", accFrame).Thickness = 1
 local accLbl = Instance.new("TextLabel", accFrame); accLbl.Size = UDim2.new(1, -12, 0, 18); accLbl.Position = UDim2.new(0, 10, 0, 4); accLbl.BackgroundTransparency = 1; accLbl.TextColor3 = Color3.fromRGB(240, 230, 235); accLbl.Font = Enum.Font.Gotham; accLbl.TextSize = 11; accLbl.TextXAlignment = Enum.TextXAlignment.Left; accLbl.Text = "Độ Bám / Accuracy: 100%"
@@ -405,11 +410,10 @@ UserInputService.InputEnded:Connect(function(input) if input.UserInputType == En
 UserInputService.InputChanged:Connect(function(input)
     if isDraggingAcc and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
         local pos = math.clamp((UserInputService:GetMouseLocation().X - accTrack.AbsolutePosition.X) / accTrack.AbsoluteSize.X, 0, 1)
-        accFill.Size = UDim2.new(pos, 0, 1, 0)
-        _G.HitAccuracy = math.floor(pos * 100)
-        accLbl.Text = "Độ Bám / Accuracy: " .. tostring(_G.HitAccuracy) .. "%"
+        accFill.Size = UDim2.new(pos, 0, 1, 0); _G.HitAccuracy = math.floor(pos * 100); accLbl.Text = "Độ Bám / Accuracy: " .. tostring(_G.HitAccuracy) .. "%"
     end
 end)
+
 silentSwitch.MouseButton1Click:Connect(function()
     _G.SilentAim = not _G.SilentAim
     silentSwitch.BackgroundColor3 = _G.SilentAim and Color3.fromRGB(235, 50, 65) or Color3.fromRGB(50, 20, 26)
@@ -548,6 +552,7 @@ createButton(pShop, "BtnBuyStyle", function() if CommF then CommF:InvokeServer("
 
 -- [ TAB MISC ]
 createButton(pMisc, "BtnDiscord", function() setclipboard("https://discord.gg/yourlink") end)
+
 local langSeg = Instance.new("Frame", pMisc); langSeg.Size = UDim2.new(0.95, 0, 0, 35); langSeg.BackgroundColor3 = Color3.fromRGB(22, 12, 15); langSeg.BackgroundTransparency = 0.3; Instance.new("UICorner", langSeg).CornerRadius = UDim.new(0, 6)
 Instance.new("UIStroke", langSeg).Color = Color3.fromRGB(75, 25, 35); Instance.new("UIStroke", langSeg).Thickness = 1
 local lgLayout = Instance.new("UIListLayout", langSeg); lgLayout.FillDirection = Enum.FillDirection.Horizontal; lgLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center; lgLayout.VerticalAlignment = Enum.VerticalAlignment.Center; lgLayout.Padding = UDim.new(0, 6)
@@ -565,6 +570,13 @@ for _, lg in ipairs({"VN", "EN"}) do
             end
         end
         for _, btn in pairs(langSeg:GetChildren()) do if btn:IsA("TextButton") then btn.BackgroundColor3 = (btn.Text == lg) and Color3.fromRGB(220, 35, 50) or Color3.fromRGB(35, 18, 22) end end
+        boneLabel.Text = L("LabelBoneCount") .. tostring(CountBone())
+        takakuriLabel.Text = L("LabelTakakuriCount") .. tostring(CountTakakuri())
+        bsLbl.Text = L("BoatSpeedLabel") .. string.format("%.1f", _G.BoatSpeedVal)
+        bhLbl.Text = L("BoatFlyHeightLabel") .. tostring(_G.BoatFlyHeight)
+        CloseAllBtn.Text = L("CloseAll")
+        styleSelectLabel.Text = L("SelectStyle")
+        buyStyleBtn.Text = L("BtnBuySelectedStyle")
     end)
 end
 
@@ -598,7 +610,7 @@ end)
 createButton(pMisc, "BtnRejoin", function() TeleportService:Teleport(game.PlaceId, LocalPlayer) end)
 -- [[ ZENITH HUB - V600.FINAL PART 2: LOGIC EXECUTION ]] --
 
--- CẬP NHẬT HUD
+-- CẬP NHẬT HUD VÀ ANTI LAG
 RunService.RenderStepped:Connect(function()
     pcall(function()
         local char = LocalPlayer.Character
@@ -619,12 +631,20 @@ RunService.RenderStepped:Connect(function()
             if _G.AutoClick then table.insert(activeList, "⚔️ Auto Click: ON") end
             if _G.AutoFarm then table.insert(activeList, "⚡ Auto Farm: ON") end
             if _G.AutoItemFarm then table.insert(activeList, "🦴 Auto Item: ON") end
-            if _G.GlobalFarmActive then table.insert(activeList, "🎯 Target: " .. tostring(Mon or _G.SelectedBossName)) end
+            
+            local currentTarget = "None"
+            if _G.GlobalFarmActive then 
+                if _G.AutoBoss or _G.AllBossesFarm then currentTarget = _G.SelectedBossName
+                else currentTarget = Mon end
+            end
+            table.insert(activeList, "🎯 Target: " .. tostring(currentTarget))
             
             if #activeList > 0 then
                 StatusHUD.Visible = true
                 local lvl = 0
-                pcall(function() lvl = LocalPlayer.Data.Level.Value end)
+                if LocalPlayer:FindFirstChild("Data") and LocalPlayer.Data:FindFirstChild("Level") then
+                    lvl = LocalPlayer.Data.Level.Value
+                end
                 hudContent.Text = string.format("Level: %d\n", lvl) .. table.concat(activeList, "\n")
             else
                 StatusHUD.Visible = false
@@ -633,6 +653,52 @@ RunService.RenderStepped:Connect(function()
             StatusHUD.Visible = false
         end
     end)
+end)
+
+-- =========================================================
+-- VÒNG FOV SCREEN GUI DÀNH CHO GIẢ LẬP/MOBILE ĐỂ KHÔNG BỊ TÀNG HÌNH
+-- =========================================================
+local FOVGui = Instance.new("ScreenGui")
+FOVGui.Name = "ZenithFOVCircle"
+FOVGui.ResetOnSpawn = false
+local sFOV, pFOV = pcall(function() return gethui() end)
+if sFOV and pFOV then FOVGui.Parent = pFOV else FOVGui.Parent = CoreGui end
+
+local FOVFrame = Instance.new("Frame", FOVGui)
+FOVFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+FOVFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+FOVFrame.BackgroundTransparency = 1
+FOVFrame.Visible = false
+Instance.new("UICorner", FOVFrame).CornerRadius = UDim.new(1, 0)
+local FOVStroke = Instance.new("UIStroke", FOVFrame)
+FOVStroke.Thickness = 1.5
+FOVStroke.Color = Color3.fromRGB(235, 50, 65)
+
+RunService.RenderStepped:Connect(function()
+    if _G.SilentAim then
+        FOVFrame.Visible = true
+        FOVFrame.Size = UDim2.new(0, _G.FOVSize * 2, 0, _G.FOVSize * 2)
+        FOVStroke.Color = _G.FOVColor
+        
+        local closestPlayer = nil; local shortestDist = _G.FOVSize
+        for _, p in ipairs(Players:GetPlayers()) do
+            if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("Head") then
+                local screenPos, onScreen = Workspace.CurrentCamera:WorldToViewportPoint(p.Character.Head.Position)
+                if onScreen then
+                    local center = Vector2.new(Workspace.CurrentCamera.ViewportSize.X / 2, Workspace.CurrentCamera.ViewportSize.Y / 2)
+                    local dist = (Vector2.new(screenPos.X, screenPos.Y) - center).Magnitude
+                    if dist < shortestDist then shortestDist = dist; closestPlayer = p end
+                end
+            end
+        end
+        if closestPlayer and closestPlayer.Character and closestPlayer.Character:FindFirstChild("Head") then
+            if math.random(1, 100) <= _G.HitAccuracy then
+                Workspace.CurrentCamera.CFrame = CFrame.lookAt(Workspace.CurrentCamera.CFrame.Position, closestPlayer.Character.Head.Position)
+            end
+        end
+    else
+        FOVFrame.Visible = false
+    end
 end)
 
 local function getQuestMonsterName()
@@ -689,8 +755,6 @@ spawn(function()
                         StartBring = false
                         _G.GlobalFarmActive = false
                     else
-                        local questMonster = getQuestMonsterName()
-                        -- Không tìm chữ Việt Nam, ép cứng tìm NameMon (Tiếng Anh)
                         local monsterName = NameMon
                         local foundMob = false
                         local enemies = Workspace:FindFirstChild("Enemies") or Workspace
@@ -714,7 +778,7 @@ spawn(function()
                                 topos(farmPos)
                             else
                                 if currentTween then currentTween:Cancel(); currentTween = nil end
-                                -- ĐỨNG IM NHƯ TƯỢNG Ở TRÊN KHÔNG
+                                -- ĐỨNG IM NHƯ TƯỢNG TRÊN KHÔNG
                                 hrp.CFrame = farmPos
                                 
                                 EquipWeapon(_G.SelectWeapon)
