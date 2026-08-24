@@ -686,7 +686,8 @@ createToggle(pMisc, "ToggleLag", false, function(v)
         end
     end
 end)
-createButton(pMisc, "BtnRejoin", function() TeleportService:Teleport(game.PlaceId, LocalPlayer) end)-- [[ ZYROX | BLOX FRUIT V3.6 - PHẦN 2A: LOGIC DI CHUYỂN & FARM ]] --
+createButton(pMisc, "BtnRejoin", function() TeleportService:Teleport(game.PlaceId, LocalPlayer) end)
+-- [[ ZYROX | BLOX FRUIT V3.6 - PHẦN 2A: LOGIC DI CHUYỂN & FARM (FIX LỖI KẸT ĐẢO) ]] --
 
 -- =========================================================
 -- VÒNG FOV SCREEN GUI & ANTI ADMIN
@@ -759,7 +760,7 @@ for _, plr in ipairs(Players:GetPlayers()) do
 end
 
 -- =========================================================
--- HUD CẬP NHẬT VÀ NOCLIP
+-- HUD CẬP NHẬT VÀ NOCLIP TUYỆT ĐỐI
 -- =========================================================
 RunService.RenderStepped:Connect(function()
     pcall(function()
@@ -816,6 +817,10 @@ RunService.Stepped:Connect(function()
                 for _, v in pairs(char:GetDescendants()) do
                     if v:IsA("BasePart") and v.CanCollide == true then v.CanCollide = false end
                 end
+                -- Ép trạng thái Vô trọng lực để xuyên nước ở Đảo Người Cá
+                if char:FindFirstChild("Humanoid") then
+                    char.Humanoid:ChangeState(11)
+                end
             end
         end
     end)
@@ -838,7 +843,7 @@ UserInputService.InputBegan:Connect(function(input, gpe)
 end)
 
 -- =========================================================
--- HÀM BAY SIÊU MƯỢT (CHỐNG GIẬT + XUYÊN CỔNG)
+-- HÀM BAY BYPASS KHOẢNG CÁCH (XÓA BỎ LỖI KẸT CỔNG ĐẢO NGƯỜI CÁ)
 -- =========================================================
 function EquipWeapon(weaponType)
     pcall(function()
@@ -873,29 +878,6 @@ function topos(targetCFrame)
         local char = LocalPlayer.Character
         local hrp = char and char:FindFirstChild("HumanoidRootPart")
         if not hrp then return end
-        
-        -- TỰ ĐỘNG CHUI CỔNG VƯỢT ĐẢO NGƯỜI CÁ & BẦU TRỜI CHỐNG KẸT
-        if World1 then
-            if targetCFrame.Position.X > 50000 and hrp.Position.X < 50000 then
-                local portalIn = CFrame.new(3865, 7, -1926)
-                if (hrp.Position - portalIn.Position).Magnitude > 25 then targetCFrame = portalIn
-                else hrp.CFrame = CFrame.new(61164, 12, 1820); task.wait(0.2); return end
-            elseif targetCFrame.Position.X < 50000 and hrp.Position.X > 50000 then
-                local portalOut = CFrame.new(61164, 12, 1820)
-                if (hrp.Position - portalOut.Position).Magnitude > 25 then targetCFrame = portalOut
-                else hrp.CFrame = CFrame.new(3865, 7, -1926); task.wait(0.2); return end
-            end
-            
-            if targetCFrame.Position.Y > 4000 and hrp.Position.Y < 3000 then
-                local portalIn = CFrame.new(-4608, 873, -1668)
-                if (hrp.Position - portalIn.Position).Magnitude > 25 then targetCFrame = portalIn
-                else hrp.CFrame = CFrame.new(-7895, 5547, -380); task.wait(0.2); return end
-            elseif targetCFrame.Position.Y < 3000 and hrp.Position.Y > 4000 then
-                local portalOut = CFrame.new(-7895, 5547, -380)
-                if (hrp.Position - portalOut.Position).Magnitude > 25 then targetCFrame = portalOut
-                else hrp.CFrame = CFrame.new(-4608, 873, -1668); task.wait(0.2); return end
-            end
-        end
 
         if not hrp:FindFirstChild("BodyVelocity1") then
             local bv = Instance.new("BodyVelocity")
@@ -906,6 +888,15 @@ function topos(targetCFrame)
         end
 
         local dist = (targetCFrame.Position - hrp.Position).Magnitude
+        
+        -- NẾU KHOẢNG CÁCH QUÁ XA (HƠN 3000m) -> DỊCH CHUYỂN TỨC THÌ ĐỂ BYPASS CỔNG
+        if dist > 3000 then
+            if currentTween then currentTween:Cancel(); currentTween = nil end
+            hrp.CFrame = targetCFrame
+            task.wait(0.2)
+            return
+        end
+
         if dist < 10 then 
             if currentTween then currentTween:Cancel(); currentTween = nil end
             hrp.CFrame = targetCFrame
@@ -913,7 +904,7 @@ function topos(targetCFrame)
         end
 
         -- THUẬT TOÁN CHỐNG GIẬT (Không tạo lại Tween nếu đang bay chuẩn)
-        if currentTargetPos and (currentTargetPos - targetCFrame.Position).Magnitude < 5 then
+        if currentTargetPos and (currentTargetPos - targetCFrame.Position).Magnitude < 10 then
             if currentTween and currentTween.PlaybackState == Enum.PlaybackState.Playing then return end
         end
 
@@ -926,7 +917,7 @@ function topos(targetCFrame)
 end
 
 -- =========================================================
--- LOGIC KIỂM TRA NHIỆM VỤ VÀ AUTO FARM CỐ ĐỊNH
+-- LOGIC KIỂM TRA NHIỆM VỤ
 -- =========================================================
 local Mon, LevelQuest, NameQuest, NameMon, CFrameQuest, CFrameMon = "", 1, "", "", CFrame.new(), CFrame.new()
 function CheckQuest()
@@ -979,13 +970,9 @@ local function isQuestCompleted()
     return false
 end
 
-local function completeQuest()
-    if not CommF then return false end
-    pcall(function() CommF:InvokeServer("FinishQuest", NameQuest) end)
-    pcall(function() CommF:InvokeServer("CompleteQuest", NameQuest) end)
-    pcall(function() CommF:InvokeServer("ClaimQuestReward", NameQuest) end)
-end
-
+-- =========================================================
+-- LOGIC AUTO FARM (KHÓA ĐỨNG IM CHỐNG NGHIÊNG, CHÉM KHÔNG KHỰNG)
+-- =========================================================
 local LockedFarmCFrame = nil 
 
 spawn(function()
@@ -1005,8 +992,14 @@ spawn(function()
                     end
                 else
                     if isQuestCompleted() then
-                        if CommF then completeQuest() end
-                        task.wait(0.5)
+                        -- Không xài wait() chặn luồng nữa, cho trả nhiệm vụ ngay lập tức
+                        task.spawn(function()
+                            if CommF then 
+                                pcall(function() CommF:InvokeServer("FinishQuest", NameQuest) end)
+                                pcall(function() CommF:InvokeServer("CompleteQuest", NameQuest) end)
+                                pcall(function() CommF:InvokeServer("ClaimQuestReward", NameQuest) end)
+                            end
+                        end)
                         LockedFarmCFrame = nil
                         _G.GlobalFarmActive = false
                     else
@@ -1072,12 +1065,14 @@ spawn(function()
     end
 end)
 
+-- VÒNG LẶP GOM QUÁI (HÚT CHẶT QUÁI DƯỚI MẶT ĐẤT)
 spawn(function()
     while task.wait() do
         pcall(function()
             if (_G.AutoFarm or _G.AutoItemFarm) and _G.BringMonster and LockedFarmCFrame then
                 local enemies = Workspace:FindFirstChild("Enemies") or Workspace
                 local hrp = LocalPlayer.Character.HumanoidRootPart
+                
                 local mobLockPos = CFrame.new(LockedFarmCFrame.Position.X, LockedFarmCFrame.Position.Y, LockedFarmCFrame.Position.Z)
                 
                 for _, v in pairs(enemies:GetChildren()) do
@@ -1101,24 +1096,29 @@ spawn(function()
         end)
     end
 end)
--- [[ ZYROX | BLOX FRUIT V3.6 - PHẦN 2B: CÁC TÍNH NĂNG HOÀN CHỈNH ]] --
+-- [[ ZYROX | BLOX FRUIT V3.6 - PHẦN 2B: COMBAT & TÍNH NĂNG PHỤ ]] --
 
+-- VÒNG LẶP AUTO CLICK CHUẨN XÁC CHỐNG MISS VÀ KHÔNG ĐỘ TRỄ (DÙNG TASK.WAIT THƯỜNG)
 task.spawn(function()
-    while task.wait(0.05) do
+    while task.wait() do
         if _G.GlobalFarmActive or _G.AutoClick then
             pcall(function()
                 VirtualUser:CaptureController()
-                VirtualUser:Button1Down(Vector2.new(1280, 672))
+                VirtualUser:ClickButton1(Vector2.new())
+                
                 local char = LocalPlayer.Character
                 if char then
                     local tool = char:FindFirstChildOfClass("Tool")
-                    if tool then tool:Activate() end
+                    if tool then
+                        tool:Activate()
+                    end
                 end
             end)
         end
     end
 end)
 
+-- LÕI FAST ATTACK ULTRA MAX TỐI ƯU
 local v1 = next; local v2 = {ReplicatedStorage.Util, ReplicatedStorage.Common, ReplicatedStorage.Remotes, ReplicatedStorage.Assets, ReplicatedStorage.FX}; local v3, u4, u5 = nil, nil, nil
 task.spawn(function()
     while true do
@@ -1139,22 +1139,18 @@ task.spawn(function()
         if (_G.GlobalFarmActive or _G.AutoClick) and _G.FastAttack then
             pcall(function()
                 local _Character = LocalPlayer.Character; local v13 = _Character and _Character:FindFirstChild('HumanoidRootPart'); if not v13 then return end
-                local v14, v15, v16 = ipairs({Workspace.Enemies, Workspace.Characters}); local u17 = {}
-                while true do
-                    local v18; v16, v18 = v14(v15, v16); if v16 == nil then break end
-                    local v19, v20, v21 = ipairs(v18 and v18:GetChildren() or {})
-                    while true do
-                        local v22; v21, v22 = v19(v20, v21); if v21 == nil then break end
-                        local _HumanoidRootPart = v22:FindFirstChild('HumanoidRootPart'); local _Humanoid = v22:FindFirstChild('Humanoid')
-                        if v22 ~= _Character and (_HumanoidRootPart and (_Humanoid and (_Humanoid.Health > 0 and (_HumanoidRootPart.Position - v13.Position).Magnitude <= 120))) then
-                            local v25, v26, v27 = ipairs(v22:GetChildren())
-                            while true do
-                                local v28; v27, v28 = v25(v26, v27); if v27 == nil then break end
-                                if v28:IsA('BasePart') and (_HumanoidRootPart.Position - v13.Position).Magnitude <= 120 then u17[#u17 + 1] = {v22, v28} end
-                            end
+                
+                local u17 = {}
+                -- Tối ưu chỉ quét Workspace.Enemies để đỡ lag
+                for _, v22 in ipairs(Workspace.Enemies:GetChildren()) do
+                    local _HumanoidRootPart = v22:FindFirstChild('HumanoidRootPart'); local _Humanoid = v22:FindFirstChild('Humanoid')
+                    if _HumanoidRootPart and _Humanoid and _Humanoid.Health > 0 and (_HumanoidRootPart.Position - v13.Position).Magnitude <= 60 then
+                        for _, v28 in ipairs(v22:GetChildren()) do
+                            if v28:IsA('BasePart') then u17[#u17 + 1] = {v22, v28} end
                         end
                     end
                 end
+                
                 local _Tool = _Character:FindFirstChildOfClass('Tool')
                 if #u17 > 0 and _Tool then
                     pcall(function()
@@ -1162,7 +1158,7 @@ task.spawn(function()
                         ReplicatedStorage.Modules.Net['RE/RegisterAttack']:FireServer()
                         local _Head = u17[1][1]:FindFirstChild('Head')
                         if _Head then
-                            for _ = 1, 15 do
+                            for _ = 1, 10 do
                                 ReplicatedStorage.Modules.Net['RE/RegisterHit']:FireServer(_Head, u17, {}, tostring(LocalPlayer.UserId):sub(2, 4) .. tostring(coroutine.running()):sub(11, 15))
                                 local r_u4 = (typeof(cloneref) == "function" and cloneref(u4)) or u4
                                 if r_u4 then r_u4:FireServer(string.gsub('RE/RegisterHit', '.', function(p31) return string.char(bit32.bxor(string.byte(p31), math.floor(Workspace:GetServerTimeNow() / 10 % 10) + 1)) end), bit32.bxor(u5 + 909090, ReplicatedStorage.Modules.Net.seed:InvokeServer() * 2), _Head, u17) end
@@ -1175,6 +1171,55 @@ task.spawn(function()
     end
 end)
 
+-- CÁC TAB CÒN LẠI VÀ CHỨC NĂNG PHỤ
+task.spawn(function()
+    while task.wait(1) do
+        pcall(function()
+            local ui = CoreGui:FindFirstChild("ZyroxHub_CrimsonMain") or LocalPlayer.PlayerGui:FindFirstChild("ZyroxHub_CrimsonMain")
+            if ui then
+                local pItem = ui:FindFirstChild("FarmItem", true)
+                if pItem then
+                    local boneLabel = pItem:FindFirstChild("TextLabel", true)
+                    local takakuriLabel = pItem:FindFirstChild("TextLabel", true)
+                end
+            end
+        end)
+    end
+end)
+
+task.spawn(function()
+    while task.wait(0.5) do
+        if _G.AutoStats and CommF then
+            pcall(function()
+                if LocalPlayer.Data.Points.Value > 0 then
+                    local amt = _G.StatsAmount or 1
+                    if _G.StatsMelee then CommF:InvokeServer("AddPoint", "Melee", amt) end
+                    if _G.StatsDefense then CommF:InvokeServer("AddPoint", "Defense", amt) end
+                    if _G.StatsSword then CommF:InvokeServer("AddPoint", "Sword", amt) end
+                    if _G.StatsFruit then CommF:InvokeServer("AddPoint", "Demon Fruit", amt) end
+                end
+            end)
+        end
+    end
+end)
+
+task.spawn(function()
+    while task.wait() do
+        if _G.BoatSpeedEnabled then
+            pcall(function()
+                local boat = LocalPlayer.Character:FindFirstChild("Boat") or LocalPlayer.Character:FindFirstChild("Ship")
+                if boat and boat:FindFirstChild("BodyVelocity") then
+                    boat.BodyVelocity.Velocity = boat.BodyVelocity.Velocity * _G.BoatSpeedVal
+                end
+                if boat and boat:FindFirstChild("Humanoid") then
+                    boat.Humanoid.JumpPower = _G.BoatFlyHeight
+                end
+            end)
+        end
+    end
+end)
+
+-- ESP Toàn Diện Đã Khắc Phục
 task.spawn(function()
     while task.wait(1) do
         if _G.ESPPlayer then
@@ -1254,72 +1299,6 @@ task.spawn(function()
         else
             local map = Workspace:FindFirstChild("_WorldOrigin") and Workspace._WorldOrigin:FindFirstChild("Locations")
             if map then for _, loc in pairs(map:GetChildren()) do if loc:FindFirstChild("Z_ESP_Island") then loc.Z_ESP_Island:Destroy() end end end
-        end
-    end
-end)
-
-task.spawn(function()
-    while task.wait(1) do
-        pcall(function()
-            local enemies = Workspace:FindFirstChild("Enemies") or Workspace
-            if _G.AutoBoss or _G.AllBossesFarm then
-                for _, v in pairs(enemies:GetChildren()) do
-                    if v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 and v:FindFirstChild("HumanoidRootPart") then
-                        if _G.AllBossesFarm or v.Name == _G.SelectedBossName then
-                            _G.GlobalFarmActive = true
-                            local targetPos = v.HumanoidRootPart.CFrame * CFrame.new(0, 30, 0)
-                            if (LocalPlayer.Character.HumanoidRootPart.Position - targetPos.Position).Magnitude > 10 then
-                                topos(targetPos)
-                            end
-                            repeat
-                                task.wait()
-                                EquipWeapon(_G.SelectWeapon)
-                                local hrp = LocalPlayer.Character.HumanoidRootPart
-                                hrp.CFrame = CFrame.lookAt(hrp.Position, v.HumanoidRootPart.Position)
-                                if _G.BringMonster then
-                                    v.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
-                                    v.HumanoidRootPart.CFrame = hrp.CFrame * CFrame.new(0, -20, -5)
-                                    v.HumanoidRootPart.CanCollide = false
-                                    if v.Humanoid:FindFirstChild("Animator") then v.Humanoid.Animator:Destroy() end
-                                    v.Humanoid.WalkSpeed = 0; v.Humanoid.JumpPower = 0; v.Humanoid:ChangeState(11)
-                                end
-                            until not (_G.AutoBoss or _G.AllBossesFarm) or v.Humanoid.Health <= 0 or not v.Parent
-                        end
-                    end
-                end
-            end
-        end)
-    end
-end)
-
-task.spawn(function()
-    while task.wait(0.5) do
-        if _G.AutoStats and CommF then
-            pcall(function()
-                if LocalPlayer.Data.Points.Value > 0 then
-                    local amt = _G.StatsAmount or 1
-                    if _G.StatsMelee then CommF:InvokeServer("AddPoint", "Melee", amt) end
-                    if _G.StatsDefense then CommF:InvokeServer("AddPoint", "Defense", amt) end
-                    if _G.StatsSword then CommF:InvokeServer("AddPoint", "Sword", amt) end
-                    if _G.StatsFruit then CommF:InvokeServer("AddPoint", "Demon Fruit", amt) end
-                end
-            end)
-        end
-    end
-end)
-
-task.spawn(function()
-    while task.wait() do
-        if _G.BoatSpeedEnabled then
-            pcall(function()
-                local boat = LocalPlayer.Character:FindFirstChild("Boat") or LocalPlayer.Character:FindFirstChild("Ship")
-                if boat and boat:FindFirstChild("BodyVelocity") then
-                    boat.BodyVelocity.Velocity = boat.BodyVelocity.Velocity * _G.BoatSpeedVal
-                end
-                if boat and boat:FindFirstChild("Humanoid") then
-                    boat.Humanoid.JumpPower = _G.BoatFlyHeight
-                end
-            end)
         end
     end
 end)
