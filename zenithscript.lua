@@ -686,11 +686,10 @@ createToggle(pMisc, "ToggleLag", false, function(v)
         end
     end
 end)
-createButton(pMisc, "BtnRejoin", function() TeleportService:Teleport(game.PlaceId, LocalPlayer) end)
--- [[ ZYROX | BLOX FRUIT V3.6 - PHẦN 2: LOGIC THỰC THI CHUẨN XÁC ]] --
+createButton(pMisc, "BtnRejoin", function() TeleportService:Teleport(game.PlaceId, LocalPlayer) end)-- [[ ZYROX | BLOX FRUIT V3.6 - PHẦN 2A: LOGIC DI CHUYỂN & FARM ]] --
 
 -- =========================================================
--- VÒNG FOV SCREEN GUI DÀNH CHO GIẢ LẬP/MOBILE
+-- VÒNG FOV SCREEN GUI & ANTI ADMIN
 -- =========================================================
 local FOVGui = Instance.new("ScreenGui")
 FOVGui.Name = "ZenithFOVCircle_P2"
@@ -739,14 +738,11 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
--- =========================================================
--- LOGIC TỰ ĐỘNG THOÁT KHI CÓ ADMIN VÀO SERVER (ANTI BAN)
--- =========================================================
 Players.PlayerAdded:Connect(function(plr)
     if _G.AutoLeaveAdmin then
         pcall(function()
             if plr:GetRankInGroup(4328109) >= 200 then
-                LocalPlayer:Kick("🛡️ HỆ THỐNG ANTI-BAN KÍCH HOẠT: Phát hiện Admin/Staff [" .. plr.Name .. "] vừa tham gia Server! Đã tự động ngắt kết nối để bảo vệ tài khoản.")
+                LocalPlayer:Kick("🛡️ ANTI-BAN: Phát hiện Admin/Staff [" .. plr.Name .. "] vừa vào Server!")
             end
         end)
     end
@@ -756,14 +752,14 @@ for _, plr in ipairs(Players:GetPlayers()) do
     if _G.AutoLeaveAdmin and plr ~= LocalPlayer then
         pcall(function()
             if plr:GetRankInGroup(4328109) >= 200 then
-                LocalPlayer:Kick("🛡️ HỆ THỐNG ANTI-BAN KÍCH HOẠT: Server này đang có Admin/Staff [" .. plr.Name .. "]. Hãy đổi Server khác!")
+                LocalPlayer:Kick("🛡️ ANTI-BAN: Server này đang có Admin/Staff [" .. plr.Name .. "]!")
             end
         end)
     end
 end
 
 -- =========================================================
--- CẬP NHẬT HUD (ĐÃ FIX LỖI KẸT CHỮ)
+-- HUD CẬP NHẬT VÀ NOCLIP
 -- =========================================================
 RunService.RenderStepped:Connect(function()
     pcall(function()
@@ -779,9 +775,9 @@ RunService.RenderStepped:Connect(function()
             if StatusHUD and _G.StatusHUDVisible then
                 if _G.HUDContentText then
                     local activeList = {}
-                    if _G.SpeedEnabled then table.insert(activeList, "🏃 Speed: " .. tostring(_G.SpeedVal)) end
-                    if _G.NoclipEnabled then table.insert(activeList, "👻 Noclip: ON") end
-                    if _G.JumpEnabled then table.insert(activeList, "🦘 Jump: " .. tostring(_G.JumpVal)) end
+                    if _G.SpeedEnabled then table.insert(activeList, "🏃 Speed ["..tostring(_G.SpeedKey.Name).."]: " .. tostring(_G.SpeedVal)) end
+                    if _G.NoclipEnabled then table.insert(activeList, "👻 Noclip ["..tostring(_G.NoclipKey.Name).."]: ON") end
+                    if _G.JumpEnabled then table.insert(activeList, "🦘 Jump ["..tostring(_G.JumpKey.Name).."]: " .. tostring(_G.JumpVal)) end
                     if _G.SilentAim then table.insert(activeList, "🎯 Silent Aim: ON") end
                     if _G.AutoClick then table.insert(activeList, "⚔️ Auto Click: ON") end
                     if _G.AutoFarm then table.insert(activeList, "⚡ Auto Farm: ON") end
@@ -808,9 +804,6 @@ RunService.RenderStepped:Connect(function()
     end)
 end)
 
--- =========================================================
--- VÒNG LẶP PVP (SPEED, JUMP, NOCLIP TUYỆT ĐỐI)
--- =========================================================
 RunService.Stepped:Connect(function()
     pcall(function()
         local char = LocalPlayer.Character
@@ -818,22 +811,34 @@ RunService.Stepped:Connect(function()
             if _G.SpeedEnabled then char.Humanoid.WalkSpeed = _G.SpeedVal end
             if _G.JumpEnabled then char.Humanoid.JumpPower = _G.JumpVal end
         end
-        
-        -- NOCLIP TỰ ĐỘNG KHI FARM HOẶC KHI BẬT TAY CHỐNG KẸT ĐẢO
         if _G.AutoFarm or _G.AutoItemFarm or _G.AutoBoss or _G.NoclipEnabled then
             if char then
                 for _, v in pairs(char:GetDescendants()) do
-                    if v:IsA("BasePart") and v.CanCollide == true then
-                        v.CanCollide = false
-                    end
+                    if v:IsA("BasePart") and v.CanCollide == true then v.CanCollide = false end
                 end
             end
         end
     end)
 end)
 
+UserInputService.InputBegan:Connect(function(input, gpe)
+    if gpe then return end
+    if _G.PullEnabled and input.KeyCode == _G.PullKey then
+        pcall(function()
+            local closest = nil; local dist = math.huge
+            for _, p in ipairs(Players:GetPlayers()) do
+                if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                    local d = (p.Character.HumanoidRootPart.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
+                    if d < dist then dist = d; closest = p end
+                end
+            end
+            if closest then closest.Character.HumanoidRootPart.CFrame = LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0,0,-5) end
+        end)
+    end
+end)
+
 -- =========================================================
--- HÀM TWEEN SIÊU TỐC: AI TỰ ĐỘNG CHUI CỔNG DỊCH CHUYỂN
+-- HÀM BAY SIÊU MƯỢT (CHỐNG GIẬT + XUYÊN CỔNG)
 -- =========================================================
 function EquipWeapon(weaponType)
     pcall(function()
@@ -855,64 +860,40 @@ function EquipWeapon(weaponType)
         
         for _, tool in ipairs(backpack:GetChildren()) do
             if isValidWeapon(tool) then
-                char.Humanoid:EquipTool(tool)
-                break
+                char.Humanoid:EquipTool(tool); break
             end
         end
     end)
 end
 
 local currentTween = nil
+local currentTargetPos = nil
 function topos(targetCFrame)
     pcall(function()
         local char = LocalPlayer.Character
         local hrp = char and char:FindFirstChild("HumanoidRootPart")
         if not hrp then return end
         
-        -- TỰ ĐỘNG CHUI CỔNG VƯỢT ĐẢO NGƯỜI CÁ & BẦU TRỜI CHỐNG KẸT NƯỚC/MÂY
+        -- TỰ ĐỘNG CHUI CỔNG VƯỢT ĐẢO NGƯỜI CÁ & BẦU TRỜI CHỐNG KẸT
         if World1 then
-            -- Nếu bay đi Đảo Người Cá (X > 50000) mà mình đang ở ngoài
             if targetCFrame.Position.X > 50000 and hrp.Position.X < 50000 then
-                local portalIn = CFrame.new(3865, 7, -1926) -- Xoáy nước
-                if (hrp.Position - portalIn.Position).Magnitude > 25 then
-                    targetCFrame = portalIn
-                else
-                    hrp.CFrame = CFrame.new(61164, 12, 1820) -- Điểm rơi trong đảo
-                    task.wait(0.2)
-                    return
-                end
-            -- Nếu bay đi ra ngoài mà mình đang ở Đảo Người Cá
+                local portalIn = CFrame.new(3865, 7, -1926)
+                if (hrp.Position - portalIn.Position).Magnitude > 25 then targetCFrame = portalIn
+                else hrp.CFrame = CFrame.new(61164, 12, 1820); task.wait(0.2); return end
             elseif targetCFrame.Position.X < 50000 and hrp.Position.X > 50000 then
                 local portalOut = CFrame.new(61164, 12, 1820)
-                if (hrp.Position - portalOut.Position).Magnitude > 25 then
-                    targetCFrame = portalOut
-                else
-                    hrp.CFrame = CFrame.new(3865, 7, -1926)
-                    task.wait(0.2)
-                    return
-                end
+                if (hrp.Position - portalOut.Position).Magnitude > 25 then targetCFrame = portalOut
+                else hrp.CFrame = CFrame.new(3865, 7, -1926); task.wait(0.2); return end
             end
             
-            -- Nếu bay đi Đảo Bầu Trời (Y > 4000) mà mình đang ở dưới mặt đất
             if targetCFrame.Position.Y > 4000 and hrp.Position.Y < 3000 then
-                local portalIn = CFrame.new(-4608, 873, -1668) -- Cửa Mây Sky
-                if (hrp.Position - portalIn.Position).Magnitude > 25 then
-                    targetCFrame = portalIn
-                else
-                    hrp.CFrame = CFrame.new(-7895, 5547, -380) -- Điểm rơi trên trời
-                    task.wait(0.2)
-                    return
-                end
-            -- Nếu đang ở Đảo Bầu Trời bay xuống đất
+                local portalIn = CFrame.new(-4608, 873, -1668)
+                if (hrp.Position - portalIn.Position).Magnitude > 25 then targetCFrame = portalIn
+                else hrp.CFrame = CFrame.new(-7895, 5547, -380); task.wait(0.2); return end
             elseif targetCFrame.Position.Y < 3000 and hrp.Position.Y > 4000 then
                 local portalOut = CFrame.new(-7895, 5547, -380)
-                if (hrp.Position - portalOut.Position).Magnitude > 25 then
-                    targetCFrame = portalOut
-                else
-                    hrp.CFrame = CFrame.new(-4608, 873, -1668)
-                    task.wait(0.2)
-                    return
-                end
+                if (hrp.Position - portalOut.Position).Magnitude > 25 then targetCFrame = portalOut
+                else hrp.CFrame = CFrame.new(-4608, 873, -1668); task.wait(0.2); return end
             end
         end
 
@@ -931,6 +912,12 @@ function topos(targetCFrame)
             return 
         end
 
+        -- THUẬT TOÁN CHỐNG GIẬT (Không tạo lại Tween nếu đang bay chuẩn)
+        if currentTargetPos and (currentTargetPos - targetCFrame.Position).Magnitude < 5 then
+            if currentTween and currentTween.PlaybackState == Enum.PlaybackState.Playing then return end
+        end
+
+        currentTargetPos = targetCFrame.Position
         if currentTween then currentTween:Cancel(); currentTween = nil end
         local tweenInfo = TweenInfo.new(dist / 350, Enum.EasingStyle.Linear)
         currentTween = TweenService:Create(hrp, tweenInfo, {CFrame = targetCFrame})
@@ -939,7 +926,7 @@ function topos(targetCFrame)
 end
 
 -- =========================================================
--- LOGIC KIỂM TRA NHIỆM VỤ
+-- LOGIC KIỂM TRA NHIỆM VỤ VÀ AUTO FARM CỐ ĐỊNH
 -- =========================================================
 local Mon, LevelQuest, NameQuest, NameMon, CFrameQuest, CFrameMon = "", 1, "", "", CFrame.new(), CFrame.new()
 function CheckQuest()
@@ -988,9 +975,7 @@ local function isQuestCompleted()
     if not track then return false end
     local text = track.Text
     local current, required = text:match("(%d+)/(%d+)")
-    if current and required then
-        return tonumber(current) >= tonumber(required)
-    end
+    if current and required then return tonumber(current) >= tonumber(required) end
     return false
 end
 
@@ -1001,9 +986,6 @@ local function completeQuest()
     pcall(function() CommF:InvokeServer("ClaimQuestReward", NameQuest) end)
 end
 
--- =========================================================
--- LOGIC REDZ HUB: ĐỨNG IM CHỐT TỌA ĐỘ BÃI QUÁI GỐC CFrameMon
--- =========================================================
 local LockedFarmCFrame = nil 
 
 spawn(function()
@@ -1090,14 +1072,12 @@ spawn(function()
     end
 end)
 
--- VÒNG LẶP GOM QUÁI CHUẨN XÁC DÍNH CHẶT (DƯỚI MẶT ĐẤT)
 spawn(function()
     while task.wait() do
         pcall(function()
             if (_G.AutoFarm or _G.AutoItemFarm) and _G.BringMonster and LockedFarmCFrame then
                 local enemies = Workspace:FindFirstChild("Enemies") or Workspace
                 local hrp = LocalPlayer.Character.HumanoidRootPart
-                
                 local mobLockPos = CFrame.new(LockedFarmCFrame.Position.X, LockedFarmCFrame.Position.Y, LockedFarmCFrame.Position.Z)
                 
                 for _, v in pairs(enemies:GetChildren()) do
@@ -1121,28 +1101,24 @@ spawn(function()
         end)
     end
 end)
+-- [[ ZYROX | BLOX FRUIT V3.6 - PHẦN 2B: CÁC TÍNH NĂNG HOÀN CHỈNH ]] --
 
--- VÒNG LẶP AUTO CLICK CHUẨN XÁC CHỐNG MISS 
 task.spawn(function()
     while task.wait(0.05) do
         if _G.GlobalFarmActive or _G.AutoClick then
             pcall(function()
                 VirtualUser:CaptureController()
                 VirtualUser:Button1Down(Vector2.new(1280, 672))
-                
                 local char = LocalPlayer.Character
                 if char then
                     local tool = char:FindFirstChildOfClass("Tool")
-                    if tool then
-                        tool:Activate()
-                    end
+                    if tool then tool:Activate() end
                 end
             end)
         end
     end
 end)
 
--- LÕI FAST ATTACK ULTRA MAX
 local v1 = next; local v2 = {ReplicatedStorage.Util, ReplicatedStorage.Common, ReplicatedStorage.Remotes, ReplicatedStorage.Assets, ReplicatedStorage.FX}; local v3, u4, u5 = nil, nil, nil
 task.spawn(function()
     while true do
@@ -1199,7 +1175,6 @@ task.spawn(function()
     end
 end)
 
--- ESP Toàn Diện Đã Khắc Phục ESP NPC & Đảo
 task.spawn(function()
     while task.wait(1) do
         if _G.ESPPlayer then
@@ -1247,6 +1222,104 @@ task.spawn(function()
             end
         else
             for _, v in pairs(Workspace:GetChildren()) do if v:IsA("Tool") and string.find(v.Name, "Fruit") and v:FindFirstChild("Handle") and v.Handle:FindFirstChild("Z_ESP_Fruit") then v.Handle.Z_ESP_Fruit:Destroy() end end
+        end
+        
+        if _G.ESPNPC then
+            for _, npc in pairs(Workspace:GetDescendants()) do
+                if npc:IsA("Model") and npc:FindFirstChild("Humanoid") and npc:FindFirstChild("HumanoidRootPart") and not Players:GetPlayerFromCharacter(npc) then
+                    local hrp = npc.HumanoidRootPart
+                    if not hrp:FindFirstChild("Z_ESP_NPC") then
+                        local gui = Instance.new("BillboardGui", hrp); gui.Name = "Z_ESP_NPC"; gui.Size = UDim2.new(0, 200, 0, 40); gui.AlwaysOnTop = true; gui.StudsOffset = Vector3.new(0, 3, 0)
+                        local txt = Instance.new("TextLabel", gui); txt.Size = UDim2.new(1,0,1,0); txt.BackgroundTransparency = 1; txt.TextSize = 11; txt.TextColor3 = Color3.fromRGB(0, 255, 100); txt.Font = Enum.Font.GothamBold; txt.TextStrokeTransparency = 0
+                    end
+                    hrp.Z_ESP_NPC.TextLabel.Text = "👤 " .. npc.Name
+                end
+            end
+        else
+            for _, npc in pairs(Workspace:GetDescendants()) do if npc:IsA("Model") and npc:FindFirstChild("HumanoidRootPart") and npc.HumanoidRootPart:FindFirstChild("Z_ESP_NPC") then npc.HumanoidRootPart.Z_ESP_NPC:Destroy() end end
+        end
+
+        if _G.ESPIsland then
+            local map = Workspace:FindFirstChild("_WorldOrigin") and Workspace._WorldOrigin:FindFirstChild("Locations")
+            if map then
+                for _, loc in pairs(map:GetChildren()) do
+                    if not loc:FindFirstChild("Z_ESP_Island") then
+                        local gui = Instance.new("BillboardGui", loc); gui.Name = "Z_ESP_Island"; gui.Size = UDim2.new(0, 200, 0, 40); gui.AlwaysOnTop = true; gui.StudsOffset = Vector3.new(0, 10, 0)
+                        local txt = Instance.new("TextLabel", gui); txt.Size = UDim2.new(1,0,1,0); txt.BackgroundTransparency = 1; txt.TextSize = 13; txt.TextColor3 = Color3.fromRGB(200, 100, 255); txt.Font = Enum.Font.GothamBold; txt.TextStrokeTransparency = 0
+                    end
+                    local dist = math.floor((loc.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude)
+                    loc.Z_ESP_Island.TextLabel.Text = "🏝️ " .. loc.Name .. " [" .. dist .. "m]"
+                end
+            end
+        else
+            local map = Workspace:FindFirstChild("_WorldOrigin") and Workspace._WorldOrigin:FindFirstChild("Locations")
+            if map then for _, loc in pairs(map:GetChildren()) do if loc:FindFirstChild("Z_ESP_Island") then loc.Z_ESP_Island:Destroy() end end end
+        end
+    end
+end)
+
+task.spawn(function()
+    while task.wait(1) do
+        pcall(function()
+            local enemies = Workspace:FindFirstChild("Enemies") or Workspace
+            if _G.AutoBoss or _G.AllBossesFarm then
+                for _, v in pairs(enemies:GetChildren()) do
+                    if v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 and v:FindFirstChild("HumanoidRootPart") then
+                        if _G.AllBossesFarm or v.Name == _G.SelectedBossName then
+                            _G.GlobalFarmActive = true
+                            local targetPos = v.HumanoidRootPart.CFrame * CFrame.new(0, 30, 0)
+                            if (LocalPlayer.Character.HumanoidRootPart.Position - targetPos.Position).Magnitude > 10 then
+                                topos(targetPos)
+                            end
+                            repeat
+                                task.wait()
+                                EquipWeapon(_G.SelectWeapon)
+                                local hrp = LocalPlayer.Character.HumanoidRootPart
+                                hrp.CFrame = CFrame.lookAt(hrp.Position, v.HumanoidRootPart.Position)
+                                if _G.BringMonster then
+                                    v.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
+                                    v.HumanoidRootPart.CFrame = hrp.CFrame * CFrame.new(0, -20, -5)
+                                    v.HumanoidRootPart.CanCollide = false
+                                    if v.Humanoid:FindFirstChild("Animator") then v.Humanoid.Animator:Destroy() end
+                                    v.Humanoid.WalkSpeed = 0; v.Humanoid.JumpPower = 0; v.Humanoid:ChangeState(11)
+                                end
+                            until not (_G.AutoBoss or _G.AllBossesFarm) or v.Humanoid.Health <= 0 or not v.Parent
+                        end
+                    end
+                end
+            end
+        end)
+    end
+end)
+
+task.spawn(function()
+    while task.wait(0.5) do
+        if _G.AutoStats and CommF then
+            pcall(function()
+                if LocalPlayer.Data.Points.Value > 0 then
+                    local amt = _G.StatsAmount or 1
+                    if _G.StatsMelee then CommF:InvokeServer("AddPoint", "Melee", amt) end
+                    if _G.StatsDefense then CommF:InvokeServer("AddPoint", "Defense", amt) end
+                    if _G.StatsSword then CommF:InvokeServer("AddPoint", "Sword", amt) end
+                    if _G.StatsFruit then CommF:InvokeServer("AddPoint", "Demon Fruit", amt) end
+                end
+            end)
+        end
+    end
+end)
+
+task.spawn(function()
+    while task.wait() do
+        if _G.BoatSpeedEnabled then
+            pcall(function()
+                local boat = LocalPlayer.Character:FindFirstChild("Boat") or LocalPlayer.Character:FindFirstChild("Ship")
+                if boat and boat:FindFirstChild("BodyVelocity") then
+                    boat.BodyVelocity.Velocity = boat.BodyVelocity.Velocity * _G.BoatSpeedVal
+                end
+                if boat and boat:FindFirstChild("Humanoid") then
+                    boat.Humanoid.JumpPower = _G.BoatFlyHeight
+                end
+            end)
         end
     end
 end)
