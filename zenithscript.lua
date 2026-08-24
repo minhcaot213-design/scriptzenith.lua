@@ -687,10 +687,10 @@ createToggle(pMisc, "ToggleLag", false, function(v)
     end
 end)
 createButton(pMisc, "BtnRejoin", function() TeleportService:Teleport(game.PlaceId, LocalPlayer) end)
--- [[ ZYROX | BLOX FRUIT V3.6 - PHẦN 2: LOGIC THỰC THI CHUẨN XÁC NHẤT ]] --
+-- [[ ZYROX | BLOX FRUIT V3.6 - PHẦN 2A: LOGIC DI CHUYỂN & FARM (FIX LỖI KẸT ĐẢO) ]] --
 
 -- =========================================================
--- VÒNG FOV SCREEN GUI DÀNH CHO GIẢ LẬP/MOBILE (CHỐNG TÀNG HÌNH)
+-- VÒNG FOV SCREEN GUI & ANTI ADMIN
 -- =========================================================
 local FOVGui = Instance.new("ScreenGui")
 FOVGui.Name = "ZenithFOVCircle_P2"
@@ -739,14 +739,11 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
--- =========================================================
--- LOGIC TỰ ĐỘNG THOÁT KHI CÓ ADMIN VÀO SERVER (ANTI BAN)
--- =========================================================
 Players.PlayerAdded:Connect(function(plr)
     if _G.AutoLeaveAdmin then
         pcall(function()
             if plr:GetRankInGroup(4328109) >= 200 then
-                LocalPlayer:Kick("🛡️ HỆ THỐNG ANTI-BAN KÍCH HOẠT: Phát hiện Admin/Staff [" .. plr.Name .. "] vừa tham gia Server! Đã tự động ngắt kết nối để bảo vệ tài khoản.")
+                LocalPlayer:Kick("🛡️ ANTI-BAN: Phát hiện Admin/Staff [" .. plr.Name .. "] vừa vào Server!")
             end
         end)
     end
@@ -756,14 +753,14 @@ for _, plr in ipairs(Players:GetPlayers()) do
     if _G.AutoLeaveAdmin and plr ~= LocalPlayer then
         pcall(function()
             if plr:GetRankInGroup(4328109) >= 200 then
-                LocalPlayer:Kick("🛡️ HỆ THỐNG ANTI-BAN KÍCH HOẠT: Server này đang có Admin/Staff [" .. plr.Name .. "]. Hãy đổi Server khác!")
+                LocalPlayer:Kick("🛡️ ANTI-BAN: Server này đang có Admin/Staff [" .. plr.Name .. "]!")
             end
         end)
     end
 end
 
 -- =========================================================
--- CẬP NHẬT HUD VÀ XÓA HIỆU ỨNG LÓA MẮT
+-- HUD CẬP NHẬT VÀ NOCLIP TUYỆT ĐỐI (ĐÃ FIX KẸT CHỮ)
 -- =========================================================
 RunService.RenderStepped:Connect(function()
     pcall(function()
@@ -777,7 +774,9 @@ RunService.RenderStepped:Connect(function()
         if ui then
             local StatusHUD = ui:FindFirstChild("Frame")
             if StatusHUD and _G.StatusHUDVisible then
-                if _G.HUDContentText then
+                -- Lấy trực tiếp TextLabel của HUD Content mỗi lần render
+                local hudContent = StatusHUD:FindFirstChild("StatusTextLabel", true)
+                if hudContent then
                     local activeList = {}
                     if _G.SpeedEnabled then table.insert(activeList, "🏃 Speed ["..tostring(_G.SpeedKey.Name).."]: " .. tostring(_G.SpeedVal)) end
                     if _G.NoclipEnabled then table.insert(activeList, "👻 Noclip ["..tostring(_G.NoclipKey.Name).."]: ON") end
@@ -799,7 +798,7 @@ RunService.RenderStepped:Connect(function()
                     if LocalPlayer:FindFirstChild("Data") and LocalPlayer.Data:FindFirstChild("Level") then
                         lvl = LocalPlayer.Data.Level.Value
                     end
-                    _G.HUDContentText.Text = string.format("Level: %d\n", lvl) .. table.concat(activeList, "\n")
+                    hudContent.Text = string.format("Level: %d\n", lvl) .. table.concat(activeList, "\n")
                 end
             elseif StatusHUD then
                 StatusHUD.Visible = false
@@ -808,9 +807,6 @@ RunService.RenderStepped:Connect(function()
     end)
 end)
 
--- =========================================================
--- VÒNG LẶP PVP (SPEED, JUMP, NOCLIP TUYỆT ĐỐI CHỐNG NƯỚC)
--- =========================================================
 RunService.Stepped:Connect(function()
     pcall(function()
         local char = LocalPlayer.Character
@@ -818,14 +814,12 @@ RunService.Stepped:Connect(function()
             if _G.SpeedEnabled then char.Humanoid.WalkSpeed = _G.SpeedVal end
             if _G.JumpEnabled then char.Humanoid.JumpPower = _G.JumpVal end
         end
-        
         if _G.AutoFarm or _G.AutoItemFarm or _G.AutoBoss or _G.NoclipEnabled then
             if char then
                 for _, v in pairs(char:GetDescendants()) do
-                    if v:IsA("BasePart") and v.CanCollide == true then
-                        v.CanCollide = false
-                    end
+                    if v:IsA("BasePart") and v.CanCollide == true then v.CanCollide = false end
                 end
+                -- Ép trạng thái Vô trọng lực để xuyên nước ở Đảo Người Cá
                 if char:FindFirstChild("Humanoid") then
                     char.Humanoid:ChangeState(11)
                 end
@@ -834,8 +828,24 @@ RunService.Stepped:Connect(function()
     end)
 end)
 
+UserInputService.InputBegan:Connect(function(input, gpe)
+    if gpe then return end
+    if _G.PullEnabled and input.KeyCode == _G.PullKey then
+        pcall(function()
+            local closest = nil; local dist = math.huge
+            for _, p in ipairs(Players:GetPlayers()) do
+                if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                    local d = (p.Character.HumanoidRootPart.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
+                    if d < dist then dist = d; closest = p end
+                end
+            end
+            if closest then closest.Character.HumanoidRootPart.CFrame = LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0,0,-5) end
+        end)
+    end
+end)
+
 -- =========================================================
--- HÀM TWEEN SIÊU MƯỢT (FIX TELEPORT ẢO & TỰ CHUI CỔNG)
+-- HÀM BAY BYPASS KHOẢNG CÁCH (XÓA BỎ LỖI KẸT CỔNG ĐẢO NGƯỜI CÁ)
 -- =========================================================
 function EquipWeapon(weaponType)
     pcall(function()
@@ -870,29 +880,6 @@ function topos(targetCFrame)
         local char = LocalPlayer.Character
         local hrp = char and char:FindFirstChild("HumanoidRootPart")
         if not hrp then return end
-        
-        -- TỰ ĐỘNG CHUI CỔNG VƯỢT ĐẢO NGƯỜI CÁ & BẦU TRỜI CHỐNG KẸT
-        if World1 then
-            if targetCFrame.Position.X > 50000 and hrp.Position.X < 50000 then
-                local portalIn = CFrame.new(3865, 7, -1926)
-                if (hrp.Position - portalIn.Position).Magnitude > 25 then targetCFrame = portalIn
-                else hrp.CFrame = CFrame.new(61164, 12, 1820); task.wait(0.2); return end
-            elseif targetCFrame.Position.X < 50000 and hrp.Position.X > 50000 then
-                local portalOut = CFrame.new(61164, 12, 1820)
-                if (hrp.Position - portalOut.Position).Magnitude > 25 then targetCFrame = portalOut
-                else hrp.CFrame = CFrame.new(3865, 7, -1926); task.wait(0.2); return end
-            end
-            
-            if targetCFrame.Position.Y > 4000 and hrp.Position.Y < 3000 then
-                local portalIn = CFrame.new(-4608, 873, -1668)
-                if (hrp.Position - portalIn.Position).Magnitude > 25 then targetCFrame = portalIn
-                else hrp.CFrame = CFrame.new(-7895, 5547, -380); task.wait(0.2); return end
-            elseif targetCFrame.Position.Y < 3000 and hrp.Position.Y > 4000 then
-                local portalOut = CFrame.new(-7895, 5547, -380)
-                if (hrp.Position - portalOut.Position).Magnitude > 25 then targetCFrame = portalOut
-                else hrp.CFrame = CFrame.new(-4608, 873, -1668); task.wait(0.2); return end
-            end
-        end
 
         if not hrp:FindFirstChild("BodyVelocity1") then
             local bv = Instance.new("BodyVelocity")
@@ -904,22 +891,28 @@ function topos(targetCFrame)
 
         local dist = (targetCFrame.Position - hrp.Position).Magnitude
         
-        if dist < 15 then 
+        -- NẾU KHOẢNG CÁCH QUÁ XA (HƠN 1500m) -> DỊCH CHUYỂN TỨC THÌ ĐỂ BYPASS CỔNG/NƯỚC
+        if dist > 1500 then
+            if currentTween then currentTween:Cancel(); currentTween = nil end
+            hrp.CFrame = targetCFrame
+            task.wait(0.2)
+            return
+        end
+
+        if dist < 10 then 
             if currentTween then currentTween:Cancel(); currentTween = nil end
             hrp.CFrame = targetCFrame
             return 
         end
 
-        -- THUẬT TOÁN CHỐNG GIẬT
+        -- THUẬT TOÁN CHỐNG GIẬT (Không tạo lại Tween nếu đang bay chuẩn)
         if currentTargetPos and (currentTargetPos - targetCFrame.Position).Magnitude < 10 then
             if currentTween and currentTween.PlaybackState == Enum.PlaybackState.Playing then return end
         end
 
         currentTargetPos = targetCFrame.Position
         if currentTween then currentTween:Cancel(); currentTween = nil end
-        
-        -- Bay mượt tốc độ 320, không dịch chuyển tức thì để tránh AntiCheat (Teleport ảo)
-        local tweenInfo = TweenInfo.new(dist / 320, Enum.EasingStyle.Linear)
+        local tweenInfo = TweenInfo.new(dist / 350, Enum.EasingStyle.Linear)
         currentTween = TweenService:Create(hrp, tweenInfo, {CFrame = targetCFrame})
         currentTween:Play()
     end)
@@ -979,10 +972,18 @@ local function isQuestCompleted()
     return false
 end
 
+local function completeQuest()
+    if not CommF then return false end
+    pcall(function() CommF:InvokeServer("FinishQuest", NameQuest) end)
+    pcall(function() CommF:InvokeServer("CompleteQuest", NameQuest) end)
+    pcall(function() CommF:InvokeServer("ClaimQuestReward", NameQuest) end)
+end
+
 -- =========================================================
 -- LOGIC AUTO FARM ĐỨNG IM CỐ ĐỊNH, CHỐNG NGHIÊNG, ĐÁNH TỰ DO
 -- =========================================================
 local LockedFarmCFrame = nil 
+
 spawn(function()
     while task.wait() do
         if _G.AutoFarm or _G.AutoItemFarm then
@@ -1073,7 +1074,7 @@ spawn(function()
     end
 end)
 
--- VÒNG LẶP GOM QUÁI (HÚT CHẶT XUỐNG ĐẤT)
+-- VÒNG LẶP GOM QUÁI (HÚT CHẶT QUÁI XUỐNG ĐẤT)
 spawn(function()
     while task.wait() do
         pcall(function()
@@ -1088,6 +1089,7 @@ spawn(function()
                         if v.Name:lower() == NameMon:lower() or string.find(v.Name:lower(), NameMon:lower()) then
                             if (v.HumanoidRootPart.Position - hrp.Position).Magnitude <= 350 then
                                 v.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
+                                -- ÉP QUÁI NẰM CỐ ĐỊNH TRÊN MẶT ĐẤT (KHÔNG KÉO LÊN TRỜI THEO NGƯỜI CHƠI)
                                 v.HumanoidRootPart.CFrame = mobLockPos
                                 v.HumanoidRootPart.CanCollide = false
                                 if v:FindFirstChild("Head") then v.Head.CanCollide = false end
@@ -1102,217 +1104,5 @@ spawn(function()
                 sethiddenproperty(LocalPlayer, "SimulationRadius", math.huge)
             end
         end)
-    end
-end)
-
--- =========================================================
--- VÒNG LẶP AUTO CLICK CHUẨN XÁC CHỐNG MISS VÀ TRÁNH ẤN NHẦM UI
--- =========================================================
-task.spawn(function()
-    while task.wait(0.05) do
-        if _G.GlobalFarmActive or _G.AutoClick then
-            pcall(function()
-                -- Đã dời tọa độ Click tít ra ngoài màn hình để chống click vào UI Menu
-                VirtualUser:CaptureController()
-                VirtualUser:ClickButton1(Vector2.new(99999, 99999))
-                
-                local char = LocalPlayer.Character
-                if char then
-                    local tool = char:FindFirstChildOfClass("Tool")
-                    if tool then
-                        tool:Activate()
-                    end
-                end
-            end)
-        end
-    end
-end)
-
--- LÕI FAST ATTACK ULTRA MAX
-local v1 = next; local v2 = {ReplicatedStorage.Util, ReplicatedStorage.Common, ReplicatedStorage.Remotes, ReplicatedStorage.Assets, ReplicatedStorage.FX}; local v3, u4, u5 = nil, nil, nil
-task.spawn(function()
-    while true do
-        local v6; v3, v6 = v1(v2, v3)
-        if v3 == nil then break end
-        local v7 = next; local v8, v9 = v6:GetChildren()
-        while true do
-            local v10; v9, v10 = v7(v8, v9)
-            if v9 == nil then break end
-            if v10:IsA('RemoteEvent') and v10:GetAttribute('Id') then u5 = v10:GetAttribute('Id'); u4 = v10 end
-        end
-        v6.ChildAdded:Connect(function(p11) if p11:IsA('RemoteEvent') and p11:GetAttribute('Id') then u5 = p11:GetAttribute('Id'); u4 = p11 end end)
-    end
-end)
-
-task.spawn(function()
-    while RunService.Heartbeat:Wait() do
-        if (_G.GlobalFarmActive or _G.AutoClick) and _G.FastAttack then
-            pcall(function()
-                local _Character = LocalPlayer.Character; local v13 = _Character and _Character:FindFirstChild('HumanoidRootPart'); if not v13 then return end
-                local v14, v15, v16 = ipairs({Workspace.Enemies, Workspace.Characters}); local u17 = {}
-                while true do
-                    local v18; v16, v18 = v14(v15, v16); if v16 == nil then break end
-                    local v19, v20, v21 = ipairs(v18 and v18:GetChildren() or {})
-                    while true do
-                        local v22; v21, v22 = v19(v20, v21); if v21 == nil then break end
-                        local _HumanoidRootPart = v22:FindFirstChild('HumanoidRootPart'); local _Humanoid = v22:FindFirstChild('Humanoid')
-                        if v22 ~= _Character and (_HumanoidRootPart and (_Humanoid and (_Humanoid.Health > 0 and (_HumanoidRootPart.Position - v13.Position).Magnitude <= 120))) then
-                            local v25, v26, v27 = ipairs(v22:GetChildren())
-                            while true do
-                                local v28; v27, v28 = v25(v26, v27); if v27 == nil then break end
-                                if v28:IsA('BasePart') and (_HumanoidRootPart.Position - v13.Position).Magnitude <= 120 then u17[#u17 + 1] = {v22, v28} end
-                            end
-                        end
-                    end
-                end
-                local _Tool = _Character:FindFirstChildOfClass('Tool')
-                if #u17 > 0 and _Tool then
-                    pcall(function()
-                        require(ReplicatedStorage.Modules.Net):RemoteEvent('RegisterHit', true)
-                        ReplicatedStorage.Modules.Net['RE/RegisterAttack']:FireServer()
-                        local _Head = u17[1][1]:FindFirstChild('Head')
-                        if _Head then
-                            for _ = 1, 15 do
-                                ReplicatedStorage.Modules.Net['RE/RegisterHit']:FireServer(_Head, u17, {}, tostring(LocalPlayer.UserId):sub(2, 4) .. tostring(coroutine.running()):sub(11, 15))
-                                local r_u4 = (typeof(cloneref) == "function" and cloneref(u4)) or u4
-                                if r_u4 then r_u4:FireServer(string.gsub('RE/RegisterHit', '.', function(p31) return string.char(bit32.bxor(string.byte(p31), math.floor(Workspace:GetServerTimeNow() / 10 % 10) + 1)) end), bit32.bxor(u5 + 909090, ReplicatedStorage.Modules.Net.seed:InvokeServer() * 2), _Head, u17) end
-                            end
-                        end
-                    end)
-                end
-            end)
-        end
-    end
-end)
-
--- CÁC TAB CÒN LẠI VÀ CHỨC NĂNG PHỤ
-task.spawn(function()
-    while task.wait(1) do
-        pcall(function()
-            local ui = CoreGui:FindFirstChild("ZyroxHub_CrimsonMain") or LocalPlayer.PlayerGui:FindFirstChild("ZyroxHub_CrimsonMain")
-            if ui then
-                local pItem = ui:FindFirstChild("FarmItem", true)
-                if pItem then
-                    local boneLabel = pItem:FindFirstChild("TextLabel", true)
-                    local takakuriLabel = pItem:FindFirstChild("TextLabel", true)
-                end
-            end
-        end)
-    end
-end)
-
-task.spawn(function()
-    while task.wait(0.5) do
-        if _G.AutoStats and CommF then
-            pcall(function()
-                if LocalPlayer.Data.Points.Value > 0 then
-                    local amt = _G.StatsAmount or 1
-                    if _G.StatsMelee then CommF:InvokeServer("AddPoint", "Melee", amt) end
-                    if _G.StatsDefense then CommF:InvokeServer("AddPoint", "Defense", amt) end
-                    if _G.StatsSword then CommF:InvokeServer("AddPoint", "Sword", amt) end
-                    if _G.StatsFruit then CommF:InvokeServer("AddPoint", "Demon Fruit", amt) end
-                end
-            end)
-        end
-    end
-end)
-
-task.spawn(function()
-    while task.wait() do
-        if _G.BoatSpeedEnabled then
-            pcall(function()
-                local boat = LocalPlayer.Character:FindFirstChild("Boat") or LocalPlayer.Character:FindFirstChild("Ship")
-                if boat and boat:FindFirstChild("BodyVelocity") then
-                    boat.BodyVelocity.Velocity = boat.BodyVelocity.Velocity * _G.BoatSpeedVal
-                end
-                if boat and boat:FindFirstChild("Humanoid") then
-                    boat.Humanoid.JumpPower = _G.BoatFlyHeight
-                end
-            end)
-        end
-    end
-end)
-
--- ESP Toàn Diện Đã Khắc Phục
-task.spawn(function()
-    while task.wait(1) do
-        if _G.ESPPlayer then
-            for _, p in ipairs(Players:GetPlayers()) do
-                if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("Head") then
-                    local head = p.Character.Head
-                    if not head:FindFirstChild("Z_ESP_Plr") then
-                        local gui = Instance.new("BillboardGui", head); gui.Name = "Z_ESP_Plr"; gui.Size = UDim2.new(0, 200, 0, 40); gui.AlwaysOnTop = true; gui.StudsOffset = Vector3.new(0, 3, 0)
-                        local txt = Instance.new("TextLabel", gui); txt.Size = UDim2.new(1,0,1,0); txt.BackgroundTransparency = 1; txt.TextSize = 12; txt.TextColor3 = Color3.fromRGB(235, 50, 65); txt.Font = Enum.Font.GothamBold; txt.TextStrokeTransparency = 0
-                    end
-                    local dist = math.floor((head.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude)
-                    head.Z_ESP_Plr.TextLabel.Text = p.Name .. " [" .. dist .. "m]"
-                end
-            end
-        else
-            for _, p in ipairs(Players:GetPlayers()) do if p.Character and p.Character:FindFirstChild("Head") and p.Character.Head:FindFirstChild("Z_ESP_Plr") then p.Character.Head.Z_ESP_Plr:Destroy() end end
-        end
-
-        if _G.ESPChest then
-            for _, chest in ipairs(CollectionService:GetTagged("_ChestTagged")) do
-                if not chest:GetAttribute("IsDisabled") then
-                    if not chest:FindFirstChild("Z_ESP_Chest") then
-                        local gui = Instance.new("BillboardGui", chest); gui.Name = "Z_ESP_Chest"; gui.Size = UDim2.new(0, 200, 0, 40); gui.AlwaysOnTop = true; gui.StudsOffset = Vector3.new(0, 2, 0)
-                        local txt = Instance.new("TextLabel", gui); txt.Size = UDim2.new(1,0,1,0); txt.BackgroundTransparency = 1; txt.TextSize = 12; txt.TextColor3 = Color3.fromRGB(255, 215, 0); txt.Font = Enum.Font.GothamBold; txt.TextStrokeTransparency = 0
-                    end
-                    local dist = math.floor((chest:GetPivot().Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude)
-                    chest.Z_ESP_Chest.TextLabel.Text = "Chest [" .. dist .. "m]"
-                elseif chest:FindFirstChild("Z_ESP_Chest") then chest.Z_ESP_Chest:Destroy() end
-            end
-        else
-            for _, chest in ipairs(CollectionService:GetTagged("_ChestTagged")) do if chest:FindFirstChild("Z_ESP_Chest") then chest.Z_ESP_Chest:Destroy() end end
-        end
-
-        if _G.ESPFruit then
-            for _, v in pairs(Workspace:GetChildren()) do
-                if v:IsA("Tool") and string.find(v.Name, "Fruit") and v:FindFirstChild("Handle") then
-                    local handle = v.Handle
-                    if not handle:FindFirstChild("Z_ESP_Fruit") then
-                        local gui = Instance.new("BillboardGui", handle); gui.Name = "Z_ESP_Fruit"; gui.Size = UDim2.new(0, 200, 0, 40); gui.AlwaysOnTop = true; gui.StudsOffset = Vector3.new(0, 2, 0)
-                        local txt = Instance.new("TextLabel", gui); txt.Size = UDim2.new(1,0,1,0); txt.BackgroundTransparency = 1; txt.TextSize = 12; txt.TextColor3 = Color3.fromRGB(255, 50, 50); txt.Font = Enum.Font.GothamBold; txt.TextStrokeTransparency = 0
-                    end
-                    local dist = math.floor((handle.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude)
-                    handle.Z_ESP_Fruit.TextLabel.Text = "🍎 " .. v.Name .. " [" .. dist .. "m]"
-                end
-            end
-        else
-            for _, v in pairs(Workspace:GetChildren()) do if v:IsA("Tool") and string.find(v.Name, "Fruit") and v:FindFirstChild("Handle") and v.Handle:FindFirstChild("Z_ESP_Fruit") then v.Handle.Z_ESP_Fruit:Destroy() end end
-        end
-        
-        if _G.ESPNPC then
-            for _, npc in pairs(Workspace:GetDescendants()) do
-                if npc:IsA("Model") and npc:FindFirstChild("Humanoid") and npc:FindFirstChild("HumanoidRootPart") and not Players:GetPlayerFromCharacter(npc) then
-                    local hrp = npc.HumanoidRootPart
-                    if not hrp:FindFirstChild("Z_ESP_NPC") then
-                        local gui = Instance.new("BillboardGui", hrp); gui.Name = "Z_ESP_NPC"; gui.Size = UDim2.new(0, 200, 0, 40); gui.AlwaysOnTop = true; gui.StudsOffset = Vector3.new(0, 3, 0)
-                        local txt = Instance.new("TextLabel", gui); txt.Size = UDim2.new(1,0,1,0); txt.BackgroundTransparency = 1; txt.TextSize = 11; txt.TextColor3 = Color3.fromRGB(0, 255, 100); txt.Font = Enum.Font.GothamBold; txt.TextStrokeTransparency = 0
-                    end
-                    hrp.Z_ESP_NPC.TextLabel.Text = "👤 " .. npc.Name
-                end
-            end
-        else
-            for _, npc in pairs(Workspace:GetDescendants()) do if npc:IsA("Model") and npc:FindFirstChild("HumanoidRootPart") and npc.HumanoidRootPart:FindFirstChild("Z_ESP_NPC") then npc.HumanoidRootPart.Z_ESP_NPC:Destroy() end end
-        end
-
-        if _G.ESPIsland then
-            local map = Workspace:FindFirstChild("_WorldOrigin") and Workspace._WorldOrigin:FindFirstChild("Locations")
-            if map then
-                for _, loc in pairs(map:GetChildren()) do
-                    if not loc:FindFirstChild("Z_ESP_Island") then
-                        local gui = Instance.new("BillboardGui", loc); gui.Name = "Z_ESP_Island"; gui.Size = UDim2.new(0, 200, 0, 40); gui.AlwaysOnTop = true; gui.StudsOffset = Vector3.new(0, 10, 0)
-                        local txt = Instance.new("TextLabel", gui); txt.Size = UDim2.new(1,0,1,0); txt.BackgroundTransparency = 1; txt.TextSize = 13; txt.TextColor3 = Color3.fromRGB(200, 100, 255); txt.Font = Enum.Font.GothamBold; txt.TextStrokeTransparency = 0
-                    end
-                    local dist = math.floor((loc.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude)
-                    loc.Z_ESP_Island.TextLabel.Text = "🏝️ " .. loc.Name .. " [" .. dist .. "m]"
-                end
-            end
-        else
-            local map = Workspace:FindFirstChild("_WorldOrigin") and Workspace._WorldOrigin:FindFirstChild("Locations")
-            if map then for _, loc in pairs(map:GetChildren()) do if loc:FindFirstChild("Z_ESP_Island") then loc.Z_ESP_Island:Destroy() end end end
-        end
     end
 end)
