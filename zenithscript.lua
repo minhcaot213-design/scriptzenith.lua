@@ -1,4 +1,4 @@
--- [[ ZENITH HUB - V500.0 FULL (GOM QUÁI DƯỚI ĐẤT, GIỮ NGUYÊN UI) ]]
+-- [[ ZENITH HUB - V500.0 FULL (GOM QUÁI DƯỚI ĐẤT - CHUẨN) ]]
 task.wait(0.5)
 if not game:IsLoaded() then game.Loaded:Wait() end
 
@@ -21,7 +21,9 @@ pcall(function() CommF = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild(
 pcall(function() for _, v in pairs(getconnections(LocalPlayer.Idled)) do v:Disable() end end)
 LocalPlayer.Idled:Connect(function() pcall(function() VirtualUser:CaptureController(); VirtualUser:ClickButton2(Vector2.new()) end) end)
 
--- Biến toàn cục
+-- =========================================
+-- TOÀN BỘ BIẾN (GIỮ NGUYÊN)
+-- =========================================
 _G.AutoFarm = false; _G.AutoQuest = true; _G.BringMonster = true; _G.FastAttack = true
 _G.SelectWeapon = "Melee"; _G.GlobalFarmActive = false 
 _G.AutoStats = false; _G.StatsAmount = 1
@@ -29,30 +31,24 @@ _G.StatsMelee = false; _G.StatsDefense = false; _G.StatsSword = false; _G.StatsF
 _G.Language = "VN"
 _G.StatusHUDVisible = true
 
--- PVP & Aim
 _G.SilentAim = false; _G.FOVSize = 120; _G.HitAccuracy = 100; _G.FOVColor = Color3.fromRGB(235, 50, 65)
 
--- Movement
 _G.SpeedEnabled = false; _G.SpeedVal = 35; _G.SpeedKey = Enum.KeyCode.Q
 _G.NoclipEnabled = false; _G.NoclipKey = Enum.KeyCode.E
 _G.JumpEnabled = false; _G.JumpVal = 180; _G.JumpKey = Enum.KeyCode.R
 _G.PullEnabled = false; _G.PullKey = Enum.KeyCode.T
 
--- ESP
 _G.ESPPlayer = false; _G.ESPChest = false; _G.ESPFruit = false; _G.ESPNPC = false; _G.ESPIsland = false
 _G.AutoCollectFruit = false
 _G.AutoItemFarm = false
 _G.AutoClick = false
 
--- Farm Item
 _G.AutoFarmBone = false
 _G.AutoFarmTakakuri = false
 _G.TakakuriCount = 0
 
--- Boss
 _G.AutoBoss = false; _G.AllBossesFarm = false; _G.SelectedBossName = "None"
 
--- Sea Beast & Ghost Ship & Boat
 _G.AutoSeaBeast = false
 _G.AutoGhostShip = false
 _G.BoatSpeedEnabled = false
@@ -122,6 +118,9 @@ local function L(key)
     return Loc[lang][key] or Loc["VN"][key] or key
 end
 
+-- =========================================
+-- UI (GIỮ NGUYÊN 100%)
+-- =========================================
 local UI_NAME = "ZenithHub_V500_Crimson"
 pcall(function() if CoreGui:FindFirstChild(UI_NAME) then CoreGui[UI_NAME]:Destroy() end end)
 pcall(function() if LocalPlayer.PlayerGui:FindFirstChild(UI_NAME) then LocalPlayer.PlayerGui[UI_NAME]:Destroy() end end)
@@ -603,9 +602,9 @@ createToggle(pMisc, "ToggleLag", false, function(v)
 end)
 createButton(pMisc, "BtnRejoin", function() TeleportService:Teleport(game.PlaceId, LocalPlayer) end)
 
--- ======================================================
--- LOGIC CHÍNH (SỬA GOM QUÁI DƯỚI ĐẤT)
--- ======================================================
+-- =========================================================
+-- LOGIC CHÍNH - GOM QUÁI DƯỚI ĐẤT BẰNG BODYPOSITION
+-- =========================================================
 local currentTween = nil
 function topos(targetCFrame)
     if not LocalPlayer.Character or not LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then return end
@@ -871,7 +870,7 @@ task.spawn(function()
 end)
 
 -- =========================================================
--- LOGIC AUTO FARM (GOM QUÁI DƯỚI ĐẤT - GIỮ NGUYÊN Y)
+-- HÀM GOM QUÁI (GIỮ NGUYÊN ĐỘ CAO Y)
 -- =========================================================
 local bodyPositions = {}
 local function pullMonsterToGround(monster, targetPos)
@@ -908,6 +907,9 @@ local function cleanupBodyPositions()
     bodyPositions = {}
 end
 
+-- =========================================================
+-- LOGIC AUTO FARM (SỬ DỤNG GOM QUÁI)
+-- =========================================================
 function EquipWeapon(weaponType)
     pcall(function()
         if not LocalPlayer.Character:FindFirstChild("HasBuso") then
@@ -1006,7 +1008,7 @@ end
 
 StartBring = false
 
--- Vòng lặp Auto Farm chính (gom quái dưới đất)
+-- Vòng lặp Auto Farm chính
 spawn(function()
     while task.wait() do
         if _G.AutoFarm or _G.AutoItemFarm then
