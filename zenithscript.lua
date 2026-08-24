@@ -1,4 +1,4 @@
--- [[ ZENITH HUB - V500.FINAL PART 1: UI & COMPONENTS ]] --
+-- [[ ZENITH HUB - V600.0 PART 1: UI & COMPONENTS ]] --
 task.wait(0.5)
 if not game:IsLoaded() then game.Loaded:Wait() end
 
@@ -22,7 +22,7 @@ pcall(function() for _, v in pairs(getconnections(LocalPlayer.Idled)) do v:Disab
 LocalPlayer.Idled:Connect(function() pcall(function() VirtualUser:CaptureController(); VirtualUser:ClickButton2(Vector2.new()) end) end)
 
 -- =========================================
--- TOÀN BỘ BIẾN (GIỮ NGUYÊN)
+-- TOÀN BỘ BIẾN (GIỮ NGUYÊN KHÔNG XÓA)
 -- =========================================
 _G.AutoFarm = false; _G.AutoQuest = true; _G.BringMonster = true; _G.FastAttack = true
 _G.SelectWeapon = "Melee"; _G.GlobalFarmActive = false 
@@ -70,9 +70,9 @@ local AllStyles = {"Dark Step", "Electro", "Fishman Karate", "Dragon Breath", "S
 
 local Loc = {
     VN = {
-        Title = "ZENITH HUB <font color='#ff3344'>• V500 OMNIPOTENT</font>",
+        Title = "ZENITH HUB <font color='#ff3344'>• V600 OMNIPOTENT</font>",
         Farm = "Cày Cấp", FarmItem = "Farm Item", Boss = "Săn Boss", PVP = "PVP & Aim", FruitEsp = "Trái & ESP", Stats = "Nâng Điểm", Teleport = "Dịch Chuyển", Shop = "Cửa Hàng", Misc = "Cài Đặt", SeaQuest = "Nhiệm Vụ Biển",
-        StatusReady = "Trạng thái: Crimson UI & Auto Equip Sẵn Sàng!",
+        StatusReady = "Trạng thái: Crimson UI & Auto Farm Sẵn Sàng!",
         ToggleFarm = "⚡ Auto Farm Level", ToggleQuest = "📜 Tự Nhận Nhiệm Vụ", ToggleBring = "🧲 Kéo Quái (Bring Mob)", ToggleFast = "⚔️ Fast Attack (ULTRA MAX)",
         ToggleAutoClick = "⚔️ Auto Click (Tự Động Đánh Tại Chỗ)",
         ToggleItemFarm = "🦴 Auto Farm Item / Vật Phẩm", ToggleAutoBoss = "👑 Auto Farm Boss Đã Chọn", ToggleAllBoss = "🔥 Đánh Toàn Bộ Boss Trong Server",
@@ -91,7 +91,7 @@ local Loc = {
         BtnBuySelectedStyle = "🥊 Mua Võ Đã Chọn"
     },
     EN = {
-        Title = "ZENITH HUB <font color='#ff3344'>• V500 OMNIPOTENT</font>",
+        Title = "ZENITH HUB <font color='#ff3344'>• V600 OMNIPOTENT</font>",
         Farm = "Auto Farm", FarmItem = "Farm Item", Boss = "Boss Hunt", PVP = "PVP & Aim", FruitEsp = "Fruit & ESP", Stats = "Stats", Teleport = "Teleport", Shop = "Shop", Misc = "Settings", SeaQuest = "Sea Quest",
         StatusReady = "Status: Crimson UI & Auto Equip Active!",
         ToggleFarm = "⚡ Auto Farm Level", ToggleQuest = "📜 Auto Quest", ToggleBring = "🧲 Bring Mob (Ground Magnet)", ToggleFast = "⚔️ Fast Attack (ULTRA MAX)",
@@ -119,9 +119,9 @@ local function L(key)
 end
 
 -- =========================================
--- UI GIAO DIỆN CHÍNH
+-- UI GIAO DIỆN CHÍNH (ĐÃ SỬA HUD CHỮ TRẮNG, NÉT, BO TRÒN 100%)
 -- =========================================
-local UI_NAME = "ZenithHub_V500_Crimson"
+local UI_NAME = "ZenithHub_V600_Crimson"
 pcall(function() if CoreGui:FindFirstChild(UI_NAME) then CoreGui[UI_NAME]:Destroy() end end)
 pcall(function() if LocalPlayer.PlayerGui:FindFirstChild(UI_NAME) then LocalPlayer.PlayerGui[UI_NAME]:Destroy() end end)
 
@@ -140,7 +140,9 @@ hudTitle.Size = UDim2.new(1, 0, 0, 28); hudTitle.BackgroundColor3 = Color3.fromR
 Instance.new("UICorner", hudTitle).CornerRadius = UDim.new(0, 10)
 
 local hudContent = Instance.new("TextLabel", StatusHUD)
-hudContent.Size = UDim2.new(1, -16, 1, -35); hudContent.Position = UDim2.new(0, 8, 0, 32); hudContent.BackgroundTransparency = 1; hudContent.TextColor3 = Color3.fromRGB(255, 255, 255); hudContent.Font = Enum.Font.GothamMedium; hudContent.TextSize = 11; hudContent.TextXAlignment = Enum.TextXAlignment.Left; hudContent.TextYAlignment = Enum.TextYAlignment.Top; hudContent.RichText = true
+hudContent.Size = UDim2.new(1, -16, 1, -35); hudContent.Position = UDim2.new(0, 8, 0, 32); hudContent.BackgroundTransparency = 1; hudContent.TextColor3 = Color3.fromRGB(255, 255, 255); hudContent.Font = Enum.Font.GothamBold; hudContent.TextSize = 12; hudContent.TextXAlignment = Enum.TextXAlignment.Left; hudContent.TextYAlignment = Enum.TextYAlignment.Top; hudContent.RichText = true
+-- Thêm TextStroke để chữ nét và dễ nhìn
+hudContent.TextStrokeTransparency = 0; hudContent.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
 hudContent.Text = "Level: 0"
 
 local FloatingButton = Instance.new("TextButton", ScreenGui)
@@ -377,6 +379,7 @@ local silentCircle = Instance.new("Frame", silentSwitch); silentCircle.Size = UD
 
 local silentSubContainer = Instance.new("Frame", pvpContainer); silentSubContainer.Size = UDim2.new(0.95, 0, 0, 110); silentSubContainer.BackgroundTransparency = 1; silentSubContainer.Visible = false
 local subList = Instance.new("UIListLayout", silentSubContainer); subList.Padding = UDim.new(0, 6); subList.HorizontalAlignment = Enum.HorizontalAlignment.Center
+
 local fovFrame = Instance.new("Frame", silentSubContainer); fovFrame.Size = UDim2.new(1, 0, 0, 34); fovFrame.BackgroundColor3 = Color3.fromRGB(22, 12, 15); fovFrame.BackgroundTransparency = 0.4; Instance.new("UICorner", fovFrame).CornerRadius = UDim.new(0, 6)
 Instance.new("UIStroke", fovFrame).Color = Color3.fromRGB(75, 25, 35); Instance.new("UIStroke", fovFrame).Thickness = 1
 local fovLbl = Instance.new("TextLabel", fovFrame); fovLbl.Size = UDim2.new(0.7, 0, 1, 0); fovLbl.Position = UDim2.new(0, 10, 0, 0); fovLbl.BackgroundTransparency = 1; fovLbl.TextColor3 = Color3.fromRGB(240, 230, 235); fovLbl.Font = Enum.Font.Gotham; fovLbl.TextSize = 11; fovLbl.TextXAlignment = Enum.TextXAlignment.Left; fovLbl.Text = "FOV Silent: 120"
@@ -384,6 +387,7 @@ local fovColorBtn = Instance.new("TextButton", fovFrame); fovColorBtn.Size = UDi
 local colorsList = {Color3.fromRGB(235, 50, 65), Color3.fromRGB(0, 210, 255), Color3.fromRGB(0, 255, 100), Color3.fromRGB(255, 215, 0)}
 local colorIdx = 1
 fovColorBtn.MouseButton1Click:Connect(function() colorIdx = colorIdx % #colorsList + 1; _G.FOVColor = colorsList[colorIdx]; fovColorBtn.BackgroundColor3 = _G.FOVColor end)
+
 local fovTrack = Instance.new("TextButton", fovFrame); fovTrack.Size = UDim2.new(0.9, 0, 0, 6); fovTrack.Position = UDim2.new(0.05, 0, 0, 26); fovTrack.BackgroundColor3 = Color3.fromRGB(45, 20, 26); fovTrack.AutoButtonColor = false; fovTrack.Text = ""; Instance.new("UICorner", fovTrack).CornerRadius = UDim.new(1, 0)
 local fovFill = Instance.new("Frame", fovTrack); fovFill.Size = UDim2.new(0.4, 0, 1, 0); fovFill.BackgroundColor3 = Color3.fromRGB(235, 50, 65); Instance.new("UICorner", fovFill).CornerRadius = UDim.new(1, 0)
 local isDraggingFOV = false
@@ -394,6 +398,7 @@ UserInputService.InputChanged:Connect(function(input)
         local pos = math.clamp((UserInputService:GetMouseLocation().X - fovTrack.AbsolutePosition.X) / fovTrack.AbsoluteSize.X, 0, 1); fovFill.Size = UDim2.new(pos, 0, 1, 0); _G.FOVSize = math.floor(50 + 350 * pos); fovLbl.Text = "FOV Silent: " .. tostring(_G.FOVSize)
     end
 end)
+
 local accFrame = Instance.new("Frame", silentSubContainer); accFrame.Size = UDim2.new(1, 0, 0, 34); accFrame.BackgroundColor3 = Color3.fromRGB(22, 12, 15); accFrame.BackgroundTransparency = 0.4; Instance.new("UICorner", accFrame).CornerRadius = UDim.new(0, 6)
 Instance.new("UIStroke", accFrame).Color = Color3.fromRGB(75, 25, 35); Instance.new("UIStroke", accFrame).Thickness = 1
 local accLbl = Instance.new("TextLabel", accFrame); accLbl.Size = UDim2.new(1, -12, 0, 18); accLbl.Position = UDim2.new(0, 10, 0, 4); accLbl.BackgroundTransparency = 1; accLbl.TextColor3 = Color3.fromRGB(240, 230, 235); accLbl.Font = Enum.Font.Gotham; accLbl.TextSize = 11; accLbl.TextXAlignment = Enum.TextXAlignment.Left; accLbl.Text = "Độ Bám / Accuracy: 100%"
@@ -405,9 +410,7 @@ UserInputService.InputEnded:Connect(function(input) if input.UserInputType == En
 UserInputService.InputChanged:Connect(function(input)
     if isDraggingAcc and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
         local pos = math.clamp((UserInputService:GetMouseLocation().X - accTrack.AbsolutePosition.X) / accTrack.AbsoluteSize.X, 0, 1)
-        accFill.Size = UDim2.new(pos, 0, 1, 0)
-        _G.HitAccuracy = math.floor(pos * 100)
-        accLbl.Text = "Độ Bám / Accuracy: " .. tostring(_G.HitAccuracy) .. "%"
+        accFill.Size = UDim2.new(pos, 0, 1, 0); _G.HitAccuracy = math.floor(pos * 100); accLbl.Text = "Độ Bám / Accuracy: " .. tostring(_G.HitAccuracy) .. "%"
     end
 end)
 silentSwitch.MouseButton1Click:Connect(function()
@@ -510,38 +513,15 @@ createButton(pShop, "BtnKen", function() if CommF then CommF:InvokeServer("BuyHa
 local styleSelectLabel = Instance.new("TextLabel", pShop); styleSelectLabel.Size = UDim2.new(0.95, 0, 0, 22); styleSelectLabel.BackgroundTransparency = 1; styleSelectLabel.TextColor3 = Color3.fromRGB(255, 215, 0); styleSelectLabel.Font = Enum.Font.GothamBold; styleSelectLabel.TextSize = 12; styleSelectLabel.Text = L("SelectStyle")
 local styleDropdown = Instance.new("TextButton", pShop); styleDropdown.Size = UDim2.new(0.95, 0, 0, 30); styleDropdown.BackgroundColor3 = Color3.fromRGB(35, 18, 22); styleDropdown.TextColor3 = Color3.fromRGB(255, 255, 255); styleDropdown.Font = Enum.Font.GothamBold; styleDropdown.TextSize = 11; styleDropdown.Text = AllStyles[1]; Instance.new("UICorner", styleDropdown).CornerRadius = UDim.new(0, 4)
 local styleIdx = 1
-styleDropdown.MouseButton1Click:Connect(function()
-    styleIdx = styleIdx % #AllStyles + 1
-    styleDropdown.Text = AllStyles[styleIdx]
-end)
+styleDropdown.MouseButton1Click:Connect(function() styleIdx = styleIdx % #AllStyles + 1; styleDropdown.Text = AllStyles[styleIdx] end)
 local buyStyleBtn = Instance.new("TextButton", pShop); buyStyleBtn.Size = UDim2.new(0.95, 0, 0, 32); buyStyleBtn.BackgroundColor3 = Color3.fromRGB(25, 12, 16); buyStyleBtn.BackgroundTransparency = 0.3; Instance.new("UICorner", buyStyleBtn).CornerRadius = UDim.new(0, 6)
 Instance.new("UIStroke", buyStyleBtn).Color = Color3.fromRGB(235, 50, 65); Instance.new("UIStroke", buyStyleBtn).Thickness = 1; Instance.new("UIStroke", buyStyleBtn).Transparency = 0.4
 buyStyleBtn.TextColor3 = Color3.fromRGB(255, 100, 115); buyStyleBtn.Font = Enum.Font.GothamMedium; buyStyleBtn.TextSize = 12; buyStyleBtn.Text = L("BtnBuySelectedStyle")
-buyStyleBtn.MouseButton1Click:Connect(function()
-    if CommF then
-        local styleName = AllStyles[styleIdx]
-        CommF:InvokeServer("BuyItem", styleName)
-    end
-end)
+buyStyleBtn.MouseButton1Click:Connect(function() if CommF then local styleName = AllStyles[styleIdx]; CommF:InvokeServer("BuyItem", styleName) end end)
 
-createButton(pShop, "Mua Tất Cả Kiếm", function()
-    for _, sword in ipairs(AllSwords) do
-        pcall(function() CommF:InvokeServer("BuyItem", sword) end)
-        task.wait(0.1)
-    end
-end)
-createButton(pShop, "Mua Tất Cả Súng", function()
-    for _, gun in ipairs(AllGuns) do
-        pcall(function() CommF:InvokeServer("BuyItem", gun) end)
-        task.wait(0.1)
-    end
-end)
-createButton(pShop, "Mua Tất Cả Võ", function()
-    for _, style in ipairs(AllStyles) do
-        pcall(function() CommF:InvokeServer("BuyItem", style) end)
-        task.wait(0.1)
-    end
-end)
+createButton(pShop, "Mua Tất Cả Kiếm", function() for _, sword in ipairs(AllSwords) do pcall(function() CommF:InvokeServer("BuyItem", sword) end); task.wait(0.1) end end)
+createButton(pShop, "Mua Tất Cả Súng", function() for _, gun in ipairs(AllGuns) do pcall(function() CommF:InvokeServer("BuyItem", gun) end); task.wait(0.1) end end)
+createButton(pShop, "Mua Tất Cả Võ", function() for _, style in ipairs(AllStyles) do pcall(function() CommF:InvokeServer("BuyItem", style) end); task.wait(0.1) end end)
 createButton(pShop, "BtnBuySword", function() if CommF then CommF:InvokeServer("BuyItem", "Cutlass") CommF:InvokeServer("BuyItem", "Katana") end end)
 createButton(pShop, "BtnBuyGun", function() if CommF then CommF:InvokeServer("BuyItem", "Musket") CommF:InvokeServer("BuyItem", "Refined Flintlock") end end)
 createButton(pShop, "BtnBuyStyle", function() if CommF then CommF:InvokeServer("BuyItem", "Dark Step") CommF:InvokeServer("BuyItem", "Electro") end end)
@@ -556,8 +536,7 @@ for _, lg in ipairs({"VN", "EN"}) do
     local lb = Instance.new("TextButton", langSeg)
     lb.Size = UDim2.new(0.18, 0, 0.75, 0); lb.BackgroundColor3 = _G.Language == lg and Color3.fromRGB(220, 35, 50) or Color3.fromRGB(35, 18, 22); lb.TextColor3 = Color3.fromRGB(255, 255, 255); lb.Font = Enum.Font.GothamBold; lb.TextSize = 11; lb.Text = lg; Instance.new("UICorner", lb).CornerRadius = UDim.new(0, 4)
     lb.MouseButton1Click:Connect(function()
-        _G.Language = lg
-        Title.Text = L("Title")
+        _G.Language = lg; Title.Text = L("Title")
         for _, tabKey in pairs({"Farm", "FarmItem", "SeaQuest", "Boss", "PVP", "FruitEsp", "Stats", "Teleport", "Shop", "Misc"}) do
             if tabButtons[tabKey] then
                 local icon = (tabKey == "Farm" and "🌾" or tabKey == "FarmItem" and "🦴" or tabKey == "SeaQuest" and "🌊" or tabKey == "Boss" and "👑" or tabKey == "PVP" and "🎯" or tabKey == "FruitEsp" and "🍎" or tabKey == "Stats" and "📈" or tabKey == "Teleport" and "🚀" or tabKey == "Shop" and "🛒" or "⚙️")
